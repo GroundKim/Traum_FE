@@ -1,11 +1,13 @@
 <script setup>
-import BabylonScene from './components/BabylonScene.vue'
-
+import NavBar from '@/components/NavBars/NavBar.vue'
+import Footer from '@/components/footers/MainFooter.vue'
 </script>
-
 <template>
-  <BabylonScene />
-  <!-- <RouterView /> -->
+  <div>
+    <NavBar></NavBar>
+    <RouterView />
+    <Footer />
+  </div>
 </template>
 
 <style scoped>
