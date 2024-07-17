@@ -31,7 +31,7 @@
             중지
           </button>
         </div>
-        <line-chart-detail></line-chart-detail>
+        <line-chart-detail :data="data"></line-chart-detail>
       </div>
     </div>
   </div>
@@ -44,6 +44,8 @@ import TreeList from '../components/lists/TreeList.vue'
 
 const workingState = ref(false)
 const babylonScene = ref(null)
+
+const data = {}
 
 const onDragStart = (item) => {
   console.log('Drag started:', item)

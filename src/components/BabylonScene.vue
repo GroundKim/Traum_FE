@@ -1,113 +1,190 @@
-<!-- BabylonScene.vue -->
 <template>
-  <canvas ref="bjsCanvas" @dragover.prevent @drop="onDrop"></canvas>
+  <div class="flex">
+    <canvas ref="bjsCanvas" @dragover.prevent @drop="onDrop"></canvas>
+    <button @click="changeMesh('eduKit')">RED</button>
+  </div>
 </template>
 
 <script>
-import { ref, onMounted, onUnmounted } from 'vue';
-import { Engine, Scene, HemisphericLight, ArcRotateCamera, Vector3, MeshBuilder, Mesh, DynamicTexture, StandardMaterial, Color3, SceneLoader } from "@babylonjs/core"
-import "@babylonjs/loaders";
+import { ref, onMounted, onUnmounted } from 'vue'
+import {
+  Engine,
+  Scene,
+  HemisphericLight,
+  ArcRotateCamera,
+  Vector3,
+  MeshBuilder,
+  Mesh,
+  DynamicTexture,
+  StandardMaterial,
+  Color3,
+  SceneLoader,
+  HighlightLayer
+} from '@babylonjs/core'
+import '@babylonjs/loaders'
 
 export default {
   name: 'BabylonScene',
   setup() {
-    const bjsCanvas = ref(null);
-    let engine, scene, camera;
-
+    const meshes = ref({})
+    const bjsCanvas = ref(null)
+    let engine, scene, camera
     const createScene = (canvas) => {
-      engine = new Engine(canvas, true);
-      scene = new Scene(engine);
-
-      camera = new ArcRotateCamera("camera", -Math.PI / 2, Math.PI / 2.5, 10, Vector3.Zero(), scene);
-      camera.attachControl(canvas, true);
-
-      new HemisphericLight("light", new Vector3(0, 1, 0), scene);
-
+      engine = new Engine(canvas, true, { stencil: true })
+      scene = new Scene(engine)
+      camera = new ArcRotateCamera('camera', -Math.PI / 2, Math.PI / 2.5, 10, Vector3.Zero(), scene)
+      camera.attachControl(canvas, true)
+      new HemisphericLight('light', new Vector3(0, 1, 0), scene)
       engine.runRenderLoop(() => {
-        scene.render();
-      });
+        scene.render()
+      })
 
-      window.addEventListener("resize", () => {
-        engine.resize();
-      });
+      window.addEventListener('resize', () => {
+        engine.resize()
+      })
 
-      return scene;
-    };
-
-    const onDrop = (event) => {
-      event.preventDefault();
-      const itemData = JSON.parse(event.dataTransfer.getData('application/json'));
-      if (itemData.type === '3d') {
-        const canvasRect = bjsCanvas.value.getBoundingClientRect();
-        const pickResult = scene.pick(event.clientX - canvasRect.left, event.clientY - canvasRect.top);
-
-        let position;
-        if (pickResult.hit) {
-          position = pickResult.pickedPoint;
-        } else {
-          const vector = scene.pick(event.clientX - canvasRect.left, event.clientY - canvasRect.top,
-            (mesh) => mesh === scene.getMeshByName("ground"))
-            .pickedPoint;
-          position = vector || new Vector3(0, 0, 0);
-        }
-
-        let mesh;
-        switch (itemData.meshName) {
-          case 'box':
-            mesh = MeshBuilder.CreateBox(itemData.name, { size: 1 }, scene);
-            break;
-          case 'sphere':
-            mesh = MeshBuilder.CreateSphere(itemData.name, { diameter: 1 }, scene);
-            break;
-          default:
-            mesh = MeshBuilder.CreateBox(itemData.name, { size: 1 }, scene);
-        }
-
-        mesh.position = position;
-
-        // Add label
-        const plane = MeshBuilder.CreatePlane("labelPlane", { width: 1, height: 0.5 }, scene);
-        plane.parent = mesh;
-        plane.position.y = 1;
-        plane.billboardMode = Mesh.BILLBOARDMODE_ALL;
-
-        const dynamicTexture = new DynamicTexture("labelTexture", { width: 256, height: 128 }, scene);
-        const labelMaterial = new StandardMaterial("labelMaterial", scene);
-        labelMaterial.diffuseTexture = dynamicTexture;
-        labelMaterial.specularColor = new Color3(0, 0, 0);
-        plane.material = labelMaterial;
-
-        dynamicTexture.drawText(itemData.name, null, null, "bold 24px Arial", "white", "transparent", true);
+      return scene
+    }
+    const removeMesh = (meshName) => {
+      if (meshes.value[meshName]) {
+        meshes.value[meshName].mesh.dispose()
+        meshes.value[meshName].label.dispose()
+        delete meshes.value[meshName]
       }
-    };
+    }
+    const removeAllMeshes = () => {
+      Object.keys(meshes.value).forEach((meshName) => {
+        removeMesh(meshName)
+      })
+    }
+    const changeMesh = (meshName) => {
+      if (meshes.value[meshName] && meshes.value[meshName].mesh) {
+        const mesh = meshes.value[meshName].mesh
+
+        if (mesh.material) {
+          const redMaterial = new StandardMaterial('redMaterial', scene)
+          redMaterial.diffuseColor = new Color3(1, 0, 0)
+
+          mesh.material = redMaterial
+        } else {
+          const redMaterial = new StandardMaterial('redMaterial', scene)
+          redMaterial.diffuseColor = new Color3(1, 0, 0)
+          mesh.material = redMaterial
+        }
+
+        mesh.computeWorldMatrix(true)
+        scene.render()
+      } else {
+        console.error(`Mesh ${meshName} not found or invalid`)
+      }
+    }
+
+    const onDrop = async (event) => {
+      event.preventDefault()
+      const itemData = JSON.parse(event.dataTransfer.getData('application/json'))
+
+      if (meshes.value[itemData.meshName]) {
+        removeMesh(itemData.meshName)
+      }
+
+      if (itemData.type === '3d') {
+        const canvasRect = bjsCanvas.value.getBoundingClientRect()
+        const pickResult = scene.pick(
+          event.clientX - canvasRect.left,
+          event.clientY - canvasRect.top
+        )
+
+        let position
+        if (pickResult.hit) {
+          position = pickResult.pickedPoint
+        } else {
+          const vector = scene.pick(
+            event.clientX - canvasRect.left,
+            event.clientY - canvasRect.top,
+            (mesh) => mesh === scene.getMeshByName('ground')
+          ).pickedPoint
+          position = vector || new Vector3(0, 0, 0)
+        }
+
+        let mesh
+        try {
+          const result = await SceneLoader.ImportMeshAsync(
+            '',
+            './models/',
+            `${itemData.meshName}.glb`,
+            scene
+          )
+          mesh = result.meshes[0]
+
+          const hl = new HighlightLayer('hl1', scene)
+          hl.addMesh(mesh, Color3.Green())
+          mesh.position = position
+
+          const plane = MeshBuilder.CreatePlane('labelPlane', { width: 1, height: 0.5 }, scene)
+          plane.parent = mesh
+          plane.position.y = 1
+          plane.billboardMode = Mesh.BILLBOARDMODE_ALL
+
+          const dynamicTexture = new DynamicTexture(
+            'labelTexture',
+            { width: 256, height: 128 },
+            scene
+          )
+          const labelMaterial = new StandardMaterial('labelMaterial', scene)
+          labelMaterial.diffuseTexture = dynamicTexture
+          labelMaterial.specularColor = new Color3(0, 0, 0)
+          plane.material = labelMaterial
+
+          dynamicTexture.drawText(
+            itemData.name,
+            null,
+            null,
+            'bold 24px Arial',
+            'white',
+            'transparent',
+            true
+          )
+
+          meshes.value[itemData.name] = {
+            mesh: mesh,
+            label: plane
+          }
+        } catch (error) {
+          console.error('Error creating mesh:', error)
+        }
+      }
+    }
 
     onMounted(() => {
       if (bjsCanvas.value) {
-        const scene = createScene(bjsCanvas.value);
-
-        // Create a ground
-        const ground = MeshBuilder.CreateGround("ground", { width: 20, height: 20 }, scene);
-        const groundMaterial = new StandardMaterial("groundMaterial", scene);
-        groundMaterial.diffuseColor = new Color3(0.5, 0.5, 0.5);
-        ground.material = groundMaterial;
-
-        // Create a UVC_classroom
-        const UVC_classroom = SceneLoader.ImportMesh("", "./models/", "UVC_V02.glb", scene)
+        scene = createScene(bjsCanvas.value)
+        SceneLoader.ImportMesh('', './models/', 'UVC_V02.glb', scene, (meshes) => {
+          meshes.forEach((mesh) => {
+            // mesh 색변경 확인을 위해 임시로 추가
+            const redMaterial = new StandardMaterial('redMaterial', scene)
+            redMaterial.diffuseColor = new Color3(1, 0, 0)
+            mesh.material = redMaterial
+          })
+        })
       }
-    });
+    })
 
     onUnmounted(() => {
       if (engine) {
-        engine.dispose();
+        engine.dispose()
       }
-    });
+    })
 
     return {
       bjsCanvas,
       onDrop,
-    };
-  },
-};
+      removeMesh,
+      removeAllMeshes,
+      meshes,
+      changeMesh
+    }
+  }
+}
 </script>
 
 <style scoped>

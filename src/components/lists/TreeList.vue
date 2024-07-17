@@ -30,16 +30,12 @@ export default {
         name: '키트',
         items: [
           { name: '키트1', type: '3d', meshName: 'box' },
-          { name: '키트2', type: 'normal' },
-          { name: '키트3', type: 'normal' }
+          { name: 'eduKit', type: '3d', meshName: 'eduKit' } // 새로운 eduKit 항목 추가
         ]
       },
       {
         name: '온도계',
-        items: [
-          { name: '온도계1', type: 'normal' },
-          { name: '온도계2', type: '3d', meshName: 'sphere' }
-        ]
+        items: [{ name: '온도계2', type: '3d', meshName: 'sphere' }]
       }
     ])
 

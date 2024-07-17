@@ -23,38 +23,6 @@
             {{ link.name }}
           </router-link>
         </div>
-
-        <!-- <div v-if="userRole === 'admin'"> -->
-        <div>
-          <router-link
-            v-for="link in linksAdmin"
-            :key="link.path"
-            :to="link.path"
-            class="text-xl get-started text-white font-bold px-4 py-2 rounded outline-none focus:outline-none mr-2 mb-1"
-            :class="{
-              'bg-color3 active:bg-emerald-600': this.$route.path.includes(link.path),
-              'bg-color1 active:bg-emerald-600': !this.$route.path.includes(link.path)
-            }"
-          >
-            {{ link.name }}
-          </router-link>
-        </div>
-      </div>
-      <div>
-        <router-link
-          to="/myPage"
-          class="bg-color1 text-xl get-started text-white font-bold px-6 py-2 rounded outline-none focus:outline-none mr-2 mb-1 bg-color1 active:bg-color1"
-        >
-          {{ newDate }} {{ userName }}님 마이페이지
-        </router-link>
-
-        <router-link
-          to="/auth/login"
-          class="text-xl bg-color1 get-started text-white font-bold px-6 py-2 rounded outline-none focus:outline-none mr-2 mb-1 bg-color1 active:bg-color1"
-          @click="handleLogout"
-        >
-          로그아웃
-        </router-link>
       </div>
     </div>
   </nav>
@@ -73,8 +41,6 @@ export default {
       { path: '/simulation', name: 'Simulation' }
     ]
 
-    const linksAdmin = [{ path: '/admin/equipmentMng', name: '권한관리' }]
-
     const isActive = (path) => {
       const route = this?.$route
       return route ? route.path === path : false
@@ -89,7 +55,6 @@ export default {
 
     return {
       links,
-      linksAdmin,
       newDate,
       isActive,
       handleLogout,
