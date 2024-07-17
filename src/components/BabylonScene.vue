@@ -1,7 +1,7 @@
 <template>
-  <div class="flex">
+  <div class="flex flex-col">
     <canvas ref="bjsCanvas" @dragover.prevent @drop="onDrop"></canvas>
-    <button @click="changeMesh('eduKit')">RED</button>
+    <button @click="changeMeshColor('eduKit')">RED</button>
   </div>
 </template>
 
@@ -18,8 +18,7 @@ import {
   DynamicTexture,
   StandardMaterial,
   Color3,
-  SceneLoader,
-  HighlightLayer
+  SceneLoader
 } from '@babylonjs/core'
 import '@babylonjs/loaders'
 
@@ -57,25 +56,51 @@ export default {
         removeMesh(meshName)
       })
     }
-    const changeMesh = (meshName) => {
-      if (meshes.value[meshName] && meshes.value[meshName].mesh) {
-        const mesh = meshes.value[meshName].mesh
 
-        if (mesh.material) {
-          const redMaterial = new StandardMaterial('redMaterial', scene)
-          redMaterial.diffuseColor = new Color3(1, 0, 0)
+    const changeMeshColor = async (meshName) => {
+      if (meshes.value[meshName]) {
+        const position = meshes.value[meshName].mesh.position
 
-          mesh.material = redMaterial
-        } else {
-          const redMaterial = new StandardMaterial('redMaterial', scene)
-          redMaterial.diffuseColor = new Color3(1, 0, 0)
-          mesh.material = redMaterial
+        let mesh
+        try {
+          const result = await SceneLoader.ImportMeshAsync(
+            '',
+            './models/',
+            `${meshName}R.glb`,
+            scene
+          )
+          mesh = result.meshes[0]
+          mesh.position = position
+          meshes.value[meshName].mesh.dispose()
+          meshes.value[meshName].mesh = mesh
+
+          const plane = MeshBuilder.CreatePlane('labelPlane', { width: 1, height: 0.5 }, scene)
+          plane.parent = mesh
+          plane.position.y = -1
+          plane.billboardMode = Mesh.BILLBOARDMODE_ALL
+
+          const dynamicTexture = new DynamicTexture(
+            'labelTexture',
+            { width: 256, height: 128 },
+            scene
+          )
+          const labelMaterial = new StandardMaterial('labelMaterial', scene)
+          labelMaterial.diffuseTexture = dynamicTexture
+          labelMaterial.specularColor = new Color3(0, 0, 0)
+          plane.material = labelMaterial
+
+          dynamicTexture.drawText(
+            meshName,
+            null,
+            null,
+            'bold 24px Arial',
+            'white',
+            'transparent',
+            true
+          )
+        } catch (e) {
+          console.error(`Failed to load mesh ${meshName}R.glb`, e)
         }
-
-        mesh.computeWorldMatrix(true)
-        scene.render()
-      } else {
-        console.error(`Mesh ${meshName} not found or invalid`)
       }
     }
 
@@ -115,14 +140,11 @@ export default {
             scene
           )
           mesh = result.meshes[0]
-
-          const hl = new HighlightLayer('hl1', scene)
-          hl.addMesh(mesh, Color3.Green())
           mesh.position = position
 
           const plane = MeshBuilder.CreatePlane('labelPlane', { width: 1, height: 0.5 }, scene)
           plane.parent = mesh
-          plane.position.y = 1
+          plane.position.y = -1
           plane.billboardMode = Mesh.BILLBOARDMODE_ALL
 
           const dynamicTexture = new DynamicTexture(
@@ -144,7 +166,6 @@ export default {
             'transparent',
             true
           )
-
           meshes.value[itemData.name] = {
             mesh: mesh,
             label: plane
@@ -158,14 +179,7 @@ export default {
     onMounted(() => {
       if (bjsCanvas.value) {
         scene = createScene(bjsCanvas.value)
-        SceneLoader.ImportMesh('', './models/', 'UVC_V02.glb', scene, (meshes) => {
-          meshes.forEach((mesh) => {
-            // mesh 색변경 확인을 위해 임시로 추가
-            const redMaterial = new StandardMaterial('redMaterial', scene)
-            redMaterial.diffuseColor = new Color3(1, 0, 0)
-            mesh.material = redMaterial
-          })
-        })
+        SceneLoader.ImportMesh('', './models/', 'UVC_V02.glb', scene)
       }
     })
 
@@ -181,7 +195,8 @@ export default {
       removeMesh,
       removeAllMeshes,
       meshes,
-      changeMesh
+
+      changeMeshColor
     }
   }
 }
@@ -193,3 +208,25 @@ canvas {
   height: 100%;
 }
 </style>
+
+<!-- const changeMesh = (meshName) => {
+  if (meshes.value[meshName] && meshes.value[meshName].mesh) {
+    const mesh = meshes.value[meshName].mesh
+
+    if (mesh.material) {
+      const redMaterial = new StandardMaterial('redMaterial', scene)
+      redMaterial.diffuseColor = new Color3(1, 0, 0)
+
+      mesh.material = redMaterial
+    } else {
+      const redMaterial = new StandardMaterial('redMaterial', scene)
+      redMaterial.diffuseColor = new Color3(1, 0, 0)
+      mesh.material = redMaterial
+    }
+
+    mesh.computeWorldMatrix(true)
+    scene.render()
+  } else {
+    console.error(`Mesh ${meshName} not found or invalid`)
+  }
+} -->
