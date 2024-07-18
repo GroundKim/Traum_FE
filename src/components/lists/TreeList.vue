@@ -49,6 +49,12 @@
             >
               삭제
             </button>
+            <button
+              @click="emitAlarmItem(item)"
+              class="bg-color3 text-white text-xl px-4 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
+            >
+              알람
+            </button>
           </li>
         </ul>
       </li>
@@ -69,7 +75,7 @@ export default {
   setup(props, { emit }) {
     class EduKit {
       constructor(name, type, meshName, mqttTopic, threshold) {
-        this.id = Math.floor(Math.random() * 10000) // Automatically assign a unique ID
+        this.meshId = Math.floor(Math.random() * 10000) // Automatically assign a unique ID
         this.name = name
         this.type = type
         this.meshName = meshName
@@ -86,15 +92,46 @@ export default {
       {
         name: '키트',
         items: [
-          { name: '키트1', type: '3d', meshName: 'box' },
           {
-            id: 2,
+            meshId: 1,
             name: 'eduKit',
             type: '3d',
             meshName: 'eduKit',
             mqttTopic: 'eduKit',
             threshold: '10'
-          } // 새로운 eduKit 항목 추가
+          },
+          {
+            meshId: 2,
+            name: 'eduKit',
+            type: '3d',
+            meshName: 'eduKit',
+            mqttTopic: 'eduKit',
+            threshold: '10'
+          },
+          {
+            meshId: 3,
+            name: 'eduKit',
+            type: '3d',
+            meshName: 'eduKit',
+            mqttTopic: 'eduKit',
+            threshold: '10'
+          },
+          {
+            meshId: 4,
+            name: 'eduKit',
+            type: '3d',
+            meshName: 'eduKit',
+            mqttTopic: 'eduKit',
+            threshold: '10'
+          },
+          {
+            meshId: 5,
+            name: 'eduKit',
+            type: '3d',
+            meshName: 'eduKit',
+            mqttTopic: 'eduKit',
+            threshold: '10'
+          }
         ]
       },
       {
@@ -120,6 +157,10 @@ export default {
       emitter.emit('removeItem', item)
       console.log('remove-start', item)
     }
+    const emitAlarmItem = (item) => {
+      emitter.emit('alarmItem', item)
+      console.log('remove-start', item)
+    }
 
     return {
       categories,
@@ -127,6 +168,7 @@ export default {
       openModal,
       setCondition,
       emitRemoveItem,
+      emitAlarmItem,
       addItem
     }
   }

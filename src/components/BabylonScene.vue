@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col">
     <canvas ref="bjsCanvas" @dragover.prevent @drop="onDrop"></canvas>
-    <button @click="changeMeshColor('eduKit')">RED</button>
+    <button @click="changeMeshColor()">RED</button>
   </div>
 </template>
 
@@ -46,8 +46,8 @@ export default {
       return scene
     }
     const removeMesh = (item) => {
-      console.log(item.id)
-      const meshId = item.id
+      console.log(item.meshId)
+      const meshId = item.meshId
       if (meshes.value[meshId]) {
         meshes.value[meshId].mesh.dispose()
         meshes.value[meshId].label.dispose()
@@ -60,22 +60,22 @@ export default {
       })
     }
 
-    const changeMeshColor = async (meshName) => {
-      if (meshes.value[meshName]) {
-        const position = meshes.value[meshName].mesh.position
+    const changeMeshColor = async (meshId) => {
+      if (meshes.value[meshId]) {
+        const position = meshes.value[meshId].mesh.position
 
         let mesh
         try {
           const result = await SceneLoader.ImportMeshAsync(
             '',
             './models/',
-            `${meshName}R.glb`,
+            `${meshes.value[meshId].meshName}R.glb`,
             scene
           )
           mesh = result.meshes[0]
           mesh.position = position
-          meshes.value[meshName].mesh.dispose()
-          meshes.value[meshName].mesh = mesh
+          meshes.value[meshId].mesh.dispose()
+          meshes.value[meshId].mesh = mesh
 
           const plane = MeshBuilder.CreatePlane('labelPlane', { width: 1, height: 0.5 }, scene)
           plane.parent = mesh
@@ -93,7 +93,7 @@ export default {
           plane.material = labelMaterial
 
           dynamicTexture.drawText(
-            meshName,
+            meshes.value[meshId].meshName,
             null,
             null,
             'bold 24px Arial',
@@ -102,7 +102,7 @@ export default {
             true
           )
         } catch (e) {
-          console.error(`Failed to load mesh ${meshName}R.glb`, e)
+          console.error(`Failed to load mesh ${meshes.value[meshId].meshName}R.glb`, e)
         }
       }
     }
@@ -110,10 +110,8 @@ export default {
     const onDrop = async (event) => {
       event.preventDefault()
       const itemData = JSON.parse(event.dataTransfer.getData('application/json'))
-      console.log(itemData)
-      console.log(meshes.value)
-      if (meshes.value[itemData.Id]) {
-        console.log(itemData.Id)
+      if (meshes.value[itemData.meshId]) {
+        console.log(itemData.meshId)
         removeMesh(itemData)
       }
 
@@ -171,12 +169,11 @@ export default {
             'transparent',
             true
           )
-          meshes.value[itemData.id] = {
+          meshes.value[itemData.meshId] = {
+            meshName: itemData.meshName,
             mesh: mesh,
             label: plane
           }
-          // console.log(itemData.id)
-          // console.log(meshes.value)
         } catch (error) {
           console.error('Error creating mesh:', error)
         }
@@ -188,6 +185,11 @@ export default {
       // 삭제 로직 구현
       removeMesh(item)
     }
+    const handleAlarm = (item) => {
+      console.log('알람 도착확인', item)
+      // 삭제 로직 구현
+      changeMeshColor(item.meshId)
+    }
 
     onMounted(() => {
       if (bjsCanvas.value) {
@@ -196,13 +198,15 @@ export default {
       }
 
       emitter.on('removeItem', handleDelete)
+      emitter.on('alarmItem', handleAlarm)
     })
 
     onUnmounted(() => {
       if (engine) {
         engine.dispose()
       }
-      emitter.on('removeItem', handleDelete)
+      emitter.off('removeItem', handleDelete)
+      emitter.off('alarmItem', handleAlarm)
     })
 
     return {
@@ -224,25 +228,3 @@ canvas {
   height: 100%;
 }
 </style>
-
-<!-- const changeMesh = (meshName) => {
-  if (meshes.value[meshName] && meshes.value[meshName].mesh) {
-    const mesh = meshes.value[meshName].mesh
-
-    if (mesh.material) {
-      const redMaterial = new StandardMaterial('redMaterial', scene)
-      redMaterial.diffuseColor = new Color3(1, 0, 0)
-
-      mesh.material = redMaterial
-    } else {
-      const redMaterial = new StandardMaterial('redMaterial', scene)
-      redMaterial.diffuseColor = new Color3(1, 0, 0)
-      mesh.material = redMaterial
-    }
-
-    mesh.computeWorldMatrix(true)
-    scene.render()
-  } else {
-    console.error(`Mesh ${meshName} not found or invalid`)
-  }
-} -->
