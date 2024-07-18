@@ -119,14 +119,14 @@ export default {
       toggleModal()
     }
 
-    const { name, mqttTopic, threshold } = props.item
+    const { meshName, mqttTopic, threshold } = props.item
     console.log(props.item)
 
     watch(showModal, (newValue) => {
       if (newValue) {
         nextTick(() => {
           scene = createScene(bjsCanvas.value)
-          SceneLoader.ImportMesh('', './models/', `${name}R.glb`, scene, function (meshes) {
+          SceneLoader.ImportMesh('', './models/', `${meshName}R.glb`, scene, function (meshes) {
             meshes.forEach((mesh) => {
               mesh.scaling = new Vector3(0.3, 0.3, 0.3) // x, y, z 축으로 2배 확대
             })
