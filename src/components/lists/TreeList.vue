@@ -2,9 +2,13 @@
 <template>
   <div class="tree">
     <ul>
-      <li v-for="category in categories" :key="category.name">
+      <li v-for="(category, index) in categories" :key="category.name">
         {{ category.name }}
-        <button @click="addItem">Add Item</button>
+        <button
+          @click="addItem(index, Math.floor(Math.random() * 10000), category.name, 1803, 50, '3d')"
+        >
+          Add Item
+        </button>
         <ul>
           <li
             class="flex"
@@ -73,24 +77,26 @@ export default {
     treeModal
   },
   setup(props, { emit }) {
-    class EduKit {
-      constructor(name, type, meshName, mqttTopic, threshold) {
-        this.meshId = Math.floor(Math.random() * 10000) // Automatically assign a unique ID
-        this.name = name
+    class MeshItem {
+      constructor(meshId, meshName, mqttTopic, threshold, type) {
+        this.meshId = meshId // Automatically assign a unique ID
+        this.name = meshName + meshId
         this.type = type
         this.meshName = meshName
         this.mqttTopic = mqttTopic
         this.threshold = threshold
       }
     }
-    const addItem = () => {
-      const newItem = new EduKit('eduKit', '3d', 'eduKit', 'eduKit', '10')
-      categories.value[0].items.push(newItem)
+
+    const addItem = (index, meshId, meshName, mqttTopic, threshold, type) => {
+      const newItem = new MeshItem(meshId, meshName, mqttTopic, threshold, type)
+      categories.value[index].items.push(newItem)
+      console.log(categories.value[index].items)
       console.log('add-start', newItem)
     }
     const categories = ref([
       {
-        name: '키트',
+        name: 'eduKit',
         items: [
           {
             meshId: 1,
@@ -135,8 +141,17 @@ export default {
         ]
       },
       {
-        name: '온도계',
-        items: [{ name: '온도계2', type: '3d', meshName: 'sphere' }]
+        name: 'sensor',
+        items: [
+          {
+            meshId: 10,
+            name: 'sensor1',
+            type: '3d',
+            meshName: 'sensor1',
+            mqttTopic: 'sensor1',
+            threshold: '50'
+          }
+        ]
       }
     ])
 
@@ -151,15 +166,35 @@ export default {
 
     const setCondition = (item) => {
       console.log('setCondition', item)
+      let categoryIndex
+      let itemIndex
+      switch (item.meshName) {
+        case 'eduKit':
+          categoryIndex = 0
+          break
+        case 'sensor':
+          categoryIndex = 1
+          break
+      }
+      itemIndex = categories.value[categoryIndex].items.findIndex((el) => el.meshId === item.meshId)
+
+      if (itemIndex !== -1) {
+        // 해당 요소를 item으로 교체
+        categories.value[categoryIndex].items[itemIndex] = item
+        emitUpdateItem(item)
+      } else {
+        console.log(`Item with meshId ${item.meshId} not found.`)
+      }
     }
 
     const emitRemoveItem = (item) => {
       emitter.emit('removeItem', item)
-      console.log('remove-start', item)
     }
     const emitAlarmItem = (item) => {
       emitter.emit('alarmItem', item)
-      console.log('remove-start', item)
+    }
+    const emitUpdateItem = (item) => {
+      emitter.emit('updateItem', item)
     }
 
     return {
@@ -169,6 +204,7 @@ export default {
       setCondition,
       emitRemoveItem,
       emitAlarmItem,
+      emitUpdateItem,
       addItem
     }
   }

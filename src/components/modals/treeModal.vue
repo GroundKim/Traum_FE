@@ -21,7 +21,7 @@
         <div class="bg-white" style="width: 1000px">
           <!--header-->
           <div class="flex items-center justify-between p-5">
-            <h3 class="text-3xl font-semibold">설비명 {{ name }}</h3>
+            <h3 class="text-3xl font-semibold">설정 변경</h3>
             <button
               class="p-1 ml-auto bg-transparent border-0 text-black opacity-5 float-right text-3xl leading-none font-semibold outline-none focus:outline-none"
               v-on:click="toggleModal()"
@@ -41,7 +41,7 @@
               <canvas ref="bjsCanvas" style="width: 100%; height: 400px"></canvas>
               <div class="flex" v-for="key in settings" :key="key">
                 <label>{{ key }}</label>
-                <input v-model="props.item[key]" />
+                <input v-model="localItem[key]" />
               </div>
             </div>
           </div>
@@ -72,7 +72,7 @@
 </template>
 
 <script>
-import { ref, watch, nextTick } from 'vue'
+import { ref, watch, nextTick, reactive } from 'vue'
 import {
   Engine,
   Scene,
@@ -111,16 +111,23 @@ export default {
 
     // console.log('Modal에서 받은 props.data: ', props.data)
     const showModal = ref(false)
+    const localItem = reactive({})
+
     const toggleModal = () => {
       showModal.value = !showModal.value
+      if (showModal.value) {
+        // 모달이 열릴 때 localItem을 props.item으로 초기화
+        Object.assign(localItem, props.item)
+      }
     }
     const handleModal = () => {
-      emit('setCondition', props.item)
+      emit('setCondition', localItem)
+      console.log(localItem)
+
       toggleModal()
     }
 
-    const { meshName, mqttTopic, threshold } = props.item
-    console.log(props.item)
+    const { meshName } = props.item
 
     watch(showModal, (newValue) => {
       if (newValue) {
@@ -138,18 +145,16 @@ export default {
         }
       }
     })
-    const settings = ref(['mqttTopic', 'threshold'])
+    const settings = ref(['name', 'mqttTopic', 'threshold'])
 
     return {
       showModal,
       toggleModal,
       handleModal,
-      mqttTopic,
-      threshold,
       props,
-      name,
       bjsCanvas,
-      settings
+      settings,
+      localItem
     }
   }
 }
