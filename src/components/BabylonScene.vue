@@ -21,6 +21,7 @@ import {
   SceneLoader
 } from '@babylonjs/core'
 import '@babylonjs/loaders'
+import emitter from '@/components/eventBus.js'
 
 export default {
   name: 'BabylonScene',
@@ -44,11 +45,13 @@ export default {
 
       return scene
     }
-    const removeMesh = (meshName) => {
-      if (meshes.value[meshName]) {
-        meshes.value[meshName].mesh.dispose()
-        meshes.value[meshName].label.dispose()
-        delete meshes.value[meshName]
+    const removeMesh = (item) => {
+      console.log(item.id)
+      const meshId = item.id
+      if (meshes.value[meshId]) {
+        meshes.value[meshId].mesh.dispose()
+        meshes.value[meshId].label.dispose()
+        delete meshes.value[meshId]
       }
     }
     const removeAllMeshes = () => {
@@ -107,9 +110,11 @@ export default {
     const onDrop = async (event) => {
       event.preventDefault()
       const itemData = JSON.parse(event.dataTransfer.getData('application/json'))
-
-      if (meshes.value[itemData.meshName]) {
-        removeMesh(itemData.meshName)
+      console.log(itemData)
+      console.log(meshes.value)
+      if (meshes.value[itemData.Id]) {
+        console.log(itemData.Id)
+        removeMesh(itemData)
       }
 
       if (itemData.type === '3d') {
@@ -166,14 +171,22 @@ export default {
             'transparent',
             true
           )
-          meshes.value[itemData.name] = {
+          meshes.value[itemData.id] = {
             mesh: mesh,
             label: plane
           }
+          // console.log(itemData.id)
+          // console.log(meshes.value)
         } catch (error) {
           console.error('Error creating mesh:', error)
         }
       }
+    }
+
+    const handleDelete = (item) => {
+      console.log('도착확인', item)
+      // 삭제 로직 구현
+      removeMesh(item)
     }
 
     onMounted(() => {
@@ -181,12 +194,15 @@ export default {
         scene = createScene(bjsCanvas.value)
         SceneLoader.ImportMesh('', './models/', 'UVC_V02.glb', scene)
       }
+
+      emitter.on('removeItem', handleDelete)
     })
 
     onUnmounted(() => {
       if (engine) {
         engine.dispose()
       }
+      emitter.on('removeItem', handleDelete)
     })
 
     return {

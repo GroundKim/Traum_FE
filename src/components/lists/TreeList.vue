@@ -4,8 +4,10 @@
     <ul>
       <li v-for="category in categories" :key="category.name">
         {{ category.name }}
+        <button @click="addItem">Add Item</button>
         <ul>
           <li
+            class="flex"
             v-for="item in category.items"
             :key="item.name"
             draggable="true"
@@ -13,6 +15,40 @@
           >
             {{ item.name }}
             <treeModal :item="item" @setCondition="setCondition" />
+            <button
+              @click="() => {}"
+              class="text-xl px-4 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
+              :class="{
+                'bg-color3 text-white active:bg-emerald-600': !(true === workingState),
+                'bg-gray-400 border-blueGray-600 text-white active:bg-emerald-600':
+                  true === workingState
+              }"
+            >
+              가동
+            </button>
+            <button
+              @click="() => {}"
+              class="text-xl px-4 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
+              :class="{
+                'bg-color3 text-white active:bg-emerald-600': true === workingState,
+                'bg-gray-400 border-blueGray-600 text-white active:bg-emerald-600': !(
+                  true === workingState
+                )
+              }"
+            >
+              중지
+            </button>
+            <button
+              @click="emitRemoveItem(item)"
+              class="text-xl px-4 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
+              :class="{
+                'bg-color3 text-white active:bg-emerald-600': !(true === workingState),
+                'bg-gray-400 border-blueGray-600 text-white active:bg-emerald-600':
+                  true === workingState
+              }"
+            >
+              삭제
+            </button>
           </li>
         </ul>
       </li>
@@ -22,6 +58,7 @@
 
 <script>
 import { ref } from 'vue'
+import emitter from '@/components/eventBus.js'
 import treeModal from '@/components/modals/treeModal.vue'
 
 export default {
@@ -30,12 +67,34 @@ export default {
     treeModal
   },
   setup(props, { emit }) {
+    class EduKit {
+      constructor(name, type, meshName, mqttTopic, threshold) {
+        this.id = Math.floor(Math.random() * 10000) // Automatically assign a unique ID
+        this.name = name
+        this.type = type
+        this.meshName = meshName
+        this.mqttTopic = mqttTopic
+        this.threshold = threshold
+      }
+    }
+    const addItem = () => {
+      const newItem = new EduKit('eduKit', '3d', 'eduKit', 'eduKit', '10')
+      categories.value[0].items.push(newItem)
+      console.log('add-start', newItem)
+    }
     const categories = ref([
       {
         name: '키트',
         items: [
           { name: '키트1', type: '3d', meshName: 'box' },
-          { name: 'eduKit', type: '3d', meshName: 'eduKit', mqttTopic: 'eduKit', threshold: '10' } // 새로운 eduKit 항목 추가
+          {
+            id: 2,
+            name: 'eduKit',
+            type: '3d',
+            meshName: 'eduKit',
+            mqttTopic: 'eduKit',
+            threshold: '10'
+          } // 새로운 eduKit 항목 추가
         ]
       },
       {
@@ -57,11 +116,18 @@ export default {
       console.log('setCondition', item)
     }
 
+    const emitRemoveItem = (item) => {
+      emitter.emit('removeItem', item)
+      console.log('remove-start', item)
+    }
+
     return {
       categories,
       onDragStart,
       openModal,
-      setCondition
+      setCondition,
+      emitRemoveItem,
+      addItem
     }
   }
 }

@@ -16,6 +16,7 @@
     "@fortawesome/fontawesome-free": "^5.15.3",
     "chart.js": "^2.9.4",
     "import": "^0.0.6",
+    "mitt": "^3.0.1",
     "pinia": "^2.1.7",
     "vue": "^3.4.29",
     "vue-router": "^4.3.3"
