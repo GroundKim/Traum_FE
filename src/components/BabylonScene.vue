@@ -1,7 +1,6 @@
 <template>
   <div class="flex flex-col">
     <canvas ref="bjsCanvas" @dragover.prevent @drop="onDrop"></canvas>
-    <button @click="changeMeshColor()">RED</button>
   </div>
 </template>
 
@@ -290,3 +289,5 @@ canvas {
   height: 100%;
 }
 </style>
+
+<!-- <button @click="changeMeshColor()">RED</button> -->

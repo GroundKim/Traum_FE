@@ -9,7 +9,7 @@
           @click="() => (selectedValue = link.id)"
           class="text-xl px-4 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
           :class="{
-            'bg-color3 text-white active:bg-emerald-600': link.id === selectedValue,
+            'bg-blue-500 text-white active:bg-emerald-600': link.id === selectedValue,
             'bg-white border-blueGray-600 text-black active:bg-emerald-600': !(
               link.id === selectedValue
             )

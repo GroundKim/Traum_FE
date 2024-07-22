@@ -11,7 +11,7 @@
         </button>
         <ul>
           <li
-            class="flex"
+            class="flex items-center text-center px-4 py-2 text-2xl uppercase rounded-lg shadow-md cursor-move"
             v-for="item in category.items"
             :key="item.name"
             draggable="true"
@@ -21,43 +21,21 @@
             <treeModal :item="item" @setCondition="setCondition" />
             <button
               @click="() => {}"
-              class="text-xl px-4 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
-              :class="{
-                'bg-color3 text-white active:bg-emerald-600': !(true === workingState),
-                'bg-gray-400 border-blueGray-600 text-white active:bg-emerald-600':
-                  true === workingState
-              }"
+              class="bg-blue-500 text-white text-xl px-4 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
             >
               가동
             </button>
             <button
-              @click="() => {}"
-              class="text-xl px-4 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
-              :class="{
-                'bg-color3 text-white active:bg-emerald-600': true === workingState,
-                'bg-gray-400 border-blueGray-600 text-white active:bg-emerald-600': !(
-                  true === workingState
-                )
-              }"
+              @click="emitAlarmItem(item)"
+              class="bg-blue-500 text-white text-xl px-4 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
             >
               중지
             </button>
             <button
               @click="emitRemoveItem(item)"
-              class="text-xl px-4 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
-              :class="{
-                'bg-color3 text-white active:bg-emerald-600': !(true === workingState),
-                'bg-gray-400 border-blueGray-600 text-white active:bg-emerald-600':
-                  true === workingState
-              }"
+              class="bg-blue-500 text-white text-xl px-4 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
             >
               삭제
-            </button>
-            <button
-              @click="emitAlarmItem(item)"
-              class="bg-color3 text-white text-xl px-4 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
-            >
-              알람
             </button>
           </li>
         </ul>

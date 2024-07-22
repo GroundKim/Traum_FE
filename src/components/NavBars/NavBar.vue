@@ -16,7 +16,7 @@
             :to="link.path"
             class="text-xl get-started text-white font-bold px-4 py-2 rounded outline-none focus:outline-none mr-2 mb-1"
             :class="{
-              'bg-color3 active:bg-emerald-600': this.$route.path.includes(link.path),
+              'bg-blue-500 active:bg-emerald-600': this.$route.path.includes(link.path),
               'bg-color1 active:bg-emerald-600': !this.$route.path.includes(link.path)
             }"
           >

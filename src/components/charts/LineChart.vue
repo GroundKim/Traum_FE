@@ -11,13 +11,20 @@
     </div>
     <div class="p-4 flex-auto">
       <!-- Chart -->
-      <div class="relative h-full w-150-px">
-        <canvas ref="chart" style="height: 150px"></canvas>
+      <div class="relative chart-container">
+        <canvas ref="chart"></canvas>
+        <button @click="addData">업뎃</button>
       </div>
     </div>
   </div>
 </template>
 
+<style>
+.chart-container {
+  width: 100%;
+  height: 400px; /* 원하는 높이로 설정하세요 */
+}
+</style>
 <script>
 import { ref, onMounted } from 'vue'
 import Chart from 'chart.js'
@@ -25,27 +32,17 @@ import { watch } from 'vue'
 
 export default {
   props: {
-    data: {
-      type: Object,
-      required: true,
-      default: () => ({})
+    singleTime: {
+      type: String,
+      required: false
+    },
+    singleValue: {
+      type: Number
     }
   },
   setup(props) {
-    const workingState = ref(false)
     const chart = ref(null)
     let myChart = null
-    const addData = () => {
-      if (myChart) {
-        console.log('차트', myChart)
-        console.log(props.data)
-
-        myChart.data.datasets[0].data = [10, 0, 100, 0, 10000]
-        myChart.data.labels = props.data.labels
-
-        myChart.update()
-      }
-    }
 
     onMounted(() => {
       let config = {
@@ -136,42 +133,43 @@ export default {
       }
     })
 
-    const updateChart = () => {
-      console.log('업데이트 실행진입')
-      console.log('업데이트 실행진입')
-
+    const updateChart = (singleValue, singleTime) => {
       if (myChart) {
-        console.log('수정진입')
-        console.log(props.data.data[0])
-        console.log(props.data.data[0])
-        console.log(props.data.data[0])
-        console.log(props.data.data[0])
-        console.log(props.data.data[0])
-        console.log(props.data.data[0])
-        console.log(props.data.data[0])
-        myChart.data.labels = Array.from({ length: props.data.data[0].length }, (_, i) =>
-          (i * (3 / 120)).toFixed(1)
-        )
-        myChart.data.datasets[0].data = props.data.data[0]
+        // console.log('수정진입')
+
+        // myChart.data.labels = Array.from({ length: props.data.data[0].length }, (_, i) =>
+        //   (i * (3 / 120)).toFixed(1)
+        // )
+        if (myChart.data.labels.length >= 100) {
+          myChart.data.labels.shift() // 첫 번째 요소 제거
+          myChart.data.datasets[0].data.shift() // 첫 번째 데이터 제거
+        }
+
+        myChart.data.labels.push(singleTime)
+        myChart.data.datasets[0].data.push(singleValue)
+
+        console.log(myChart.data.labels)
+        console.log(myChart.data.datasets[0].data)
+        console.log('label', myChart.data.labels, props.times)
+
         myChart.update()
-        console.log('수정완료')
-        console.log('수정완료')
-        console.log('수정완료')
-        console.log('수정완료')
-        console.log('수정완료')
-        console.log('수정완료')
       }
     }
 
     const watcher = watch(
-      () => props.data,
-      () => {
-        updateChart()
+      () => [props.singleValue, props.singleTime],
+      (newValue) => {
+        const singleValue = newValue[0]
+        const singleTime = newValue[1]
+
+        console.log('watched')
+        console.log(singleTime)
+        updateChart(singleValue, singleTime)
       },
       { deep: true }
     )
 
-    return { chart, addData, watcher, workingState }
+    return { chart, watcher }
   }
 }
 </script>
