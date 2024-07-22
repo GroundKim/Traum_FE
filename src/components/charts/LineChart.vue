@@ -5,7 +5,7 @@
     <div class="rounded-t mb-0 px-4 py-3 bg-transparent">
       <div class="flex flex-wrap items-center">
         <div class="relative w-full max-w-full flex-grow flex-1">
-          <h2 class="text-black text-xl font-semibold">Object 1</h2>
+          <h2 class="text-black text-xl font-semibold">{{ currentName }}</h2>
         </div>
       </div>
     </div>
@@ -32,6 +32,11 @@ import { watch } from 'vue'
 
 export default {
   props: {
+    selectedItem: {
+      type: Object,
+      required: true,
+      default: () => ({ name: 'targetName' })
+    },
     singleTime: {
       type: String,
       required: false
@@ -43,6 +48,7 @@ export default {
   setup(props) {
     const chart = ref(null)
     let myChart = null
+    const currentName = ref(null)
 
     onMounted(() => {
       let config = {
@@ -135,22 +141,20 @@ export default {
 
     const updateChart = (singleValue, singleTime) => {
       if (myChart) {
-        // console.log('수정진입')
-
-        // myChart.data.labels = Array.from({ length: props.data.data[0].length }, (_, i) =>
-        //   (i * (3 / 120)).toFixed(1)
-        // )
         if (myChart.data.labels.length >= 100) {
           myChart.data.labels.shift() // 첫 번째 요소 제거
           myChart.data.datasets[0].data.shift() // 첫 번째 데이터 제거
         }
-
         myChart.data.labels.push(singleTime)
         myChart.data.datasets[0].data.push(singleValue)
-
-        console.log(myChart.data.labels)
-        console.log(myChart.data.datasets[0].data)
-        console.log('label', myChart.data.labels, props.times)
+        myChart.update()
+      }
+    }
+    const resetChart = (newName) => {
+      if (myChart) {
+        currentName.value = newName
+        myChart.data.labels = []
+        myChart.data.datasets[0].data = []
 
         myChart.update()
       }
@@ -161,15 +165,22 @@ export default {
       (newValue) => {
         const singleValue = newValue[0]
         const singleTime = newValue[1]
-
-        console.log('watched')
-        console.log(singleTime)
         updateChart(singleValue, singleTime)
       },
       { deep: true }
     )
 
-    return { chart, watcher }
+    const watcherReset = watch(
+      () => props.selectedItem,
+      (newValue) => {
+        const newName = newValue.name
+
+        resetChart(newName)
+      },
+      { deep: true }
+    )
+
+    return { chart, currentName, watcher, watcherReset }
   }
 }
 </script>

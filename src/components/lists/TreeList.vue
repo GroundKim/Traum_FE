@@ -37,6 +37,12 @@
             >
               삭제
             </button>
+            <button
+              @click="emitReadItem(item)"
+              class="bg-blue-500 text-white text-xl px-4 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
+            >
+              조회
+            </button>
           </li>
         </ul>
       </li>
@@ -126,8 +132,8 @@ export default {
             name: 'sensor1',
             type: '3d',
             meshName: 'sensor',
-            mqttTopic: 'sensor1',
-            threshold: '50'
+            mqttTopic: 'edge/sensor/temperature-1',
+            threshold: '1'
           }
         ]
       }
@@ -172,7 +178,11 @@ export default {
       emitter.emit('alarmItem', item)
     }
     const emitUpdateItem = (item) => {
-      emitter.emit('updateItem', item)
+      emitter.emit('updateItem', [item.value, 'white'])
+    }
+
+    const emitReadItem = (item) => {
+      emitter.emit('readItem', item)
     }
 
     return {
@@ -183,6 +193,7 @@ export default {
       emitRemoveItem,
       emitAlarmItem,
       emitUpdateItem,
+      emitReadItem,
       addItem
     }
   }

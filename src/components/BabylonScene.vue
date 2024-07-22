@@ -199,20 +199,16 @@ export default {
     }
     const handleDelete = (item) => {
       console.log('도착확인', item)
-      // 삭제 로직 구현
       removeMesh(item)
     }
     const handleAlarm = (item) => {
       console.log('알람 도착확인', item)
-      // 삭제 로직 구현
       changeMeshColor(item.meshId)
     }
 
     const handleUpdateName = (item) => {
-      console.log(item)
       if (meshes.value[item.meshId]) {
         const mesh = meshes.value[item.meshId].mesh
-
         // Remove the existing label plane
         if (meshes.value[item.meshId].label) {
           meshes.value[item.meshId].label.dispose()
@@ -257,7 +253,58 @@ export default {
         // Update the meshes.value with the new label
         meshes.value[item.meshId].label = plane
       } else {
-        console.error(`Mesh with meshId ${item.meshId} not found.`)
+        console.log(`Mesh with meshId ${item.meshId} not found.`)
+      }
+    }
+
+    const handleUpdateNameColor = (item, color) => {
+      if (meshes.value[item.meshId]) {
+        const mesh = meshes.value[item.meshId].mesh
+        // Remove the existing label plane
+        if (meshes.value[item.meshId].label) {
+          meshes.value[item.meshId].label.dispose()
+        }
+
+        // Create a new plane
+        const plane = MeshBuilder.CreatePlane('labelPlane', { width: 1, height: 0.5 }, scene)
+        plane.parent = mesh
+        plane.position.y = -1
+        plane.position.z = 0.1
+        plane.rotation.x = Math.PI
+        plane.billboardMode = Mesh.BILLBOARDMODE_ALL
+
+        // Create a new dynamic texture
+        const dynamicTexture = new DynamicTexture(
+          'labelTexture',
+          { width: 256, height: 128 },
+          scene
+        )
+
+        // Create a new material
+        const labelMaterial = new StandardMaterial('labelMaterial', scene)
+        labelMaterial.diffuseTexture = dynamicTexture
+        labelMaterial.specularColor = new Color3(0, 0, 0)
+        labelMaterial.backFaceCulling = false
+        labelMaterial.emissiveColor = new Color3(1, 1, 1)
+        labelMaterial.useAlphaFromDiffuseTexture = true
+
+        plane.material = labelMaterial
+
+        // Draw the new text
+        dynamicTexture.drawText(
+          item.name,
+          null,
+          null,
+          'bold 48px Arial',
+          color,
+          'transparent',
+          true
+        )
+
+        // Update the meshes.value with the new label
+        meshes.value[item.meshId].label = plane
+      } else {
+        console.log(`Mesh with meshId ${item.meshId} not found.`)
       }
     }
 
@@ -269,7 +316,12 @@ export default {
 
       emitter.on('removeItem', handleDelete)
       emitter.on('alarmItem', handleAlarm)
-      emitter.on('updateItem', handleUpdateName)
+      emitter.on('updateItem', (item) => {
+        handleUpdateName(item)
+      })
+      emitter.on('updateItemColor', ([item, color]) => {
+        handleUpdateNameColor(item, color)
+      })
     })
 
     onUnmounted(() => {
@@ -278,7 +330,7 @@ export default {
       }
       emitter.off('removeItem', handleDelete)
       emitter.off('alarmItem', handleAlarm)
-      emitter.on('updateItem', handleUpdateName)
+      emitter.off('updateItem', handleUpdateName)
     })
 
     return {

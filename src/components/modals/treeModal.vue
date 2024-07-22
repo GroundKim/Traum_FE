@@ -110,6 +110,21 @@ export default {
     const localItem = reactive({})
 
     const toggleModal = () => {
+      console.log(props)
+      console.log(props)
+      console.log(props)
+      console.log(props)
+      console.log(props)
+      console.log(props)
+      console.log(props)
+      console.log(props)
+      console.log(props)
+      console.log(props)
+      console.log(props)
+      console.log(props)
+      console.log(props)
+      console.log(props)
+      console.log(props)
       showModal.value = !showModal.value
       if (showModal.value) {
         // 모달이 열릴 때 localItem을 props.item으로 초기화
@@ -117,8 +132,15 @@ export default {
       }
     }
     const handleModal = () => {
+      console.log('handle:', localItem)
+      console.log('handle:', localItem)
+      console.log('handle:', localItem)
+      console.log('handle:', localItem)
+      console.log('handle:', localItem)
+      console.log('handle:', localItem)
+      console.log('handle:', localItem)
+
       emit('setCondition', localItem)
-      console.log(localItem)
 
       toggleModal()
     }

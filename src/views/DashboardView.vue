@@ -2,6 +2,7 @@
   <div>
     <div class="flex flex-wrap mt-4">
       <div class="w-full">
+        {{ connectionStatus }}
         <fwb-button color="default">Default</fwb-button>
         <fwb-button color="alternative">Alternative</fwb-button>
         <fwb-button color="dark">Dark</fwb-button>
@@ -24,7 +25,11 @@
           />
         </div>
         <div class="px-10 py-4"></div>
-        <line-chart-detail :singleValue="singleValue" :singleTime="singleTime"></line-chart-detail>
+        <line-chart-detail
+          :selectedItem="selectedItem"
+          :singleValue="singleValue"
+          :singleTime="singleTime"
+        ></line-chart-detail>
       </div>
     </div>
   </div>
@@ -33,20 +38,19 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import mqtt from 'mqtt'
+import emitter from '@/components/eventBus.js'
 
 import BabylonScene from '@/components/BabylonScene.vue'
 import LineChartDetail from '@/components/charts/LineChart.vue'
 import TreeList from '@/components/lists/TreeList.vue'
 
 const babylonScene = ref(null)
-
 const currentModal = ref(null)
 const showModal = ref(false)
-
 const client = ref(null)
 const connectionStatus = ref('Disconnected')
-const receivedMessages = ref([])
 
+const selectedItem = ref({})
 const singleValue = ref()
 const singleTime = ref()
 
@@ -59,30 +63,36 @@ const handleModal = (item) => {
   showModal.value = true
 }
 
-onMounted(() => {
-  client.value = mqtt.connect('ws://localhost:9001')
+const handleReadItem = (item) => {
+  console.log('Read item:', item)
+
+  client.value = mqtt.connect('ws://192.168.0.32:9001')
 
   client.value.on('connect', () => {
     console.log('Connected to MQTT broker')
     connectionStatus.value = 'Connected'
-    client.value.subscribe('test/topic', (err) => {
+
+    selectedItem.value = item
+
+    client.value.subscribe(item.mqttTopic, (err) => {
       if (!err) {
-        console.log('Subscribed to test/topic')
+        console.log('Subscribed to ....')
       }
     })
   })
-
   client.value.on('message', (topic, message) => {
     const messageStr = message.toString()
-    console.log(`Received message on topic ${topic}: ${messageStr}`)
-    receivedMessages.value.push(`${topic}: ${messageStr}`)
-
     try {
       const messageObj = JSON.parse(messageStr)
-      if (messageObj.value !== undefined) {
-        singleValue.value = Number(messageObj.value)
-        singleTime.value = new Date(messageObj.time).toLocaleTimeString()
-        // updateChartData()
+
+      if (messageObj !== undefined) {
+        singleValue.value = Number(messageObj[0].value)
+        singleTime.value = new Date(messageObj[2].value).toLocaleTimeString()
+        let textColor = 'white'
+        if (singleValue.value >= Number(item.threshold)) {
+          textColor = 'red'
+        }
+        emitter.emit('updateItemColor', [selectedItem.value, textColor])
       }
     } catch (error) {
       console.error('Error parsing message:', error)
@@ -97,9 +107,15 @@ onMounted(() => {
   client.value.on('close', () => {
     connectionStatus.value = 'Disconnected'
   })
+}
+
+onMounted(() => {
+  ////
+  emitter.on('readItem', handleReadItem)
 })
 
 onUnmounted(() => {
+  emitter.off('readItem', handleReadItem)
   if (client.value) {
     client.value.end()
   }
@@ -107,7 +123,7 @@ onUnmounted(() => {
 </script>
 
 <!-- <ul>
-  <li v-for="(value, index) in values" :key="index">
-    Value: {{ value }}, Time: {{ times[index] }}
-  </li>
-</ul> -->
+        <li v-for="(value, index) in values" :key="index">
+          Value: {{ value }}, Time: {{ times[index] }}
+        </li>
+      </ul> -->
