@@ -77,17 +77,22 @@ export default {
           meshes.value[meshId].mesh = mesh
           switch (meshes.value[meshId].meshName) {
             case 'eduKit':
-              mesh.scaling = new Vector3(1, 1, -1) // x, y, z 축으로 2배 확대
-
+              mesh.scaling = new Vector3(1, 1, -1)
               break
-            case 'sensor1':
-              mesh.scaling = new Vector3(2, 2, -2) // x, y, z 축으로 2배 확대
+            case 'sensor':
+              mesh.scaling = new Vector3(2, 2, -2)
               break
           }
+          mesh.position = position
+
+          // 모든 라벨에 대해 고정된 높이 설정
+          const fixedLabelHeight = -1 // 이 값을 조정하여 원하는 고정 높이 설정
 
           const plane = MeshBuilder.CreatePlane('labelPlane', { width: 1, height: 0.5 }, scene)
           plane.parent = mesh
-          plane.position.y = -1
+          plane.position.y = fixedLabelHeight
+          plane.position.z = 0
+          plane.rotation.x = Math.PI
           plane.billboardMode = Mesh.BILLBOARDMODE_ALL
 
           const dynamicTexture = new DynamicTexture(
@@ -143,7 +148,7 @@ export default {
             case 'eduKit':
               mesh.scaling = new Vector3(1, 1, -1)
               break
-            case 'sensor1':
+            case 'sensor':
               mesh.scaling = new Vector3(2, 2, -2)
               break
           }

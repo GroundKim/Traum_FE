@@ -138,7 +138,7 @@ export default {
                   mesh.scaling = new Vector3(0.3, 0.3, 0.3) // x, y, z 축으로 2배 확대
 
                   break
-                case 'sensor1':
+                case 'sensor':
                   mesh.scaling = new Vector3(1, 1, 1) // x, y, z 축으로 2배 확대
                   break
               }

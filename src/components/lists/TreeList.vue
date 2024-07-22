@@ -5,7 +5,7 @@
       <li v-for="(category, index) in categories" :key="category.name">
         {{ category.name }}
         <button
-          @click="addItem(index, Math.floor(Math.random() * 10000), category.name, 1803, 50, '3d')"
+          @click="addItem(index, Math.floor(Math.random() * 1000), category.name, 1803, 50, '3d')"
         >
           Add Item
         </button>
@@ -125,7 +125,7 @@ export default {
             meshId: 10,
             name: 'sensor1',
             type: '3d',
-            meshName: 'sensor1',
+            meshName: 'sensor',
             mqttTopic: 'sensor1',
             threshold: '50'
           }
