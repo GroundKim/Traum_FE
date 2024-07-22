@@ -75,6 +75,15 @@ export default {
           mesh.position = position
           meshes.value[meshId].mesh.dispose()
           meshes.value[meshId].mesh = mesh
+          switch (meshes.value[meshId].meshName) {
+            case 'eduKit':
+              mesh.scaling = new Vector3(1, 1, -1) // x, y, z 축으로 2배 확대
+
+              break
+            case 'sensor1':
+              mesh.scaling = new Vector3(2, 2, -2) // x, y, z 축으로 2배 확대
+              break
+          }
 
           const plane = MeshBuilder.CreatePlane('labelPlane', { width: 1, height: 0.5 }, scene)
           plane.parent = mesh
@@ -113,25 +122,13 @@ export default {
         console.log(itemData.meshId)
         removeMesh(itemData)
       }
-
       if (itemData.type === '3d') {
         const canvasRect = bjsCanvas.value.getBoundingClientRect()
         const pickResult = scene.pick(
           event.clientX - canvasRect.left,
           event.clientY - canvasRect.top
         )
-
-        let position
-        if (pickResult.hit) {
-          position = pickResult.pickedPoint
-        } else {
-          const vector = scene.pick(
-            event.clientX - canvasRect.left,
-            event.clientY - canvasRect.top,
-            (mesh) => mesh === scene.getMeshByName('ground')
-          ).pickedPoint
-          position = vector || new Vector3(0, 0, 0)
-        }
+        let position = pickResult.hit ? pickResult.pickedPoint : new Vector3(0, 0, 0)
 
         let mesh
         try {
@@ -142,12 +139,23 @@ export default {
             scene
           )
           mesh = result.meshes[0]
+          switch (itemData.meshName) {
+            case 'eduKit':
+              mesh.scaling = new Vector3(1, 1, -1)
+              break
+            case 'sensor1':
+              mesh.scaling = new Vector3(2, 2, -2)
+              break
+          }
           mesh.position = position
+
+          // 모든 라벨에 대해 고정된 높이 설정
+          const fixedLabelHeight = -1 // 이 값을 조정하여 원하는 고정 높이 설정
 
           const plane = MeshBuilder.CreatePlane('labelPlane', { width: 1, height: 0.5 }, scene)
           plane.parent = mesh
-          plane.position.y = -1 // 메시 위로 약간 올립니다.
-          plane.position.z = 0.1 // 메시 앞으로 약간 이동시킵니다.
+          plane.position.y = fixedLabelHeight
+          plane.position.z = 0
           plane.rotation.x = Math.PI
           plane.billboardMode = Mesh.BILLBOARDMODE_ALL
 
@@ -159,10 +167,9 @@ export default {
           const labelMaterial = new StandardMaterial('labelMaterial', scene)
           labelMaterial.diffuseTexture = dynamicTexture
           labelMaterial.specularColor = new Color3(0, 0, 0)
-          labelMaterial.backFaceCulling = false // 양면에서 보이게 합니다.
-          labelMaterial.emissiveColor = new Color3(1, 1, 1) // 발광 효과 추가
-          labelMaterial.useAlphaFromDiffuseTexture = true // 알파 채널 사용
-
+          labelMaterial.backFaceCulling = false
+          labelMaterial.emissiveColor = new Color3(1, 1, 1)
+          labelMaterial.useAlphaFromDiffuseTexture = true
           plane.material = labelMaterial
 
           dynamicTexture.drawText(
@@ -174,6 +181,7 @@ export default {
             'transparent',
             true
           )
+
           meshes.value[itemData.meshId] = {
             meshName: itemData.meshName,
             mesh: mesh,
@@ -184,7 +192,6 @@ export default {
         }
       }
     }
-
     const handleDelete = (item) => {
       console.log('도착확인', item)
       // 삭제 로직 구현

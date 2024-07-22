@@ -91,7 +91,8 @@ export default {
     const createScene = (canvas) => {
       engine = new Engine(canvas, true, { stencil: true })
       scene = new Scene(engine)
-      camera = new ArcRotateCamera('camera', -Math.PI / 2, Math.PI / 2.5, 10, Vector3.Zero(), scene)
+      // 초기 확대 수준을 조정 (5에서 3으로 변경하여 더 가까이 보이도록 설정)
+      camera = new ArcRotateCamera('camera', -Math.PI / 2, Math.PI / 2.5, 3, Vector3.Zero(), scene)
       camera.attachControl(canvas, true)
       new HemisphericLight('light', new Vector3(0, 1, 0), scene)
       engine.runRenderLoop(() => {
@@ -105,7 +106,6 @@ export default {
       return scene
     }
 
-    // console.log('Modal에서 받은 props.data: ', props.data)
     const showModal = ref(false)
     const localItem = reactive({})
 
@@ -123,15 +123,35 @@ export default {
       toggleModal()
     }
 
-    const { meshName } = props.item
+    const meshName = props.item.meshName
 
     watch(showModal, (newValue) => {
       if (newValue) {
         nextTick(() => {
           scene = createScene(bjsCanvas.value)
-          SceneLoader.ImportMesh('', './models/', `${meshName}R.glb`, scene, function (meshes) {
+          scene.activeCamera.alpha += Math.PI
+
+          SceneLoader.ImportMesh('', './models/', `${meshName}S.glb`, scene, function (meshes) {
             meshes.forEach((mesh) => {
-              mesh.scaling = new Vector3(0.3, 0.3, 0.3) // x, y, z 축으로 2배 확대
+              switch (meshName) {
+                case 'eduKit':
+                  mesh.scaling = new Vector3(0.3, 0.3, 0.3) // x, y, z 축으로 2배 확대
+
+                  break
+                case 'sensor1':
+                  mesh.scaling = new Vector3(1, 1, 1) // x, y, z 축으로 2배 확대
+                  break
+              }
+
+              // 모델의 중심으로 카메라 타겟을 조정
+              let boundingInfo = mesh.getBoundingInfo()
+              let center = boundingInfo.boundingBox.centerWorld
+              camera.target = center
+
+              // 모델의 크기에 따라 카메라 반지름 조정
+              let extend = boundingInfo.boundingBox.extendSizeWorld
+              let radius = Math.max(extend.x, extend.y, extend.z) * 50
+              camera.radius = radius
             })
           })
         })
