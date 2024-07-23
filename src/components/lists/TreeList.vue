@@ -165,6 +165,11 @@ export default {
       if (itemIndex !== -1) {
         // 해당 요소를 item으로 교체
         categories.value[categoryIndex].items[itemIndex] = item
+        console.log(categories.value[categoryIndex].items[itemIndex])
+        console.log(categories.value[categoryIndex].items[itemIndex])
+        console.log(categories.value[categoryIndex].items[itemIndex])
+        console.log(categories.value[categoryIndex].items[itemIndex])
+        console.log(categories.value[categoryIndex].items[itemIndex])
         emitUpdateItem(item)
       } else {
         console.log(`Item with meshId ${item.meshId} not found.`)
@@ -178,7 +183,11 @@ export default {
       emitter.emit('alarmItem', item)
     }
     const emitUpdateItem = (item) => {
-      emitter.emit('updateItem', [item.value, 'white'])
+      console.log(item)
+      console.log(item)
+      console.log(item)
+      console.log(item)
+      emitter.emit('updateItem', item)
     }
 
     const emitReadItem = (item) => {

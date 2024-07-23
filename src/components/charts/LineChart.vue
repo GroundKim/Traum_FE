@@ -13,7 +13,6 @@
       <!-- Chart -->
       <div class="relative chart-container">
         <canvas ref="chart"></canvas>
-        <button @click="addData">업뎃</button>
       </div>
     </div>
   </div>
@@ -22,7 +21,7 @@
 <style>
 .chart-container {
   width: 100%;
-  height: 400px; /* 원하는 높이로 설정하세요 */
+  height: 200px; /* 원하는 높이로 설정하세요 */
 }
 </style>
 <script>

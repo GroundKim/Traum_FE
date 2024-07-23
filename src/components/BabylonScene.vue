@@ -317,6 +317,11 @@ export default {
       emitter.on('removeItem', handleDelete)
       emitter.on('alarmItem', handleAlarm)
       emitter.on('updateItem', (item) => {
+        console.log(item)
+        console.log(item)
+        console.log(item)
+        console.log(item)
+        console.log(item)
         handleUpdateName(item)
       })
       emitter.on('updateItemColor', ([item, color]) => {

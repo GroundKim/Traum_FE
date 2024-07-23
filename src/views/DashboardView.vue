@@ -12,7 +12,7 @@
         <fwb-button color="yellow">Yellow</fwb-button>
         <fwb-button color="purple">Purple</fwb-button>
         <fwb-button color="pink">Pink</fwb-button>
-        <div class="flex gap-10 w-full h-[400px]">
+        <div class="flex gap-10 w-full h-[500px]">
           <tree-list
             class="overflow-y-scroll w-[800px]"
             @dragStart="onDragStart"
@@ -26,6 +26,7 @@
         </div>
         <div class="px-10 py-4"></div>
         <line-chart-detail
+          class="h-[200px]"
           :selectedItem="selectedItem"
           :singleValue="singleValue"
           :singleTime="singleTime"
@@ -64,16 +65,11 @@ const handleModal = (item) => {
 }
 
 const handleReadItem = (item) => {
-  console.log('Read item:', item)
-
   client.value = mqtt.connect('ws://192.168.0.32:9001')
-
   client.value.on('connect', () => {
     console.log('Connected to MQTT broker')
     connectionStatus.value = 'Connected'
-
     selectedItem.value = item
-
     client.value.subscribe(item.mqttTopic, (err) => {
       if (!err) {
         console.log('Subscribed to ....')
@@ -89,9 +85,20 @@ const handleReadItem = (item) => {
         singleValue.value = Number(messageObj[0].value)
         singleTime.value = new Date(messageObj[2].value).toLocaleTimeString()
         let textColor = 'white'
-        if (singleValue.value >= Number(item.threshold)) {
+        if (singleValue.value >= Number(selectedItem.value.threshold)) {
           textColor = 'red'
+        } else if (singleValue.value <= Number(selectedItem.value.threshold)) {
+          textColor = 'white'
         }
+        console.log(selectedItem.value)
+        console.log(selectedItem.value)
+        console.log(selectedItem.value)
+        console.log(selectedItem.value)
+        console.log(selectedItem.value)
+        console.log(selectedItem.value.threshold)
+        console.log(textColor)
+        console.log(textColor)
+        console.log(textColor)
         emitter.emit('updateItemColor', [selectedItem.value, textColor])
       }
     } catch (error) {
@@ -110,7 +117,6 @@ const handleReadItem = (item) => {
 }
 
 onMounted(() => {
-  ////
   emitter.on('readItem', handleReadItem)
 })
 
