@@ -16,6 +16,7 @@
     "@babylonjs/loaders": "^7.15.1",
     "@fortawesome/fontawesome-free": "^5.15.3",
     "chart.js": "^2.9.4",
+    "chartjs-plugin-annotation": "^0.5.7",
     "flowbite": "^2.4.1",
     "flowbite-vue": "^0.1.5",
     "i": "^0.3.7",

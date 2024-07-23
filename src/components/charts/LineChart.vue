@@ -25,9 +25,9 @@
 }
 </style>
 <script>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import Chart from 'chart.js'
-import { watch } from 'vue'
+import 'chartjs-plugin-annotation'
 
 export default {
   props: {
@@ -88,46 +88,64 @@ export default {
             intersect: true
           },
           scales: {
-            x: {
-              ticks: {
-                fontColor: 'rgba(255,255,255,.7)'
-              },
-              display: true,
-              scaleLabel: {
-                display: false,
-                labelString: 'Month',
-                fontColor: 'black'
-              },
-              grid: {
-                display: false,
-                borderDash: [2],
-                borderDashOffset: [2],
-                color: 'rgba(33, 37, 41, 0.3)',
-                zeroLineColor: 'rgba(0, 0, 0, 0)',
-                zeroLineBorderDash: [2],
-                zeroLineBorderDashOffset: [2]
-              }
-            },
-            y: {
-              ticks: {
-                fontColor: 'rgba(255,255,255,.7)'
-              },
-              display: true,
-              scaleLabel: {
+            xAxes: [
+              {
+                ticks: {
+                  fontColor: 'black' // 변경: x축 레이블 색상을 검은색으로 설정
+                },
                 display: true,
-                labelString: 'Value',
-                fontColor: 'black'
-              },
-              grid: {
-                borderDash: [3],
-                borderDashOffset: [3],
-                drawBorder: false,
-                color: 'rgba(255, 255, 255, 0.15)',
-                zeroLineColor: 'rgba(33, 37, 41, 0)',
-                zeroLineBorderDash: [2],
-                zeroLineBorderDashOffset: [2]
+                scaleLabel: {
+                  display: false,
+                  labelString: 'Month',
+                  fontColor: 'black'
+                },
+                gridLines: {
+                  display: false,
+                  color: 'rgba(0, 0, 0, 0.1)' // 변경: 그리드 라인 색상을 연한 검은색으로 설정
+                }
               }
-            }
+            ],
+            yAxes: [
+              {
+                ticks: {
+                  fontColor: 'black', // 변경: y축 레이블 색상을 검은색으로 설정
+                  max: 50,
+                  min: 0,
+                  stepSize: 50 / 2,
+                  callback: function (value) {
+                    return value.toFixed(2) // 소수점 두 자리까지 표시
+                  }
+                },
+                display: true,
+                scaleLabel: {
+                  display: true,
+                  labelString: 'Value',
+                  fontColor: 'black'
+                },
+                gridLines: {
+                  color: 'rgba(0, 0, 0, 0.1)' // 변경: 그리드 라인 색상을 연한 검은색으로 설정
+                }
+              }
+            ]
+          },
+          annotation: {
+            annotations: [
+              {
+                type: 'line',
+                mode: 'horizontal',
+                scaleID: 'y-axis-0',
+                value: 50,
+                borderColor: 'rgba(255, 0, 0, 0.5)',
+                borderWidth: 2,
+                borderDash: [10, 5],
+                label: {
+                  content: 'Threshold',
+                  enabled: true,
+                  position: 'left',
+                  fontColor: 'black' // 변경: 주석 레이블 색상을 검은색으로 설정
+                }
+              }
+            ]
           }
         }
       }
@@ -138,48 +156,59 @@ export default {
       }
     })
 
-    const updateChart = (singleValue, singleTime) => {
+    const updateChart = (singleValue, singleTime, newItem) => {
       if (myChart) {
         if (myChart.data.labels.length >= 100) {
-          myChart.data.labels.shift() // 첫 번째 요소 제거
-          myChart.data.datasets[0].data.shift() // 첫 번째 데이터 제거
+          myChart.data.labels.shift()
+          myChart.data.datasets[0].data.shift()
         }
         myChart.data.labels.push(singleTime)
         myChart.data.datasets[0].data.push(singleValue)
+
+        // y축 범위 동적 조정
+        const maxValue = Math.max(...myChart.data.datasets[0].data, props.selectedItem.threshold)
+        myChart.options.scales.yAxes[0].ticks.max = maxValue * 1.2
+        myChart.options.scales.yAxes[0].ticks.stepSize = maxValue / 4
+        myChart.options.annotation.annotations[0].value = newItem.threshold
+
+        console.log(newItem.threshold)
+        console.log(newItem.threshold)
+        console.log(newItem.threshold)
+        console.log(newItem.threshold)
+        console.log(newItem.threshold)
+
         myChart.update()
       }
     }
+
     const resetChart = (newName) => {
       if (myChart) {
         currentName.value = newName
         myChart.data.labels = []
         myChart.data.datasets[0].data = []
-
         myChart.update()
       }
     }
 
-    const watcher = watch(
-      () => [props.singleValue, props.singleTime],
+    watch(
+      () => [props.singleValue, props.singleTime, props.selectedItem],
       (newValue) => {
-        const singleValue = newValue[0]
-        const singleTime = newValue[1]
-        updateChart(singleValue, singleTime)
+        const [singleValue, singleTime, newItem] = newValue
+        updateChart(singleValue, singleTime, newItem)
       },
       { deep: true }
     )
 
-    const watcherReset = watch(
+    watch(
       () => props.selectedItem,
       (newValue) => {
         const newName = newValue.name
-
         resetChart(newName)
       },
       { deep: true }
     )
 
-    return { chart, currentName, watcher, watcherReset }
+    return { chart, currentName }
   }
 }
 </script>
