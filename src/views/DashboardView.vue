@@ -70,7 +70,7 @@ const handleReadItem = (item) => {
     console.log('Connected to MQTT broker')
     connectionStatus.value = 'Connected'
     selectedItem.value = item
-    client.value.subscribe(item.mqttTopic, (err) => {
+    client.value.subscribe(selectedItem.value.mqttTopic, (err) => {
       if (!err) {
         console.log('Subscribed to ....')
       }

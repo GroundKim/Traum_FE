@@ -32,6 +32,13 @@
               중지
             </button>
             <button
+              @click="emitAlarmItem(item)"
+              class="bg-blue-500 text-white text-xl px-4 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
+            >
+              리셋
+            </button>
+
+            <button
               @click="emitRemoveItem(item)"
               class="bg-blue-500 text-white text-xl px-4 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
             >
