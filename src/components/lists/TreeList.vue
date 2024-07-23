@@ -20,19 +20,21 @@
             {{ item.name }}
             <treeModal :item="item" @setCondition="setCondition" />
             <button
-              @click="() => {}"
+              @click="sendStartCommand()"
               class="bg-blue-500 text-white text-xl px-4 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
             >
               가동
             </button>
+            
             <button
-              @click="emitAlarmItem(item)"
+              @click="sendStopCommand()"
               class="bg-blue-500 text-white text-xl px-4 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
             >
               중지
             </button>
+
             <button
-              @click="emitAlarmItem(item)"
+              @click="sendResetCommand()"
               class="bg-blue-500 text-white text-xl px-4 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
             >
               리셋
@@ -44,6 +46,7 @@
             >
               삭제
             </button>
+
             <button
               @click="emitReadItem(item)"
               class="bg-blue-500 text-white text-xl px-4 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
@@ -61,13 +64,14 @@
 import { ref } from 'vue'
 import emitter from '@/components/eventBus.js'
 import treeModal from '@/components/modals/treeModal.vue'
-
+import io from 'socket.io-client'
 export default {
   name: 'TreeComponent',
   components: {
     treeModal
   },
   setup(props, { emit }) {
+  
     class MeshItem {
       constructor(meshId, meshName, mqttTopic, threshold, type) {
         this.meshId = meshId // Automatically assign a unique ID
@@ -130,6 +134,7 @@ export default {
             threshold: '10'
           }
         ]
+        
       },
       {
         name: 'sensor',
@@ -144,8 +149,7 @@ export default {
           }
         ]
       }
-    ])
-
+    ]);
     const onDragStart = (event, item) => {
       event.dataTransfer.setData('application/json', JSON.stringify(item))
       emit('dragStart', item)
@@ -206,13 +210,88 @@ export default {
       onDragStart,
       openModal,
       setCondition,
-      emitRemoveItem,
       emitAlarmItem,
       emitUpdateItem,
       emitReadItem,
-      addItem
+      addItem,
+      emitRemoveItem
     }
-  }
+  },
+  data() {
+    return {
+      socket: null,
+      socketStatus: 'Disconnected',
+      edukitId: "UVC-EDU-01",
+      connectAttempts: 0,
+      maxConnectAttempts: 1
+    };
+  },
+  mounted() {
+    this.connectSocket();
+  },
+  methods: {
+    connectSocket() {
+      if (this.connectAttempts >= this.maxConnectAttempts) {
+        console.log("Maximum connection attempts reached. Stopping further attempts.");
+        return;
+      }
+
+      this.socket = io('http://192.168.0.20:8282', {
+        transports: ['websocket'],
+        reconnectionAttempts: 1,
+        reconnectionDelay: 1000
+      });
+
+      this.socket.on('connect', () => {
+        this.socketStatus = 'Connected';
+        console.log("Connected to Socket.IO server.");
+        this.socket.emit('joinRoom', this.edukitId);
+        this.connectAttempts = 0; // Reset attempts on successful connection
+      });
+
+      this.socket.on('message', (msg) => {
+        console.log("Received message: " + msg);
+      });
+
+      this.socket.on('disconnect', () => {
+        this.socketStatus = 'Disconnected';
+        console.log("Disconnected from Socket.IO server.");
+      });
+
+      this.socket.on('connect_error', (error) => {
+        this.socketStatus = 'Error';
+        this.connectAttempts++;
+        console.log("Socket.IO Error: " + error);
+        if (this.connectAttempts < this.maxConnectAttempts) {
+          console.log(`Reconnection attempt ${this.connectAttempts}`);
+          this.connectSocket();
+        } else {
+          console.log("Reconnection failed. Stopping further attempts.");
+        }
+      });
+    },
+    sendSocketMessage(command) {
+      if (this.socket && this.socket.connected) {
+        const message = {
+          tagId: command.tagId,
+          value: command.value
+        };
+        this.socket.emit(`SEND${this.edukitId}`, JSON.stringify(message));
+        console.log(`Command sent with tagId ${command.tagId} and value ${command.value}.`);
+      } else {
+        console.log("Socket.IO is not connected. Cannot send command.");
+      }
+    },
+    sendStartCommand() {
+      this.sendSocketMessage({ tagId: "1", value: "1" });
+    },
+    sendStopCommand() {
+      this.sendSocketMessage({ tagId: "1", value: "0" });
+    },
+    sendResetCommand() {
+      this.sendSocketMessage({ tagId: "8", value: "1" });
+    }
+  },
 }
 </script>
 
