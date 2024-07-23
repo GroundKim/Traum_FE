@@ -17,6 +17,7 @@
     "@fortawesome/fontawesome-free": "^5.15.3",
     "chart.js": "^2.9.4",
     "chartjs-plugin-annotation": "^0.5.7",
+    "cors": "^2.8.5",
     "flowbite": "^2.4.1",
     "flowbite-vue": "^0.1.5",
     "i": "^0.3.7",
@@ -25,6 +26,7 @@
     "mqtt": "^5.8.1",
     "npm": "^10.8.2",
     "pinia": "^2.1.7",
+    "socket.io-client": "^2.3.0",
     "vue": "^3.4.29",
     "vue-chartjs": "^3.5.1",
     "vue-router": "^4.3.3"
