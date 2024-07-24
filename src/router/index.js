@@ -27,6 +27,11 @@ const router = createRouter({
       path: '/register',
       component: () => import('../views/RegisterView.vue'),
       name: 'register'
+    },
+    {
+      path: '/digitaltwin',
+      component: () => import('../views/DigitalTwinView.vue'),
+      name: 'DigitalTwin'
     }
   ]
 })

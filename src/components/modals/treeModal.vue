@@ -34,7 +34,7 @@
             <p class="my-4 text-blueGray-500 text-lg leading-relaxed"></p>
 
             <div class="flex flex-col">
-              <canvas ref="bjsCanvas" style="width: 100%; height: 400px"></canvas>
+              <canvas ref="bjsCanvas" style="width: 100%; height: 400px" @dblclick="routeToUnity"></canvas>
               <div class="flex" v-for="key in settings" :key="key">
                 <label>{{ key }}</label>
                 <input v-model="localItem[key]" />
@@ -77,6 +77,8 @@ import {
   Vector3,
   SceneLoader
 } from '@babylonjs/core'
+import { useRouter } from 'vue-router'
+
 export default {
   components: {},
   props: {
@@ -88,6 +90,8 @@ export default {
   setup(props, { emit }) {
     const bjsCanvas = ref(null)
     let engine, scene, camera
+    const router = useRouter()
+
     const createScene = (canvas) => {
       engine = new Engine(canvas, true, { stencil: true })
       scene = new Scene(engine)
@@ -121,6 +125,10 @@ export default {
       toggleModal()
     }
 
+    const routeToUnity = () => {
+      router.push('/digitaltwin')
+    }
+
     const meshName = props.item.meshName
 
     watch(showModal, (newValue) => {
@@ -134,7 +142,6 @@ export default {
               switch (meshName) {
                 case 'eduKit':
                   mesh.scaling = new Vector3(0.3, 0.3, 0.3) // x, y, z 축으로 2배 확대
-
                   break
                 case 'sensor':
                   mesh.scaling = new Vector3(1, 1, 1) // x, y, z 축으로 2배 확대
@@ -165,7 +172,7 @@ export default {
       showModal,
       toggleModal,
       handleModal,
-      props,
+      routeToUnity,
       bjsCanvas,
       settings,
       localItem
@@ -173,3 +180,10 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.tree ul {
+  list-style-type: none;
+  padding-left: 20px;
+}
+</style>
