@@ -356,6 +356,57 @@ export default {
       }
     }
 
+    // const handleUpdateNameColor = (item, color) => {
+    //   if (meshes.value[item.meshId]) {
+    //     const mesh = meshes.value[item.meshId].mesh
+    //     // Remove the existing label plane
+    //     if (meshes.value[item.meshId].label) {
+    //       meshes.value[item.meshId].label.dispose()
+    //     }
+
+    //     // Create a new plane
+    //     const plane = MeshBuilder.CreatePlane('labelPlane', { width: 1, height: 0.5 }, scene)
+    //     plane.parent = mesh
+    //     plane.position.y = -1
+    //     plane.position.z = 0.1
+    //     plane.rotation.x = Math.PI
+    //     plane.billboardMode = Mesh.BILLBOARDMODE_ALL
+
+    //     // Create a new dynamic texture
+    //     const dynamicTexture = new DynamicTexture(
+    //       'labelTexture',
+    //       { width: 256, height: 128 },
+    //       scene
+    //     )
+
+    //     // Create a new material
+    //     const labelMaterial = new StandardMaterial('labelMaterial', scene)
+    //     labelMaterial.diffuseTexture = dynamicTexture
+    //     labelMaterial.specularColor = new Color3(0, 0, 0)
+    //     labelMaterial.backFaceCulling = false
+    //     labelMaterial.emissiveColor = new Color3(1, 1, 1)
+    //     labelMaterial.useAlphaFromDiffuseTexture = true
+
+    //     plane.material = labelMaterial
+
+    //     // Draw the new text
+    //     dynamicTexture.drawText(
+    //       item.name,
+    //       null,
+    //       null,
+    //       'bold 48px Arial',
+    //       color,
+    //       'transparent',
+    //       true
+    //     )
+
+    //     // Update the meshes.value with the new label
+    //     meshes.value[item.meshId].label = plane
+    //   } else {
+    //     console.log(`Mesh with meshId ${item.meshId} not found.`)
+    //   }
+    // }
+
     const handleUpdateNameColor = async (item, color) => {
       if (meshes.value[item.meshId]) {
         const position = meshes.value[item.meshId].mesh.position
@@ -370,30 +421,11 @@ export default {
             scene
           )
 
-          console.log(color)
-          console.log(color)
-          console.log(color)
-          console.log(color)
-          console.log(color)
-          console.log(color)
-          console.log(color)
-          console.log(color)
-          console.log(color)
-
           result.meshes.forEach((submesh) => {
             if (submesh.getClassName() === 'Mesh' && color === 'red') {
               highlightLayer.addMesh(submesh, Color3.Red())
             } else if (submesh.getClassName() === 'Mesh' && color === 'white') {
-              console.log(color)
-              console.log(color)
-              console.log(color)
-              console.log(color)
-              console.log(color)
-              console.log(color)
-              console.log(color)
-              console.log(color)
-              console.log(color)
-              highlightLayer.addMesh(submesh, Color3.green())
+              highlightLayer.addMesh(submesh, Color3.Green())
             }
           })
 
@@ -411,98 +443,59 @@ export default {
           }
           mesh.position = position
           // 모든 라벨에 대해 고정된 높이 설정
-          const fixedLabelHeight = -1 // 이 값을 조정하여 원하는 고정 높이 설정
-          meshes.value[item.meshId].mesh.dispose()
-          meshes.value[item.meshId].label.dispose()
-
-          const plane = MeshBuilder.CreatePlane('labelPlane', { width: 1, height: 0.5 }, scene)
-          plane.parent = mesh
-          plane.position.y = fixedLabelHeight
-          plane.position.z = 0
-          plane.rotation.x = Math.PI
-          plane.billboardMode = Mesh.BILLBOARDMODE_ALL
-
-          const dynamicTexture = new DynamicTexture(
-            'labelTexture',
-            { width: 256, height: 128 },
-            scene
-          )
-          const labelMaterial = new StandardMaterial('labelMaterial', scene)
-          labelMaterial.diffuseTexture = dynamicTexture
-          labelMaterial.specularColor = new Color3(0, 0, 0)
-          labelMaterial.backFaceCulling = false
-          labelMaterial.emissiveColor = new Color3(1, 1, 1)
-          labelMaterial.useAlphaFromDiffuseTexture = true
-          plane.material = labelMaterial
-
-          dynamicTexture.drawText(
-            item.name,
-            null,
-            null,
-            'bold 48px Arial',
-            color,
-            'transparent',
-            true
-          )
-
-          meshes.value[item.meshId] = {
-            meshName: meshes.value[item.meshId].meshName,
-            mesh: mesh,
-            label: plane
-          }
         } catch (e) {
-          console.error(`Failed to load mesh ${meshes.value[item.meshId].meshName}G.glb`, e)
+          console.error(`Failed to load mesh ${meshes.value[item.meshId].meshName}.glb`, e)
         }
       }
 
-      // if (meshes.value[item.meshId]) {
-      //   const mesh = meshes.value[item.meshId].mesh
-      //   // Remove the existing label plane
-      //   if (meshes.value[item.meshId].label) {
-      //     meshes.value[item.meshId].label.dispose()
-      //   }
+      if (meshes.value[item.meshId]) {
+        const mesh = meshes.value[item.meshId].mesh
+        // Remove the existing label plane
+        if (meshes.value[item.meshId].label) {
+          meshes.value[item.meshId].label.dispose()
+        }
 
-      //   // Create a new plane
-      //   const plane = MeshBuilder.CreatePlane('labelPlane', { width: 1, height: 0.5 }, scene)
-      //   plane.parent = mesh
-      //   plane.position.y = -1
-      //   plane.position.z = 0.1
-      //   plane.rotation.x = Math.PI
-      //   plane.billboardMode = Mesh.BILLBOARDMODE_ALL
+        // Create a new plane
+        const plane = MeshBuilder.CreatePlane('labelPlane', { width: 1, height: 0.5 }, scene)
+        plane.parent = mesh
+        plane.position.y = -1
+        plane.position.z = 0.1
+        plane.rotation.x = Math.PI
+        plane.billboardMode = Mesh.BILLBOARDMODE_ALL
 
-      //   // Create a new dynamic texture
-      //   const dynamicTexture = new DynamicTexture(
-      //     'labelTexture',
-      //     { width: 256, height: 128 },
-      //     scene
-      //   )
+        // Create a new dynamic texture
+        const dynamicTexture = new DynamicTexture(
+          'labelTexture',
+          { width: 256, height: 128 },
+          scene
+        )
 
-      //   // Create a new material
-      //   const labelMaterial = new StandardMaterial('labelMaterial', scene)
-      //   labelMaterial.diffuseTexture = dynamicTexture
-      //   labelMaterial.specularColor = new Color3(0, 0, 0)
-      //   labelMaterial.backFaceCulling = false
-      //   labelMaterial.emissiveColor = new Color3(1, 1, 1)
-      //   labelMaterial.useAlphaFromDiffuseTexture = true
+        // Create a new material
+        const labelMaterial = new StandardMaterial('labelMaterial', scene)
+        labelMaterial.diffuseTexture = dynamicTexture
+        labelMaterial.specularColor = new Color3(0, 0, 0)
+        labelMaterial.backFaceCulling = false
+        labelMaterial.emissiveColor = new Color3(1, 1, 1)
+        labelMaterial.useAlphaFromDiffuseTexture = true
 
-      //   plane.material = labelMaterial
+        plane.material = labelMaterial
 
-      //   // Draw the new text
-      //   dynamicTexture.drawText(
-      //     item.name,
-      //     null,
-      //     null,
-      //     'bold 48px Arial',
-      //     color,
-      //     'transparent',
-      //     true
-      //   )
+        // Draw the new text
+        dynamicTexture.drawText(
+          item.name,
+          null,
+          null,
+          'bold 48px Arial',
+          color,
+          'transparent',
+          true
+        )
 
-      //   // Update the meshes.value with the new label
-      //   meshes.value[item.meshId].label = plane
-      // } else {
-      //   console.log(`Mesh with meshId ${item.meshId} not found.`)
-      // }
+        // Update the meshes.value with the new label
+        meshes.value[item.meshId].label = plane
+      } else {
+        console.log(`Mesh with meshId ${item.meshId} not found.`)
+      }
     }
 
     onMounted(() => {
