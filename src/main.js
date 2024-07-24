@@ -1,5 +1,10 @@
 import './assets/main.css'
-import '@fortawesome/fontawesome-free/css/all.min.css'
+import '@fortawesome/fontawesome-free/css/all.css'
+
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { fas } from '@fortawesome/free-solid-svg-icons'
+
 import 'flowbite'
 import * as Flowbite from 'flowbite-vue'
 
@@ -11,7 +16,11 @@ import router from './router'
 
 import './index.css'
 
+library.add(fas)
+
 const app = createApp(App)
+// FontAwesomeIcon 컴포넌트를 글로벌로 등록
+app.component('font-awesome-icon', FontAwesomeIcon)
 
 app.use(createPinia())
 app.use(router)

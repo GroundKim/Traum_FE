@@ -56,7 +56,7 @@ export default {
           labels: [0],
           datasets: [
             {
-              label: 'X',
+              label: 'Sensor',
               backgroundColor: '#4c51bf',
               borderColor: '#4c51bf',
               data: [0],
@@ -109,7 +109,8 @@ export default {
               {
                 ticks: {
                   fontColor: 'black', // 변경: y축 레이블 색상을 검은색으로 설정
-                  max: 50,
+                  fontSize: 20,
+                  max: 0,
                   min: 0,
                   stepSize: 50 / 2,
                   callback: function (value) {
@@ -120,7 +121,8 @@ export default {
                 scaleLabel: {
                   display: true,
                   labelString: 'Value',
-                  fontColor: 'black'
+                  fontColor: 'black',
+                  fontSize: 16
                 },
                 gridLines: {
                   color: 'rgba(0, 0, 0, 0.1)' // 변경: 그리드 라인 색상을 연한 검은색으로 설정
@@ -134,7 +136,7 @@ export default {
                 type: 'line',
                 mode: 'horizontal',
                 scaleID: 'y-axis-0',
-                value: 50,
+                value: 0,
                 borderColor: 'rgba(255, 0, 0, 0.5)',
                 borderWidth: 2,
                 borderDash: [10, 5],
@@ -142,7 +144,8 @@ export default {
                   content: 'Threshold',
                   enabled: true,
                   position: 'left',
-                  fontColor: 'black' // 변경: 주석 레이블 색상을 검은색으로 설정
+                  fontColor: 'red', // 변경: 주석 레이블 색상을 검은색으로 설정
+                  fontSize: 20
                 }
               }
             ]
@@ -158,7 +161,7 @@ export default {
 
     const updateChart = (singleValue, singleTime, newItem) => {
       if (myChart) {
-        if (myChart.data.labels.length >= 100) {
+        if (myChart.data.labels.length >= 20) {
           myChart.data.labels.shift()
           myChart.data.datasets[0].data.shift()
         }
@@ -167,16 +170,14 @@ export default {
 
         // y축 범위 동적 조정
         const maxValue = Math.max(...myChart.data.datasets[0].data, props.selectedItem.threshold)
+        const minValue = Math.min(...myChart.data.datasets[0].data, props.selectedItem.threshold)
+
         myChart.options.scales.yAxes[0].ticks.max = maxValue * 1.2
+        myChart.options.scales.yAxes[0].ticks.min = minValue * 0.8
+
         myChart.options.scales.yAxes[0].ticks.stepSize = maxValue / 4
+
         myChart.options.annotation.annotations[0].value = newItem.threshold
-
-        console.log(newItem.threshold)
-        console.log(newItem.threshold)
-        console.log(newItem.threshold)
-        console.log(newItem.threshold)
-        console.log(newItem.threshold)
-
         myChart.update()
       }
     }
