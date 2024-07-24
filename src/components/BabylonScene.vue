@@ -1,11 +1,19 @@
 <template>
   <div class="flex flex-col">
+    <div class="flex flex-row-reverse">
+      <font-awesome-icon
+        @click="toggleFullScreen"
+        size="3x"
+        :icon="['fas', 'up-right-and-down-left-from-center']"
+      />
+    </div>
+
     <canvas ref="bjsCanvas" @dragover.prevent @drop="onDrop"></canvas>
   </div>
 </template>
-
 <script>
 import { ref, onMounted, onUnmounted } from 'vue'
+import mqtt from 'mqtt'
 import {
   Engine,
   Scene,
@@ -29,6 +37,8 @@ export default {
     const meshes = ref({})
     const bjsCanvas = ref(null)
     let engine, scene, camera, highlightLayer
+    const client = ref(null)
+    const connectionStatus = ref('Disconnected')
     const createScene = (canvas) => {
       engine = new Engine(canvas, true, { stencil: true })
       scene = new Scene(engine)
@@ -285,9 +295,15 @@ export default {
 
           meshes.value[itemData.meshId] = {
             meshName: itemData.meshName,
+            name: itemData.name,
+            meshId: itemData.meshId,
+            mqttTopic:itemData.mqttTopic,
+            threshold: itemData.threshold,
             mesh: mesh,
-            label: plane
+            label: plane,
+            color:'null'
           }
+          handleReadItems()
         } catch (error) {
           console.error('Error creating mesh:', error)
         }
@@ -307,9 +323,12 @@ export default {
       changeMeshColorRed(item)
     }
 
-    const handleUpdateName = (item) => {
+    const handleUpdateName = (item) => {      
       if (meshes.value[item.meshId]) {
         const mesh = meshes.value[item.meshId].mesh
+        meshes.value[item.meshId].name=item.name
+        meshes.value[item.meshId].mqttTopic=item.mqttTopic
+        meshes.value[item.meshId].threshold=item.threshold
         // Remove the existing label plane
         if (meshes.value[item.meshId].label) {
           meshes.value[item.meshId].label.dispose()
@@ -360,7 +379,10 @@ export default {
     }
 
     // sensor 하이라이트, 글씨색상 변경 처리
+
+    
     const handleUpdateNameColor = async (item, color) => {
+     
       if (meshes.value[item.meshId]) {
         const position = meshes.value[item.meshId].mesh.position
 
@@ -451,6 +473,83 @@ export default {
       }
     }
 
+    const handleReadItems = () => {
+      if (client.value) {
+        client.value.end()
+      }
+      client.value = mqtt.connect(`ws://${import.meta.env.VITE_SOCKET_URL}`)
+      
+      client.value.on('connect', () => {
+        console.log('Connected to MQTT broker')
+        connectionStatus.value = 'Connected'
+
+        Object.values(meshes.value).forEach(item => {
+        
+          if (item.mqttTopic) {
+            client.value.subscribe(item.mqttTopic, (err) => {
+              if (!err) {
+                console.log(`Subscribed to ${item.mqttTopic}`)
+              }
+            })
+          }
+        })
+      })
+
+      client.value.on('message', (topic, message) => {
+        const messageStr = message.toString()
+        try {
+          const messageObj = JSON.parse(messageStr)
+         
+          if (messageObj !== undefined) {
+            const item = Object.values(meshes.value).find(item => item.mqttTopic === topic)
+            if (item) {
+              const singleValue = Number(messageObj[0].value)
+            
+              let newColor = 'white'
+              if (singleValue >= Number(item.threshold)) {
+                newColor = 'red'
+              console.log(newColor)
+
+              }
+              else if (singleValue < Number(item.threshold)) {
+                newColor = 'white'
+              console.log(newColor)
+              }
+              console.log(newColor)
+              console.log(item.color)
+              console.log(item.color)
+              console.log(item.color)
+              console.log(item.color)
+              if (newColor !== item.color) {
+                meshes.value[item.meshId].color = newColor
+                handleUpdateNameColor(item, newColor)
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Error parsing message:', error)
+        }
+      })
+
+      client.value.on('error', (error) => {
+        console.error('MQTT connection error:', error)
+        connectionStatus.value = 'Error: ' + error.message
+      })
+
+      client.value.on('close', () => {
+        connectionStatus.value = 'Disconnected'
+      })
+    }
+
+    const toggleFullScreen = () => {
+      if (!document.fullscreenElement) {
+        bjsCanvas.value.requestFullscreen()
+      } else {
+        document.exitFullscreen()
+      }
+    }
+  
+
     onMounted(() => {
       if (bjsCanvas.value) {
         scene = createScene(bjsCanvas.value)
@@ -461,13 +560,18 @@ export default {
       emitter.on('alarmItem', handleAlarm)
       emitter.on('updateItem', (item) => {
         handleUpdateName(item)
+        handleReadItems()
+        
       })
-      emitter.on('updateItemColor', ([item, color]) => {
-        console.log(color)
-        console.log(item)
+      emitter.on('updateItemColor', () => {
+        handleReadItems()
+     
 
-        handleUpdateNameColor(item, color)
+        // handleUpdateNameColor(item, color)
       })
+
+       // 초기 MQTT 연결
+      //  handleReadItems()
     })
 
     onUnmounted(() => {
@@ -478,6 +582,9 @@ export default {
       emitter.off('removeItem', handleDelete)
       emitter.off('alarmItem', handleAlarm)
       emitter.off('updateItem', handleUpdateName)
+      if (client.value) {
+        client.value.end()
+      }
     })
 
     return {
@@ -488,7 +595,9 @@ export default {
       meshes,
       handleUpdateName,
       changeMeshColorRed,
-      changeMeshColorGreen
+      changeMeshColorGreen,
+      connectionStatus,
+      toggleFullScreen
     }
   }
 }

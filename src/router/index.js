@@ -29,9 +29,16 @@ const router = createRouter({
       name: 'register'
     },
     {
-      path: '/digitaltwin',
+      path: '/digitaltwin/:meshId',
       component: () => import('../views/DigitalTwinView.vue'),
-      name: 'DigitalTwin'
+      name: 'DigitalTwin',
+      props: true
+    },
+    {
+      path: '/popup/:name/:threshold/:mqttTopic(.*)',
+      component: () => import('../components/modals/PopUpContent.vue'),
+      name: 'PopupContent',
+      props: true
     }
   ]
 })

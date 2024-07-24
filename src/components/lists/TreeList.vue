@@ -55,8 +55,8 @@
                 리셋
               </button>
               <button
-                v-if="category.name == 'sensor'"
-                @click="emitReadItem(item)"
+                
+                @click="category.name == 'sensor'? openPopup(item): $router.push(`/digitaltwin/${item.meshId}`)"
                 class="bg-blue-500 text-white text-xl px-4 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
               >
                 조회
@@ -190,6 +190,7 @@ export default {
         // 해당 요소를 item으로 교체
         categories.value[categoryIndex].items[itemIndex] = item
         emitUpdateItem(item)
+        
       } else {
         console.log(`Item with meshId ${item.meshId} not found.`)
       }
@@ -207,10 +208,37 @@ export default {
       console.log(item)
       console.log(item)
       emitter.emit('updateItem', item)
+      // emitter.emit('updateItemColor', item)
+      openPopup(item)
     }
 
     const emitReadItem = (item) => {
       emitter.emit('readItem', item)
+    }
+
+    const openPopup = (item) => {
+      const width = 600
+      const height = 400
+      const left = (window.screen.width - width) / 2
+      const top = (window.screen.height - height) / 2
+
+
+
+      // Construct the URL with route parameters if any
+      // const popupUrl = `/popup/`
+      const popupUrl = `/popup/${item.name}/${item.threshold}/${item.mqttTopic}`
+      const popName=`/popup/${item.name}/${item.threshold}/${item.mqttTopic}`
+      const popup = window.open(
+        popupUrl,
+        popName,
+        `width=${width},height=${height},left=${left},top=${top}`
+      )
+
+      if (popup) {
+        popup.onload = () => {
+          // 필요한 경우 추가 로직
+        }
+      }
     }
 
     return {
@@ -222,7 +250,8 @@ export default {
       emitUpdateItem,
       emitReadItem,
       addItem,
-      emitRemoveItem
+      emitRemoveItem,
+      openPopup
     }
   },
   data() {
