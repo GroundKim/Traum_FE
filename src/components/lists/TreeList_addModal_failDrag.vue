@@ -25,11 +25,9 @@
             v-for="item in category.items"
             :key="item.name"
             draggable="true"
-            @drag="onDragStart($event, item)"
+            @dragstart="onDragStart($event, item)"
           >
             {{ item.name }}
-            <!-- @dragstart="onDragStart($event, item)" -->
-            <!-- @drag.stop="handleDrag" -->
 
             <div class="flex justify-between">
               <treeModal :item="item" @setCondition="setCondition" />
@@ -56,6 +54,7 @@
               >
                 리셋
               </button>
+
               <button
                 v-if="category.name == 'sensor'"
                 @click="emitReadItem(item)"
@@ -63,6 +62,7 @@
               >
                 조회
               </button>
+              <graphModal></graphModal>
 
               <button
                 @click="emitRemoveItem(item)"
@@ -70,6 +70,8 @@
               >
                 삭제
               </button>
+
+              <button @click="openPopup(item)">팝업 열기</button>
             </div>
           </li>
         </ul>
@@ -80,8 +82,11 @@
 
 <script>
 import { ref } from 'vue'
+
 import emitter from '@/components/eventBus.js'
 import treeModal from '@/components/modals/treeModal.vue'
+import { usePopupStore } from '@/stores/popupStore'
+
 import io from 'socket.io-client'
 export default {
   name: 'TreeComponent',
@@ -166,22 +171,11 @@ export default {
         ]
       }
     ])
+
+    const popupStore = usePopupStore()
+
     const onDragStart = (event, item) => {
-      console.log('트리리스트 시작 ' + event)
-      console.log('트리리스트 시작 ' + event)
-      console.log(item)
-
-      console.log('Setting data:', JSON.stringify(item))
-
-      // event.dataTransfer.setData('application/json', JSON.stringify(item))
-      event.preventDefault() // 주의: 이 줄을 추가하면 드래그가 완전히 차단될 수 있습니다
-
-      event.dataTransfer.effectAllowed = 'copy' // 또는 'move', 'link' 등
-      event.dataTransfer.setData('text/plain', JSON.stringify(item))
-
-      const storedData = event.dataTransfer.getData('text/plain')
-      console.log(storedData)
-
+      event.dataTransfer.setData('application/json', JSON.stringify(item))
       emit('dragStart', item)
     }
 
@@ -225,6 +219,35 @@ export default {
       emitter.emit('readItem', item)
     }
 
+    //팝업관련//
+
+    const openPopup = (item) => {
+      const width = 600
+      const height = 400
+      const left = (window.screen.width - width) / 2
+      const top = (window.screen.height - height) / 2
+
+      // Pinia 스토어에 item 저장
+      console.log(item)
+
+      console.log(popupStore.item)
+
+      // Construct the URL with route parameters if any
+      // const popupUrl = `/popup/`
+      const popupUrl = `/popup/${item.name}/${item.threshold}/${item.mqttTopic}`
+      const popup = window.open(
+        popupUrl,
+        'Popup',
+        `width=${width},height=${height},left=${left},top=${top}`
+      )
+
+      if (popup) {
+        popup.onload = () => {
+          // 필요한 경우 추가 로직
+        }
+      }
+    }
+
     return {
       categories,
       onDragStart,
@@ -234,7 +257,8 @@ export default {
       emitUpdateItem,
       emitReadItem,
       addItem,
-      emitRemoveItem
+      emitRemoveItem,
+      openPopup
     }
   },
   data() {
@@ -322,5 +346,23 @@ export default {
 .tree ul {
   list-style-type: none;
   padding-left: 20px;
+}
+.popup-window {
+  position: fixed;
+  width: 300px;
+  background: white;
+  border: 1px solid #ccc;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+}
+.popup-header {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+  background: #f0f0f0;
+  cursor: move;
+}
+.popup-content {
+  padding: 10px;
 }
 </style>

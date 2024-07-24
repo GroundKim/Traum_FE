@@ -1,5 +1,13 @@
 <template>
   <div class="flex flex-col">
+    <div class="flex flex-row-reverse">
+      <font-awesome-icon
+        @click="toggleFullScreen"
+        size="3x"
+        :icon="['fas', 'up-right-and-down-left-from-center']"
+      />
+    </div>
+
     <canvas ref="bjsCanvas" @dragover.prevent @drop="onDrop"></canvas>
   </div>
 </template>
@@ -212,6 +220,14 @@ export default {
         } catch (e) {
           console.error(`Failed to load mesh ${meshes.value[item.meshId].meshName}G.glb`, e)
         }
+      }
+    }
+
+    const toggleFullScreen = () => {
+      if (!document.fullscreenElement) {
+        bjsCanvas.value.requestFullscreen()
+      } else {
+        document.exitFullscreen()
       }
     }
 
@@ -488,7 +504,8 @@ export default {
       meshes,
       handleUpdateName,
       changeMeshColorRed,
-      changeMeshColorGreen
+      changeMeshColorGreen,
+      toggleFullScreen
     }
   }
 }

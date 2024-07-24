@@ -32,6 +32,12 @@ const router = createRouter({
       path: '/digitaltwin',
       component: () => import('../views/DigitalTwinView.vue'),
       name: 'DigitalTwin'
+    },
+    {
+      path: '/popup/:name/:threshold/:mqttTopic(.*)',
+      component: () => import('../components/modals/PopUpContent.vue'),
+      name: 'PopupContent',
+      props: true
     }
   ]
 })

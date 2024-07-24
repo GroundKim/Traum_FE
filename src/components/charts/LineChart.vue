@@ -33,7 +33,7 @@ export default {
   props: {
     selectedItem: {
       type: Object,
-      required: true,
+      required: false,
       default: () => ({ name: 'targetName' })
     },
     singleTime: {
@@ -41,7 +41,15 @@ export default {
       required: false
     },
     singleValue: {
-      type: Number
+      type: Number,
+      required: false
+    },
+    threshold: {
+      type: Number,
+      required: false
+    },
+    name: {
+      type: String
     }
   },
   setup(props) {
@@ -159,7 +167,7 @@ export default {
       }
     })
 
-    const updateChart = (singleValue, singleTime, newItem) => {
+    const updateChart = (singleValue, singleTime, threshold) => {
       if (myChart) {
         if (myChart.data.labels.length >= 20) {
           myChart.data.labels.shift()
@@ -167,17 +175,21 @@ export default {
         }
         myChart.data.labels.push(singleTime)
         myChart.data.datasets[0].data.push(singleValue)
+        console.log(threshold)
+        console.log(threshold)
+        console.log(threshold)
+        console.log(threshold)
 
         // y축 범위 동적 조정
-        const maxValue = Math.max(...myChart.data.datasets[0].data, props.selectedItem.threshold)
-        const minValue = Math.min(...myChart.data.datasets[0].data, props.selectedItem.threshold)
+        const maxValue = Math.max(...myChart.data.datasets[0].data, threshold)
+        const minValue = Math.min(...myChart.data.datasets[0].data, threshold)
 
         myChart.options.scales.yAxes[0].ticks.max = maxValue * 1.2
         myChart.options.scales.yAxes[0].ticks.min = minValue * 0.8
 
         myChart.options.scales.yAxes[0].ticks.stepSize = maxValue / 4
 
-        myChart.options.annotation.annotations[0].value = newItem.threshold
+        myChart.options.annotation.annotations[0].value = threshold
         myChart.update()
       }
     }
@@ -192,10 +204,15 @@ export default {
     }
 
     watch(
-      () => [props.singleValue, props.singleTime, props.selectedItem],
+      () => [props.singleValue, props.singleTime, props.threshold],
       (newValue) => {
-        const [singleValue, singleTime, newItem] = newValue
-        updateChart(singleValue, singleTime, newItem)
+        console.log(newValue)
+        console.log(newValue)
+        console.log(newValue)
+        console.log(newValue)
+        console.log(newValue)
+        const [singleValue, singleTime, threshold] = newValue
+        updateChart(singleValue, singleTime, threshold)
       },
       { deep: true }
     )
