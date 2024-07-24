@@ -93,15 +93,6 @@ const handleReadItem = (item) => {
         } else if (singleValue.value <= Number(selectedItem.value.threshold)) {
           textColor = 'white'
         }
-        console.log(selectedItem.value)
-        console.log(selectedItem.value)
-        console.log(selectedItem.value)
-        console.log(selectedItem.value)
-        console.log(selectedItem.value)
-        console.log(selectedItem.value.threshold)
-        console.log(textColor)
-        console.log(textColor)
-        console.log(textColor)
         emitter.emit('updateItemColor', [selectedItem.value, textColor])
       }
     } catch (error) {

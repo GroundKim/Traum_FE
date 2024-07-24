@@ -62,6 +62,7 @@ export default {
         removeMesh(meshName)
       })
     }
+    // kit 중지 시 하이라이트 및 형광등 변경
 
     const changeMeshColorRed = async (item) => {
       if (meshes.value[item.meshId]) {
@@ -137,6 +138,8 @@ export default {
         }
       }
     }
+    // kit 작동 시 하이라이트 및 형광등 변경
+
     const changeMeshColorGreen = async (item) => {
       if (meshes.value[item.meshId]) {
         const position = meshes.value[item.meshId].mesh.position
@@ -356,57 +359,7 @@ export default {
       }
     }
 
-    // const handleUpdateNameColor = (item, color) => {
-    //   if (meshes.value[item.meshId]) {
-    //     const mesh = meshes.value[item.meshId].mesh
-    //     // Remove the existing label plane
-    //     if (meshes.value[item.meshId].label) {
-    //       meshes.value[item.meshId].label.dispose()
-    //     }
-
-    //     // Create a new plane
-    //     const plane = MeshBuilder.CreatePlane('labelPlane', { width: 1, height: 0.5 }, scene)
-    //     plane.parent = mesh
-    //     plane.position.y = -1
-    //     plane.position.z = 0.1
-    //     plane.rotation.x = Math.PI
-    //     plane.billboardMode = Mesh.BILLBOARDMODE_ALL
-
-    //     // Create a new dynamic texture
-    //     const dynamicTexture = new DynamicTexture(
-    //       'labelTexture',
-    //       { width: 256, height: 128 },
-    //       scene
-    //     )
-
-    //     // Create a new material
-    //     const labelMaterial = new StandardMaterial('labelMaterial', scene)
-    //     labelMaterial.diffuseTexture = dynamicTexture
-    //     labelMaterial.specularColor = new Color3(0, 0, 0)
-    //     labelMaterial.backFaceCulling = false
-    //     labelMaterial.emissiveColor = new Color3(1, 1, 1)
-    //     labelMaterial.useAlphaFromDiffuseTexture = true
-
-    //     plane.material = labelMaterial
-
-    //     // Draw the new text
-    //     dynamicTexture.drawText(
-    //       item.name,
-    //       null,
-    //       null,
-    //       'bold 48px Arial',
-    //       color,
-    //       'transparent',
-    //       true
-    //     )
-
-    //     // Update the meshes.value with the new label
-    //     meshes.value[item.meshId].label = plane
-    //   } else {
-    //     console.log(`Mesh with meshId ${item.meshId} not found.`)
-    //   }
-    // }
-
+    // sensor 하이라이트, 글씨색상 변경 처리
     const handleUpdateNameColor = async (item, color) => {
       if (meshes.value[item.meshId]) {
         const position = meshes.value[item.meshId].mesh.position
