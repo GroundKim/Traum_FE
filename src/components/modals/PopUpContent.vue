@@ -1,7 +1,5 @@
 <template>
   <div>
-    <h1>h1-모달</h1>
-    <p>팝업컨텐츠:{{ name }}</p>
     <LineChart :singleTime="singleTime" :singleValue="singleValue" :threshold="threshold" :name="name"/>
   </div>
 </template>

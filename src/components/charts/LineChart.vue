@@ -11,6 +11,13 @@
     </div>
     <div class="p-4 flex-auto">
       <!-- Chart -->
+    <button>상세보기</button>
+    <button>상세보기</button>
+    <button>상세보기</button>
+    <button>상세보기</button>
+    <button>상세보기</button>
+    <button>상세보기</button>
+
       <div class="relative chart-container">
         <canvas ref="chart"></canvas>
       </div>

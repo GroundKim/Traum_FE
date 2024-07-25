@@ -5,11 +5,20 @@
     <div class="rounded-t mb-0 px-4 py-3 bg-transparent">
       <div class="flex flex-wrap items-center">
         <div class="relative w-full max-w-full flex-grow flex-1">
-          <h2 class="text-black text-xl font-semibold">{{ currentName }}</h2>
+          <p class="text-black text-2xl font-semibold">{{ currentName }}</p>
+          <button
+                
+                @click="$router.push(`/digitaltwin/${item.meshId}`)"
+                class="bg-blue-500 text-white text-xl px-4 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
+              >
+                상세보기
+              </button>
+
         </div>
       </div>
     </div>
     <div class="p-4 flex-auto">
+     
       <!-- Chart -->
       <div class="relative chart-container">
         <canvas ref="chart"></canvas>

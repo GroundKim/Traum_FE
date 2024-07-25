@@ -272,9 +272,14 @@ export default {
         console.log('Maximum connection attempts reached. Stopping further attempts.')
         return
       }
+      // this.socket = io('ws://traum.groundkim.com:8282', {
+        // traum.groundkim.com:8282
+// const socket = io('ws://traum.groundkim.com:8282', {
 
-      this.socket = io('ws://traum.groundkim.com:8282', {
+        this.socket = io('ws://traum.groundkim.com:8282', {
+          
         transports: ['websocket'],
+
         reconnectionAttempts: 1,
         reconnectionDelay: 1000
       })
@@ -287,6 +292,10 @@ export default {
       })
 
       this.socket.on('message', (msg) => {
+        console.log("here")
+        console.log("here")
+        console.log("here")
+        console.log("here")
         console.log('Received message: ' + msg)
       })
 
