@@ -194,6 +194,8 @@ const sendCommand = (tagId, value) => {
   } else {
     console.log("WebSocket이 연결되지 않았습니다.");
   }
+  };
+
 const socket =io(`ws://${import.meta.env.VITE_SOCKET_IO_URL}`, {
   transports: ['websocket'],
 });
