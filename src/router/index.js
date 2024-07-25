@@ -37,6 +37,11 @@ const router = createRouter({
       path: '/digitaltwin',
       component: () => import('../views/DigitalTwinView.vue'),
       name: 'DigitalTwin'
+    },
+    {
+      path: '/ekdashboard',
+      component: () => import('../views/EdukitDashboardView.vue'),
+      name: 'EkDashboard'
     }
   ]
 })
