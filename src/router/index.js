@@ -6,12 +6,12 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      redirect: '/dashboard'
+      redirect: '/builder'
     },
     {
-      path: '/dashboard',
-      component: () => import('../views/DashboardView.vue'),
-      name: 'Dashboard'
+      path: '/builder',
+      component: () => import('../views/builderView.vue'),
+      name: 'builder'
     },
     {
       path: '/simulation',
@@ -35,9 +35,10 @@ const router = createRouter({
       props: true
     },
     {
-      path: '/ekdashboard',
-      component: () => import('../views/EdukitDashboardView.vue'),
-      name: 'EkDashboard'
+      path: '/dashboard/:meshId',
+      component: () => import('../views/DashboardView.vue'),
+      name: 'Dashboard',
+      props: true
     },
     {
       path: '/popup/:name/:threshold/:mqttTopic(.*)',

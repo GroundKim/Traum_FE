@@ -56,8 +56,9 @@
               </button>
               <button
                 
-                @click="category.name == 'sensor'? openPopup(item): $router.push(`/digitaltwin/${item.meshId}`)"
+                @click="category.name == 'sensor'? openPopup(item): $router.push(`/dashboard/${item.meshId}`)"
                 class="bg-blue-500 text-white text-xl px-4 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
+                :style="{disabled: category.items.name == 'eduiKit2'}"
               >
                 조회
               </button>
@@ -111,7 +112,7 @@ export default {
         items: [
           {
             meshId: 1,
-            name: 'eduKit',
+            name: 'eduKit1',
             type: '3d',
             meshName: 'eduKit',
             mqttTopic: 'edge/edukit/status',
@@ -119,7 +120,7 @@ export default {
           },
           {
             meshId: 2,
-            name: 'eduKit',
+            name: 'eduKit2',
             type: '3d',
             meshName: 'eduKit',
             mqttTopic: 'edge/edukit/status',
@@ -127,7 +128,7 @@ export default {
           },
           {
             meshId: 3,
-            name: 'eduKit',
+            name: 'eduKit3',
             type: '3d',
             meshName: 'eduKit',
             mqttTopic: 'edge/edukit/status',
@@ -135,7 +136,7 @@ export default {
           },
           {
             meshId: 4,
-            name: 'eduKit',
+            name: 'eduKit4',
             type: '3d',
             meshName: 'eduKit',
             mqttTopic: 'edge/edukit/status',
@@ -143,7 +144,7 @@ export default {
           },
           {
             meshId: 5,
-            name: 'eduKit',
+            name: 'eduKit5',
             type: '3d',
             meshName: 'eduKit',
             mqttTopic: 'edge/edukit/status',

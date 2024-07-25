@@ -37,10 +37,10 @@ export default {
   setup() {
     const userRole = ref('')
     const links = [
-      { path: '/dashboard', name: 'Builder' },
+      { path: '/builder', name: 'Builder' },
       { path: '/simulation', name: 'Simulation' },
-      { path: '/digitaltwin1', name : 'DigitalTwin'},
-      { path: '/ekdashboard', name: 'Dashboard'}
+      { path: '/digitaltwin/1', name : 'DigitalTwin'},
+      { path: '/dashboard/1', name: 'Dashboard'}
     ]
 
     const isActive = (path) => {

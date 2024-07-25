@@ -126,7 +126,7 @@ export default {
     }
 
     const routeToUnity = () => {
-      router.push('/digitaltwin')
+      router.push('/digitaltwin/1')
     }
 
     const meshName = props.item.meshName
