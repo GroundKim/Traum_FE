@@ -14,11 +14,6 @@ const router = createRouter({
       name: 'Dashboard'
     },
     {
-      path: '/dashboard2',
-      component: () => import('../views/Dashboard2View.vue'),
-      name: 'Dashboard2'
-    },
-    {
       path: '/simulation',
       component: () => import('../views/SimulationView.vue'),
       name: 'Simulation'
@@ -34,14 +29,21 @@ const router = createRouter({
       name: 'register'
     },
     {
-      path: '/digitaltwin',
+      path: '/digitaltwin/:meshId',
       component: () => import('../views/DigitalTwinView.vue'),
       name: 'DigitalTwin'
+      props: true
     },
     {
       path: '/ekdashboard',
       component: () => import('../views/EdukitDashboardView.vue'),
       name: 'EkDashboard'
+    },
+    {
+      path: '/popup/:name/:threshold/:mqttTopic(.*)',
+      component: () => import('../components/modals/PopUpContent.vue'),
+      name: 'PopupContent',
+      props: true
     }
   ]
 })

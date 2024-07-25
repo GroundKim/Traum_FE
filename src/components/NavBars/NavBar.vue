@@ -39,7 +39,7 @@ export default {
     const links = [
       { path: '/dashboard', name: 'Builder' },
       { path: '/simulation', name: 'Simulation' },
-      { path: '/digitaltwin', name : 'DigitalTwin'},
+      { path: '/digitaltwin1', name : 'DigitalTwin'},
       { path: '/ekdashboard', name: 'Dashboard'}
     ]
 

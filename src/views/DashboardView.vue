@@ -3,6 +3,8 @@
     <div class="flex flex-wrap mt-4">
       <div class="w-full">
         {{ connectionStatus }}
+        <font-awesome-icon :icon="['fas', 'circle-plus']" class="mr-2" />
+        <font-awesome-icon :icon="['fas', 'circle-plus']" class="mr-2" />
         <fwb-button color="default">Default</fwb-button>
         <fwb-button color="alternative">Alternative</fwb-button>
         <fwb-button color="dark">Dark</fwb-button>
@@ -26,7 +28,7 @@
         </div>
         <div class="px-10 py-4"></div>
         <line-chart-detail
-          class="h-[200px]"
+          class="h-[280px]"
           :selectedItem="selectedItem"
           :singleValue="singleValue"
           :singleTime="singleTime"
@@ -54,6 +56,7 @@ const connectionStatus = ref('Disconnected')
 const selectedItem = ref({})
 const singleValue = ref()
 const singleTime = ref()
+// const socketURL = process.env.SOCKET_ADDRESS
 
 const onDragStart = (item) => {
   console.log('Drag started:', item)
@@ -65,7 +68,7 @@ const handleModal = (item) => {
 }
 
 const handleReadItem = (item) => {
-  client.value = mqtt.connect('ws://192.168.0.32:9001')
+  client.value = mqtt.connect(`ws://${import.meta.env.VITE_SOCKET_URL}`)
   client.value.on('connect', () => {
     console.log('Connected to MQTT broker')
     connectionStatus.value = 'Connected'
@@ -90,15 +93,6 @@ const handleReadItem = (item) => {
         } else if (singleValue.value <= Number(selectedItem.value.threshold)) {
           textColor = 'white'
         }
-        console.log(selectedItem.value)
-        console.log(selectedItem.value)
-        console.log(selectedItem.value)
-        console.log(selectedItem.value)
-        console.log(selectedItem.value)
-        console.log(selectedItem.value.threshold)
-        console.log(textColor)
-        console.log(textColor)
-        console.log(textColor)
         emitter.emit('updateItemColor', [selectedItem.value, textColor])
       }
     } catch (error) {
@@ -129,7 +123,7 @@ onUnmounted(() => {
 </script>
 
 <!-- <ul>
-        <li v-for="(value, index) in values" :key="index">
-          Value: {{ value }}, Time: {{ times[index] }}
-        </li>
-      </ul> -->
+          <li v-for="(value, index) in values" :key="index">
+            Value: {{ value }}, Time: {{ times[index] }}
+          </li>
+        </ul> -->

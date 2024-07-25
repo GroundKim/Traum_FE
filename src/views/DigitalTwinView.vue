@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h1>Edukit View</h1>
+    <h1>Edukit {{ meshId }} View</h1>
     <div id="unity-container" class="unity-desktop">
       <canvas id="unity-canvas"></canvas>
       <div id="unity-loading-bar">
@@ -17,6 +17,8 @@
 import mqtt from "mqtt";
 export default {
   name: 'EdukitView',
+  props:{meshId:Number},
+
   mounted() {
     this.loadUnity();
   },
