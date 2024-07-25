@@ -273,7 +273,7 @@ export default {
         return
       }
 
-      this.socket = io('http://192.168.0.20:8282', {
+      this.socket = io('ws://traum.groundkim.com:8282', {
         transports: ['websocket'],
         reconnectionAttempts: 1,
         reconnectionDelay: 1000

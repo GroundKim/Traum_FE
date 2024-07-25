@@ -31,8 +31,13 @@ const router = createRouter({
     {
       path: '/digitaltwin/:meshId',
       component: () => import('../views/DigitalTwinView.vue'),
-      name: 'DigitalTwin',
+      name: 'DigitalTwin'
       props: true
+    },
+    {
+      path: '/ekdashboard',
+      component: () => import('../views/EdukitDashboardView.vue'),
+      name: 'EkDashboard'
     },
     {
       path: '/popup/:name/:threshold/:mqttTopic(.*)',
