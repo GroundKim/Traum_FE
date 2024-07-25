@@ -1,10 +1,36 @@
 <template>
   <div class="main open-sans-main">
-    <div> 이거 뭔지 </div>
+    <div class="top">
+      <div class="top-contents top-left">
+        <div class="progress-bar">
+          <div class="progress" :style="{ width: datalist.No3Count*20 + '%' }"></div>
+        </div>
+      </div>
+      <div class="top-contents top-mid">
+        <div class="progress-bar">
+          <div class="progress" :style="{ width: datalist.No3Count*20 + '%' }"></div>
+        </div>
+      </div>
+      <div class="top-contents top-right">
+        <div class="lamp-status">
+          <div class="lamp green" :class="{ active: datalist.GreenLampState }"></div>
+          <div class="lamp yellow" :class="{ active: datalist.YellowLampState }"></div>
+          <div class="lamp red" :class="{ active: datalist.RedLampState }"></div>
+        </div>
+        <div v-if="datalist.RedLampState"> ERROR </div>
+        <div v-else-if="!datalist.No1PowerState || !datalist.No2PowerState || !datalist.No3PowerState"> CHECK UNIT'S POWER</div>
+        <div v-else> CLEAR </div>
+      </div>
+    </div>
+
     <div class="container">
       <div :class="['process', 'no1', { inactive: !datalist.No1PowerState }]">
         <div class="topic">
           <div class="name">Unit No.1</div>
+        </div>
+        <div class="standby">
+          <span class="standby run" v-if="datalist.No1Push">RUNNING</span>
+          <span class="standby ready" v-else>READY</span>
         </div>
         <div class="data">
           <span>INPUT : {{ datalist.No1Count }}</span>
@@ -18,11 +44,10 @@
             {{ datalist.No1ChipFull ? '자재 정상' : '자재 부족' }}
           </span>
         </div>
-        <button @click="sendCommand('9', datalist.No1PowerState ? '0' : '1')">
+        <button @click="openModal('Unit No.1', '9', datalist.No1PowerState)">
           {{ datalist.No1PowerState ? 'Turn Off' : 'Turn On' }}
         </button>
       </div>
-      
       <!-- 원형 및 이미지 컨테이너 -->
       <div class="circle-container" v-if="datalist.StartState">
         <div :class="['circle', { 'animate-circle': datalist.StartState }]"></div>
@@ -43,6 +68,10 @@
         <div class="topic">
           <div class="name">Unit No.2</div>
         </div>
+        <div class="standby">
+          <span class="standby run" v-if="datalist.No1Push">RUNNING</span>
+          <span class="standby ready" v-else>READY</span>
+        </div>
         <div class="data">
           <span>ASSEMBLY : {{ datalist.No2Count }}</span>
           <div class="chip-container">
@@ -55,12 +84,10 @@
             {{ !datalist.No2CubeFull ? '부품 정상' : '부품 부족' }}
           </span>
         </div>
-        <button @click="sendCommand('10', datalist.No2PowerState ? '0' : '1')">
+        <button @click="openModal('Unit No.2', '10', datalist.No2PowerState)">
           {{ datalist.No2PowerState ? 'Turn Off' : 'Turn On' }}
         </button>
       </div>
-      
-      <!-- 또 다른 원형 및 이미지 컨테이너 -->
       <div class="circle-container">
         <div class="circle"></div>
         <div class="circle"></div>
@@ -73,6 +100,10 @@
         <div class="topic">
           <div class="name">Unit No.3</div>
         </div>
+        <div class="standby">
+          <span class="standby run" v-if="datalist.No3Motor1Action || datalist.No3Motor2Action">RUNNING</span>
+          <span class="standby ready" v-else>READY</span>
+        </div>
         <div class="data">
           <span>STACK : {{ datalist.No3Count }}</span>
           <div class="chip-container">
@@ -83,17 +114,25 @@
           <span>STATUS: </span>
           <span class="status-unknown">데이터 없음</span>
         </div>
-        <button @click="sendCommand('11', datalist.No3PowerState ? '0' : '1')">
+        <button @click="openModal('Unit No.3', '11', datalist.No3PowerState)">
           {{ datalist.No3PowerState ? 'Turn Off' : 'Turn On' }}
         </button>
       </div>
     </div>
 
-    <div class="plcData">
-      <div class="data">GreenLampState: {{ datalist.GreenLampState }}</div>
-      <div class="data">YellowLampState: {{ datalist.YellowLampState }}</div>
-      <div class="data">RedLampState: {{ datalist.RedLampState }}</div>
-      <div class="data">DataTime: {{ datalist.DataTime }}</div>
+    <!-- 모달 -->
+    <div v-if="showModal" class="modal-overlay">
+      <div class="modal-content">
+        <h2>{{ modalTitle }}</h2>
+        <p>{{ modalMessage }}</p>
+        <div class="modal-buttons" v-if="datalist.StartState === false">
+          <button @click="confirmAction">YES</button>
+          <button @click="closeModal">NO</button>
+        </div>
+        <div class="modal-buttons" v-else>
+          <button @click="closeModal">CLOSE</button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -127,6 +166,12 @@ const datalist = ref({
   No2CubeFull: null,
   DataTime: null,
 });
+
+const showModal = ref(false);
+const modalTitle = ref('');
+const modalMessage = ref('');
+const currentTagId = ref('');
+const currentValue = ref('');
 
 const updateDatalist = (parsedData) => {
   const dataMap = {
@@ -184,6 +229,31 @@ const connectMQTT = () => {
   });
 
   return client;
+};
+
+const openModal = (unitName, tagId, currentState) => {
+  modalTitle.value = unitName;
+  currentTagId.value = tagId;
+  currentValue.value = currentState ? '0' : '1';
+
+  if (datalist.value.StartState) {
+    modalMessage.value = "가동중에는 공정을 비활성화 할 수 없습니다.";
+  } else {
+    modalMessage.value = currentState
+      ? `공정을 비활성화 하시겠습니까?`
+      : `공정을 비활성화 하시겠습니까?`;
+  }
+
+  showModal.value = true;
+};
+
+const confirmAction = () => {
+  sendCommand(currentTagId.value, currentValue.value);
+  closeModal();
+};
+
+const closeModal = () => {
+  showModal.value = false;
 };
 
 const sendCommand = (tagId, value) => {
@@ -252,6 +322,36 @@ onUnmounted(() => {
   gap: 20px;
   align-items : center;
 }
+.top {
+  display : flex;
+  margin : 20px;
+  margin-bottom : 60px;
+}
+
+.top-contents{
+  background-color: white;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s, box-shadow 0.3s;
+  width : 375px;
+  height : 120px;
+  margin : 20px;
+}
+.top-right{
+  display: flex;
+    flex-direction: column;
+    justify-items: start;
+    align-items: center;
+    justify-content: center;
+}
+.progress{
+  position: relative;
+  width: 100%;
+  height: 20px;
+  background-color: #7c7c7c;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
 
 .process {
   position: relative;
@@ -264,13 +364,18 @@ onUnmounted(() => {
   border-radius: 15px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   transition: background-color 0.3s, box-shadow 0.3s;
+
 }
 
 .process.inactive {
   background-color: #7c7c7c;
   box-shadow: none;
 }
-
+.standby {
+  margin : 10px;
+  padding : 8px;
+  font-size : 30px;
+}
 .topic {
   display: flex;
   align-items: center;
@@ -398,8 +503,8 @@ button:hover {
 
 .circle {
   background-color: grey;
-  width: 10px;
-  height: 10px;
+  width: 15px;
+  height: 15px;
   border-radius: 50%;
 }
 
@@ -422,5 +527,74 @@ button:hover {
   50% {
     background-color: #4a90e2; /* 파란색 포인트 */
   }
+}
+
+.lamp-status {
+  display: flex;
+  justify-content: space-around;
+}
+.lamp {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin: 20px;
+  border: 3px solid black;
+  background-color: lightgrey; /* 기본 색상 */
+  opacity: 0.3; /* 기본 상태에서 반투명 */
+  transition: background-color 0.3s, opacity 0.3s;
+}
+.lamp.green.active {
+  background-color: lightgreen;
+  opacity: 1;
+}
+.lamp.yellow.active {
+  background-color: lightyellow;
+  opacity: 1;
+}
+.lamp.red.active {
+  background-color: lightcoral;
+  opacity: 1;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  max-width: 500px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.modal-buttons {
+  margin-top: 20px;
+}
+
+.modal-buttons button {
+  margin: 5px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  background-color: #4a90e2;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.modal-buttons button:hover {
+  background-color: #357ab7;
 }
 </style>
