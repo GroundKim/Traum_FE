@@ -48,8 +48,14 @@ export default {
       camera.attachControl(canvas, true)
       new HemisphericLight('light', new Vector3(1, 1, 1), scene)
 
-      engine.runRenderLoop(() => {
-        scene.render()
+      // engine.runRenderLoop(() => {
+      //   scene.render()
+      // })
+       // 변경: scene.executeWhenReady 사용
+       scene.executeWhenReady(() => {
+        engine.runRenderLoop(() => {
+          scene.render()
+        })
       })
 
       window.addEventListener('resize', () => {
@@ -301,7 +307,7 @@ export default {
             threshold: itemData.threshold,
             mesh: mesh,
             label: plane,
-            color:'null'
+            color: itemData.color
           }
           handleReadItems()
         } catch (error) {
@@ -477,14 +483,22 @@ export default {
       if (client.value) {
         client.value.end()
       }
-      client.value = mqtt.connect(`ws://${import.meta.env.VITE_SOCKET_URL}`)
-      
+      client.value = mqtt.connect(`ws://${import.meta.env.VITE_SOCKET_URL}`, {
+        keepalive: 60,
+        reconnectPeriod: 5000,
+        connectTimeout: 30 * 1000
+      })
+
       client.value.on('connect', () => {
         console.log('Connected to MQTT broker')
         connectionStatus.value = 'Connected'
 
         Object.values(meshes.value).forEach(item => {
-        
+          console.log(item)
+          console.log(item)
+          console.log(item)
+          console.log(item)
+          console.log(item)
           if (item.mqttTopic) {
             client.value.subscribe(item.mqttTopic, (err) => {
               if (!err) {
@@ -502,7 +516,7 @@ export default {
          
           if (messageObj !== undefined) {
             const item = Object.values(meshes.value).find(item => item.mqttTopic === topic)
-            if (item) {
+            if (item && item.meshName==='sensor') {
               const singleValue = Number(messageObj[0].value)
             
               let newColor = 'white'
@@ -513,20 +527,31 @@ export default {
               }
               else if (singleValue < Number(item.threshold)) {
                 newColor = 'white'
-              console.log(newColor)
               }
-              console.log(newColor)
-              console.log(item.color)
-              console.log(item.color)
-              console.log(item.color)
-              console.log(item.color)
               if (newColor !== item.color) {
                 meshes.value[item.meshId].color = newColor
                 handleUpdateNameColor(item, newColor)
               }
             }
+            else if (item && item.meshName==='eduKit') {
+              console.log("그린:",messageObj[0].value, messageObj[43].value)
+              console.log("레드:",messageObj[19].value, messageObj[43].value)
+              console.log("타임:",messageObj[43])
+
+              // let redSign =item.color;
+              // let greenSign =false;
+              
+
+              if(messageObj[19].value === true ){
+                changeMeshColorRed(item)
+              } 
+              else if(messageObj[0].value === true){
+                changeMeshColorGreen(item)
+              }
+            }
           }
-        } catch (error) {
+      }
+         catch (error) {
           console.error('Error parsing message:', error)
         }
       })
@@ -563,6 +588,7 @@ export default {
         handleReadItems()
         
       })
+      // 미사용 'updateItem'의 handleReadItems에서 색깔도 함께 처리
       emitter.on('updateItemColor', () => {
         handleReadItems()
      

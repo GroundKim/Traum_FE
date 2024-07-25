@@ -8,7 +8,7 @@
           <p class="text-black text-2xl font-semibold">{{ currentName }}</p>
           <button
                 
-                @click="$router.push(`/digitaltwin/${item.meshId}`)"
+                @click="$router.push(`/digitaltwin/`)"
                 class="bg-blue-500 text-white text-xl px-4 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
               >
                 상세보기

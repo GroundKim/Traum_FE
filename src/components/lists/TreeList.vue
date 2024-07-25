@@ -14,7 +14,7 @@
               icon="circle-plus"
               size="3x"
               @click="
-                addItem(index, Math.floor(Math.random() * 1000), category.name, 1803, 50, '3d')
+                addItem(index, Math.floor(Math.random() * 1000+5), category.name, 1803, 50, '3d')
               "
             />
           </div>
@@ -95,6 +95,7 @@ export default {
         this.meshName = meshName
         this.mqttTopic = mqttTopic
         this.threshold = threshold
+        this.color = null
       }
     }
 
@@ -113,7 +114,7 @@ export default {
             name: 'eduKit',
             type: '3d',
             meshName: 'eduKit',
-            mqttTopic: 'eduKit',
+            mqttTopic: 'edge/edukit/status',
             threshold: '10'
           },
           {
@@ -121,7 +122,7 @@ export default {
             name: 'eduKit',
             type: '3d',
             meshName: 'eduKit',
-            mqttTopic: 'eduKit',
+            mqttTopic: 'edge/edukit/status',
             threshold: '10'
           },
           {
@@ -129,7 +130,7 @@ export default {
             name: 'eduKit',
             type: '3d',
             meshName: 'eduKit',
-            mqttTopic: 'eduKit',
+            mqttTopic: 'edge/edukit/status',
             threshold: '10'
           },
           {
@@ -137,7 +138,7 @@ export default {
             name: 'eduKit',
             type: '3d',
             meshName: 'eduKit',
-            mqttTopic: 'eduKit',
+            mqttTopic: 'edge/edukit/status',
             threshold: '10'
           },
           {
@@ -145,7 +146,7 @@ export default {
             name: 'eduKit',
             type: '3d',
             meshName: 'eduKit',
-            mqttTopic: 'eduKit',
+            mqttTopic: 'edge/edukit/status',
             threshold: '10'
           }
         ]
@@ -203,10 +204,6 @@ export default {
       emitter.emit('alarmItem', item)
     }
     const emitUpdateItem = (item) => {
-      console.log(item)
-      console.log(item)
-      console.log(item)
-      console.log(item)
       emitter.emit('updateItem', item)
       // emitter.emit('updateItemColor', item)
       openPopup(item)
@@ -224,8 +221,6 @@ export default {
 
 
 
-      // Construct the URL with route parameters if any
-      // const popupUrl = `/popup/`
       const popupUrl = `/popup/${item.name}/${item.threshold}/${item.mqttTopic}`
       const popName=`/popup/${item.name}/${item.threshold}/${item.mqttTopic}`
       const popup = window.open(
@@ -272,11 +267,9 @@ export default {
         console.log('Maximum connection attempts reached. Stopping further attempts.')
         return
       }
-      // this.socket = io('ws://traum.groundkim.com:8282', {
-        // traum.groundkim.com:8282
-// const socket = io('ws://traum.groundkim.com:8282', {
 
-        this.socket = io('ws://traum.groundkim.com:8282', {
+
+        this.socket = io(`ws://${import.meta.env.VITE_SOCKET_IO_URL}`, {
           
         transports: ['websocket'],
 
