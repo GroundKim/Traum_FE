@@ -1,5 +1,6 @@
 import './assets/main.css'
 import '@fortawesome/fontawesome-free/css/all.css'
+import './index.css'
 
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
@@ -14,7 +15,9 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
 
-import './index.css'
+// axios
+import axiosPlugin from '@/plugins/axios.js';
+// import axiosPlugin from './plugins/axios.js';
 
 library.add(fas)
 
@@ -28,5 +31,5 @@ app.use(router)
 Object.keys(Flowbite).forEach((key) => {
   app.component(key, Flowbite[key])
 })
-
+app.use(axiosPlugin);
 app.mount('#app')

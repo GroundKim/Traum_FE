@@ -58,7 +58,9 @@
                 
                 @click="category.name == 'sensor'? openPopup(item): $router.push(`/dashboard/${item.meshId}`)"
                 class="bg-blue-500 text-white text-xl px-4 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
-                :style="{disabled: category.items.name == 'eduiKit2'}"
+          
+                :class="{ 'opacity-50 cursor-not-allowed': item.meshName == 'eduKit' && item.meshId > 1}"
+                
               >
                 조회
               </button>

@@ -31,14 +31,23 @@
           </div>
           <!--body-->
           <div>
+           
+        
             <p class="my-4 text-blueGray-500 text-lg leading-relaxed"></p>
-
             <div class="flex flex-col">
-              <canvas ref="bjsCanvas" style="width: 100%; height: 400px" @dblclick="routeToUnity"></canvas>
+              
+              <canvas ref="bjsCanvas" style="width: 100%; height: 300px" 
+              
+              @dblclick="(item?.meshId==1)  ? routeToUnity() : null" ></canvas>     
+              <ButtonDropdown/>         
               <div class="flex" v-for="key in settings" :key="key">
                 <label>{{ key }}</label>
                 <input v-model="localItem[key]" />
+                
               </div>
+     
+              <fwb-range v-model="localItem['threshold']" label="Large range" size="lg" :steps="1" :max="100" :min="0"/>
+             
             </div>
           </div>
           <!--footer-->
@@ -68,7 +77,7 @@
 </template>
 
 <script>
-import { ref, watch, nextTick, reactive } from 'vue'
+import { ref, watch, nextTick, reactive,onMounted, inject } from 'vue'
 import {
   Engine,
   Scene,
@@ -78,9 +87,9 @@ import {
   SceneLoader
 } from '@babylonjs/core'
 import { useRouter } from 'vue-router'
-
+import ButtonDropdown  from '../dropdowns/ButtonDropdown.vue';
 export default {
-  components: {},
+  components: {ButtonDropdown},
   props: {
     item: {
       type: Object,
@@ -88,9 +97,12 @@ export default {
     }
   },
   setup(props, { emit }) {
+
     const bjsCanvas = ref(null)
     let engine, scene, camera
     const router = useRouter()
+    const axios = inject('axios');
+
 
     const createScene = (canvas) => {
       engine = new Engine(canvas, true, { stencil: true })
@@ -167,6 +179,27 @@ export default {
       }
     })
     const settings = ref(['name', 'mqttTopic', 'threshold'])
+
+    onMounted( ()=>{
+      
+      //장비목록 불러오는 API GET 실행
+   axios
+       .get(`/influx/sensor/topic/list`, {
+         headers: {
+           authorization:
+             'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwibmFtZSI6Iu2Zjeq4uOuPmSIsInJvbGUiOm51bGwsImlhdCI6MTcxNzU0NzIxNSwiZXhwIjoxNzQ2MzQ3MjE1fQ.WGAr3joPF9jBCuHFG3OqfXRnZe5wIjw4smLU4e6TSdQ'
+         }
+       })
+       .then((response) => {
+         // 요청이 성공하면 실행되는 코드
+         console.log('Response:', response.data)
+       })
+       .catch((error) => {
+         // 요청이 실패하면 실행되는 코드
+         console.error('Error:', error)
+
+       })
+})
 
     return {
       showModal,

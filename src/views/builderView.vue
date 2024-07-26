@@ -56,7 +56,6 @@ const connectionStatus = ref('Disconnected')
 const selectedItem = ref({})
 const singleValue = ref()
 const singleTime = ref()
-// const socketURL = process.env.SOCKET_ADDRESS
 
 const onDragStart = (item) => {
   console.log('Drag started:', item)
