@@ -2,14 +2,22 @@
   <div class="main open-sans-main">
     <div class="top">
       <div class="top-contents top-left">
-        hi
+        <p> SELECTED : </p>
+        <select id="edukit-select" v-model="selectedEdukit" class="select">
+          <option value="EDUKIT1">EDUKIT1</option>
+          <option value="EDUKIT2" disabled>EDUKIT2</option>
+          <option value="EDUKIT3" disabled>EDUKIT3</option>
+          <option value="EDUKIT4" disabled>EDUKIT4</option>
+          <option value="EDUKIT5" disabled>EDUKIT5</option>
+        </select>
       </div>
-      <fwb-carousel :pictures="pictures" class="h-40"/>
-
       <div class="top-contents top-mid">
+        <p> PROGRESS</p>
         <div class="progress-bar">
-          <div class="progress" :style="{ width: datalist.No3Count*20 + '%' }"></div>
+          <div class="progress" :style="{ width: progress + '%' }"></div>
+          <img src="/img/turtle.png" alt="Turtle Icon" class="turtle-icon" :style="{ left: progress + '%' }"/>
         </div>
+        <p>{{ Math.floor(progress) }}%</p>
       </div>
       <div class="top-contents top-right">
         <div class="lamp-status">
@@ -141,13 +149,9 @@
 import { ref, onMounted, onUnmounted } from 'vue';
 import mqtt from 'mqtt';
 import io from 'socket.io-client';
-import { FwbCarousel } from 'flowbite-vue'
 
-const pictures = [
-  {src: '/src/assets/images/logo.svg', alt: 'Image 1'},
-  {src: '/src/assets/images/logo.svg', alt: 'Image 2'},
-  {src: '/src/assets/images/logo.svg', alt: 'Image 3'},
-]
+const selectedEdukit = ref('EDUKIT1');
+const progress = ref(10);
 
 const plcData = ref('');
 const datalist = ref({
@@ -210,6 +214,16 @@ const updateDatalist = (parsedData) => {
       datalist.value[dataMap[item.name]] = item.value;
     }
   });
+
+  updateProgressBar(); // Update the progress bar when new data is received
+};
+
+const updateProgressBar = () => {
+  if (datalist.value.StartState) {
+    // Calculate progress based on No3Count
+    progress.value = Math.min((datalist.value.No3Count / 5) * 100, 100);
+    console.log(progress.value);
+  }
 };
 
 const connectMQTT = () => {
@@ -248,7 +262,7 @@ const openModal = (unitName, tagId, currentState) => {
   } else {
     modalMessage.value = currentState
       ? `공정을 비활성화 하시겠습니까?`
-      : `공정을 비활성화 하시겠습니까?`;
+      : `공정을 활성화 하시겠습니까?`;
   }
 
   showModal.value = true;
@@ -271,9 +285,9 @@ const sendCommand = (tagId, value) => {
   } else {
     console.log("WebSocket이 연결되지 않았습니다.");
   }
-  };
+};
 
-const socket =io(`ws://${import.meta.env.VITE_SOCKET_IO_URL}`, {
+const socket = io(`ws://${import.meta.env.VITE_SOCKET_IO_URL}`, {
   transports: ['websocket'],
 });
 
@@ -333,17 +347,22 @@ onUnmounted(() => {
   display : flex;
   margin : 20px;
   margin-bottom : 60px;
+  border-radius: 10px;
 }
 
 .top-contents{
   background-color: white;
   border-radius: 15px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
   transition: background-color 0.3s, box-shadow 0.3s;
   width : 375px;
-  height : 120px;
+  height : 150px;
   margin : 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
+
 .top-right{
   display: flex;
     flex-direction: column;
@@ -369,7 +388,7 @@ onUnmounted(() => {
   padding: 20px;
   background-color: white;
   border-radius: 15px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
   transition: background-color 0.3s, box-shadow 0.3s;
 
 }
@@ -482,7 +501,9 @@ button:hover {
   background-color: #357ab7;
   transform: scale(1.05);
 }
-
+.select{
+  border-radius : 10px;
+}
 .plcData {
   width: 1000px;
   margin-top: 20px;
@@ -577,10 +598,14 @@ button:hover {
 }
 
 .modal-content {
+  display : flex;
+  justify-content: center;
+  flex-direction: column;
   background: #fff;
   padding: 20px;
   border-radius: 10px;
-  max-width: 500px;
+  max-width: 400px;
+  height : 200px;
   width: 100%;
   text-align: center;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
@@ -603,5 +628,42 @@ button:hover {
 
 .modal-buttons button:hover {
   background-color: #357ab7;
+}
+p {
+  margin : 20px;
+}
+.top-contents .progress-bar {
+  position: relative;
+  width: 100%;
+  height: 20px;
+  background-color: transparent; /* 바탕색 없음 */
+  border: 1px solid #4a90e2; /* 테두리만 있음 */
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.top-contents .progress-bar .progress {
+  height: 100%;
+  background-color: #4a90e2;
+  transition: width 0.5s ease-in-out;
+}
+
+.turtle-icon {
+  position: absolute;
+  top: -15px; /* 프로그래스 바 위로 올라오게 */
+  transform: translateX(-50%);
+  height: 30px;
+}
+
+.progress-text {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 14px;
+  color: #333;
+}
+.top-mid {
+  display : flex;
+  flex-direction: column;
 }
 </style>

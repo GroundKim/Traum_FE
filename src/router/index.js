@@ -45,6 +45,11 @@ const router = createRouter({
       component: () => import('../components/modals/PopUpContent.vue'),
       name: 'PopupContent',
       props: true
+    },
+    {
+      path: '/blackbox',
+      component: () => import('../views/BlackBoxView.vue'),
+      name: 'BlackBox'
     }
   ]
 })
