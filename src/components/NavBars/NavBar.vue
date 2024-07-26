@@ -40,7 +40,8 @@ export default {
       { path: '/builder', name: 'Builder' },
       { path: '/simulation', name: 'Simulation' },
       { path: '/digitaltwin/1', name : 'DigitalTwin'},
-      { path: '/dashboard/1', name: 'Dashboard'}
+      { path: '/dashboard/1', name: 'Dashboard'},
+      { path: '/blackbox', name: 'BlackBox'}
     ]
 
     const isActive = (path) => {
