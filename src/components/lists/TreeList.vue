@@ -109,8 +109,6 @@ export default {
     const addItem = (index, meshId, meshName, mqttTopic, threshold, type) => {
       const newItem = new MeshItem(meshId, meshName, mqttTopic, threshold, type)
       categories.value[index].items.push(newItem)
-      console.log(categories.value[index].items)
-      console.log('add-start', newItem)
     }
     const categories = ref([
       {
@@ -122,7 +120,9 @@ export default {
             type: '3d',
             meshName: 'eduKit',
             mqttTopic: 'edge/edukit/status',
-            threshold: '10'
+            threshold: '10',
+            location: '0,0,0',
+            color: null
           },
           {
             meshId: 100002,
@@ -130,7 +130,9 @@ export default {
             type: '3d',
             meshName: 'eduKit',
             mqttTopic: 'edge/edukit/status',
-            threshold: '10'
+            threshold: '10',
+            location: '0,0,0',
+            color: null
           },
           {
             meshId: 100003,
@@ -138,7 +140,9 @@ export default {
             type: '3d',
             meshName: 'eduKit',
             mqttTopic: 'edge/edukit/status',
-            threshold: '10'
+            threshold: '10',
+            location: '0,0,0',
+            color: null
           },
           {
             meshId: 100004,
@@ -146,7 +150,9 @@ export default {
             type: '3d',
             meshName: 'eduKit',
             mqttTopic: 'edge/edukit/status',
-            threshold: '10'
+            threshold: '10',
+            location: '0,0,0',
+            color: null
           },
           {
             meshId: 100005,
@@ -154,7 +160,9 @@ export default {
             type: '3d',
             meshName: 'eduKit',
             mqttTopic: 'edge/edukit/status',
-            threshold: '10'
+            threshold: '10',
+            location: '0,0,0',
+            color: null
           }
         ]
       },
@@ -167,7 +175,9 @@ export default {
             type: '3d',
             meshName: 'sensor',
             mqttTopic: 'edge/sensor/temperature-1',
-            threshold: '1'
+            threshold: '1',
+            location: '0,0,0',
+            color: null
           }
         ]
       }

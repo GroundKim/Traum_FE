@@ -261,11 +261,6 @@ export default {
     watch(
       () => [props.singleValue, props.singleTime, props.threshold, props.name],
       (newValue) => {
-        console.log(newValue)
-        console.log(newValue)
-        console.log(newValue)
-        console.log(newValue)
-        console.log(newValue)
         const [singleValue, singleTime, threshold, name] = newValue
         updateChart(singleValue, singleTime, threshold, name)
       },

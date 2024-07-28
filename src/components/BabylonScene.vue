@@ -41,6 +41,7 @@ export default {
     let engine, scene, camera, highlightLayer
     const client = ref(null)
     const connectionStatus = ref('Disconnected')
+
     const createScene = (canvas) => {
       engine = new Engine(canvas, true, { stencil: true })
       scene = new Scene(engine)
@@ -50,13 +51,11 @@ export default {
       camera.attachControl(canvas, true)
       new HemisphericLight('light', new Vector3(1, 1, 1), scene)
 
-      // engine.runRenderLoop(() => {
-      //   scene.render()
-      // })
-      // 변경: scene.executeWhenReady 사용
       scene.executeWhenReady(() => {
         engine.runRenderLoop(() => {
-          scene.render()
+          if (scene.activeCamera) {
+            scene.render()
+          }
         })
       })
 
@@ -66,185 +65,184 @@ export default {
 
       return scene
     }
-    const removeMesh = (item) => {
-      console.log(item.meshId)
-      const meshId = item.meshId
-      if (meshes.value[meshId]) {
-        meshes.value[meshId].mesh.dispose()
-        meshes.value[meshId].label.dispose()
-        delete meshes.value[meshId]
-      }
+
+    const createLabel = (text, color) => {
+      const plane = MeshBuilder.CreatePlane('labelPlane', { width: 1, height: 0.5 }, scene)
+      plane.position.y = -1
+      plane.position.z = 0
+      plane.rotation.x = Math.PI
+      plane.billboardMode = Mesh.BILLBOARDMODE_ALL
+
+      const dynamicTexture = new DynamicTexture('labelTexture', { width: 256, height: 128 }, scene)
+      const labelMaterial = new StandardMaterial('labelMaterial', scene)
+      labelMaterial.diffuseTexture = dynamicTexture
+      labelMaterial.specularColor = new Color3(0, 0, 0)
+      labelMaterial.backFaceCulling = false
+      labelMaterial.emissiveColor = new Color3(1, 1, 1)
+      labelMaterial.useAlphaFromDiffuseTexture = true
+      plane.material = labelMaterial
+
+      dynamicTexture.drawText(text, null, null, 'bold 48px Arial', color, 'transparent', true)
+
+      return plane
     }
-    const removeAllMeshes = () => {
-      Object.keys(meshes.value).forEach((meshName) => {
-        removeMesh(meshName)
+
+    const setupMQTTConnection = () => {
+      if (client.value) {
+        client.value.end()
+      }
+      client.value = mqtt.connect(`ws://${import.meta.env.VITE_SOCKET_URL}`, {
+        keepalive: 60,
+        reconnectPeriod: 5000,
+        connectTimeout: 30 * 1000
+      })
+
+      client.value.on('connect', () => {
+        console.log('Connected to MQTT broker')
+        connectionStatus.value = 'Connected'
+        subscribeToAllTopics()
+      })
+
+      client.value.on('error', (error) => {
+        console.error('MQTT connection error:', error)
+        connectionStatus.value = 'Error: ' + error.message
+        setTimeout(setupMQTTConnection, 5000)
+      })
+
+      client.value.on('close', () => {
+        connectionStatus.value = 'Disconnected'
+        setTimeout(setupMQTTConnection, 5000)
+      })
+
+      client.value.on('message', handleMQTTMessage)
+    }
+
+    const subscribeToAllTopics = () => {
+      Object.values(meshes.value).forEach((item) => {
+        if (item.mqttTopic) {
+          subscribeToTopic(item.mqttTopic)
+        }
       })
     }
-    // kit 중지 시 하이라이트 및 형광등 변경
-
-    const changeMeshColorRed = async (item) => {
-      if (meshes.value[item.meshId]) {
-        const position = meshes.value[item.meshId].mesh.position
-
-        let mesh
-        console.log(item)
-        console.log(item)
-        console.log(item)
-        console.log(item)
-        console.log(item)
-        console.log(item)
-        try {
-          const result = await SceneLoader.ImportMeshAsync(
-            '',
-            './models/',
-            `${meshes.value[item.meshId].meshName}R.glb`,
-            scene
-          )
-          result.meshes.forEach((submesh) => {
-            if (submesh.getClassName() === 'Mesh') {
-              highlightLayer.addMesh(submesh, Color3.Red())
-            }
-          })
-
-          mesh = result.meshes[0]
-          mesh.position = position
-          meshes.value[item.meshId].mesh.dispose()
-          meshes.value[item.meshId].mesh = mesh
-          switch (meshes.value[item.meshId].meshName) {
-            case 'eduKit':
-              mesh.scaling = new Vector3(1, 1, -1)
-              break
-            case 'sensor':
-              mesh.scaling = new Vector3(2, 2, -2)
-              break
-          }
-          mesh.position = position
-          // 모든 라벨에 대해 고정된 높이 설정
-          const fixedLabelHeight = -1 // 이 값을 조정하여 원하는 고정 높이 설정
-
-          const plane = MeshBuilder.CreatePlane('labelPlane', { width: 1, height: 0.5 }, scene)
-          plane.parent = mesh
-          plane.position.y = fixedLabelHeight
-          plane.position.z = 0
-          plane.rotation.x = Math.PI
-          plane.billboardMode = Mesh.BILLBOARDMODE_ALL
-
-          const dynamicTexture = new DynamicTexture(
-            'labelTexture',
-            { width: 256, height: 128 },
-            scene
-          )
-          const labelMaterial = new StandardMaterial('labelMaterial', scene)
-          labelMaterial.diffuseTexture = dynamicTexture
-          labelMaterial.specularColor = new Color3(0, 0, 0)
-          labelMaterial.backFaceCulling = false
-          labelMaterial.emissiveColor = new Color3(1, 1, 1)
-          labelMaterial.useAlphaFromDiffuseTexture = true
-          plane.material = labelMaterial
-
-          dynamicTexture.drawText(
-            item.name,
-            null,
-            null,
-            'bold 48px Arial',
-            'red',
-            'transparent',
-            true
-          )
-
-          meshes.value[item.meshId] = {
-            meshName: meshes.value[item.meshId].meshName,
-            mesh: mesh,
-            label: plane
-          }
-        } catch (e) {
-          console.error(`Failed to load mesh ${meshes.value[item.meshId].meshName}R.glb`, e)
+    const subscribeToTopic = (topic) => {
+      client.value.subscribe(topic, (err) => {
+        if (!err) {
+          console.log(`Subscribed to ${topic}`)
+        } else {
+          console.error(`Failed to subscribe to ${topic}:`, err)
         }
-      }
+      })
     }
-    // kit 작동 시 하이라이트 및 형광등 변경
 
-    const changeMeshColorGreen = async (item) => {
-      if (meshes.value[item.meshId]) {
-        const position = meshes.value[item.meshId].mesh.position
-
-        let mesh
-        console.log(item)
-        console.log(item)
-        console.log(item)
-        console.log(item)
-        console.log(item)
-        console.log(item)
-        try {
-          const result = await SceneLoader.ImportMeshAsync(
-            '',
-            './models/',
-            `${meshes.value[item.meshId].meshName}G.glb`,
-            scene
-          )
-          result.meshes.forEach((submesh) => {
-            if (submesh.getClassName() === 'Mesh') {
-              highlightLayer.addMesh(submesh, Color3.Green())
+    const handleMQTTMessage = (topic, message) => {
+      const messageStr = message.toString()
+      try {
+        const messageObj = JSON.parse(messageStr)
+        if (messageObj !== undefined) {
+          const item = Object.values(meshes.value).find((item) => item.mqttTopic === topic)
+          if (item) {
+            if (item.meshName === 'sensor') {
+              handleSensorMessage(item, messageObj)
+            } else if (item.meshName === 'eduKit') {
+              handleEduKitMessage(item, messageObj)
             }
-          })
-
-          mesh = result.meshes[0]
-          mesh.position = position
-          meshes.value[item.meshId].mesh.dispose()
-          meshes.value[item.meshId].mesh = mesh
-          switch (meshes.value[item.meshId].meshName) {
-            case 'eduKit':
-              mesh.scaling = new Vector3(1, 1, -1)
-              break
-            case 'sensor':
-              mesh.scaling = new Vector3(2, 2, -2)
-              break
           }
-          mesh.position = position
-          // 모든 라벨에 대해 고정된 높이 설정
-          const fixedLabelHeight = -1 // 이 값을 조정하여 원하는 고정 높이 설정
-
-          const plane = MeshBuilder.CreatePlane('labelPlane', { width: 1, height: 0.5 }, scene)
-          plane.parent = mesh
-          plane.position.y = fixedLabelHeight
-          plane.position.z = 0
-          plane.rotation.x = Math.PI
-          plane.billboardMode = Mesh.BILLBOARDMODE_ALL
-
-          const dynamicTexture = new DynamicTexture(
-            'labelTexture',
-            { width: 256, height: 128 },
-            scene
-          )
-          const labelMaterial = new StandardMaterial('labelMaterial', scene)
-          labelMaterial.diffuseTexture = dynamicTexture
-          labelMaterial.specularColor = new Color3(0, 0, 0)
-          labelMaterial.backFaceCulling = false
-          labelMaterial.emissiveColor = new Color3(1, 1, 1)
-          labelMaterial.useAlphaFromDiffuseTexture = true
-          plane.material = labelMaterial
-
-          dynamicTexture.drawText(
-            item.name,
-            null,
-            null,
-            'bold 48px Arial',
-            'green',
-            'transparent',
-            true
-          )
-
-          meshes.value[item.meshId] = {
-            meshName: meshes.value[item.meshId].meshName,
-            mesh: mesh,
-            label: plane
-          }
-        } catch (e) {
-          console.error(`Failed to load mesh ${meshes.value[item.meshId].meshName}G.glb`, e)
         }
+      } catch (error) {
+        console.error('Error parsing message:', error)
       }
     }
 
+    const handleSensorMessage = (item, messageObj) => {
+      const singleValue = Number(messageObj[0].value)
+      let newColor = singleValue >= Number(item.threshold) ? 'red' : 'green'
+
+      if (newColor !== item.color) {
+        changeMeshColor(item, newColor)
+        meshes.value[item.meshId].color = newColor
+      }
+    }
+
+    const handleEduKitMessage = (item, messageObj) => {
+      console.log('red:', messageObj[19].value)
+      console.log('green:', messageObj[0].value)
+
+      if (messageObj[19].value === true && meshes.value[item.meshId].color !== 'red') {
+        changeMeshColor(item, 'red')
+        meshes.value[item.meshId].color = 'red'
+      } else if (messageObj[0].value === true && meshes.value[item.meshId].color !== 'green') {
+        changeMeshColor(item, 'green')
+        meshes.value[item.meshId].color = 'green'
+      }
+    }
+
+    const changeMeshColor = async (item, color) => {
+      if (meshes.value[item.meshId]) {
+        try {
+          const position = meshes.value[item.meshId].mesh.position
+          let filename = `${meshes.value[item.meshId].meshName}`
+          if (color !== 'white') {
+            filename += color.charAt(0).toUpperCase()
+          }
+          filename += '.glb'
+
+          const result = await SceneLoader.ImportMeshAsync('', './models/', filename, scene)
+
+          const newMesh = result.meshes[0]
+          newMesh.position = position
+          newMesh.scaling = meshes.value[item.meshId].mesh.scaling.clone()
+
+          meshes.value[item.meshId].mesh.dispose()
+          meshes.value[item.meshId].label.dispose()
+
+          meshes.value[item.meshId].mesh = newMesh
+
+          result.meshes.forEach((submesh) => {
+            if (submesh.getClassName() === 'Mesh') {
+              let highlightColor
+              switch (color) {
+                case 'red':
+                  highlightColor = Color3.Red()
+                  break
+                case 'green':
+                  highlightColor = Color3.Green()
+                  break
+                case 'white':
+                default:
+                  highlightColor = Color3.White()
+                  break
+              }
+              highlightLayer.addMesh(submesh, highlightColor)
+            }
+          })
+
+          const newLabel = createLabel(item.name, color)
+          newLabel.parent = newMesh
+          meshes.value[item.meshId].label = newLabel
+
+          meshes.value[item.meshId].color = color
+        } catch (e) {
+          console.error(`Failed to change mesh color to ${color}: ${e}`)
+        }
+      }
+    }
+    const handleUpdateName = (item) => {
+      if (meshes.value[item.meshId]) {
+        meshes.value[item.meshId].name = item.name
+        meshes.value[item.meshId].mqttTopic = item.mqttTopic
+        meshes.value[item.meshId].threshold = item.threshold
+
+        if (meshes.value[item.meshId].label) {
+          meshes.value[item.meshId].label.dispose()
+        }
+
+        const newLabel = createLabel(item.name, meshes.value[item.meshId].color || 'white')
+        newLabel.parent = meshes.value[item.meshId].mesh
+        meshes.value[item.meshId].label = newLabel
+
+        setupMQTTConnection()
+      }
+    }
     const onDrop = async (event) => {
       event.preventDefault()
       const itemData = JSON.parse(event.dataTransfer.getData('application/json'))
@@ -259,14 +257,7 @@ export default {
           event.clientY - canvasRect.top
         )
         let position = pickResult.hit ? pickResult.pickedPoint : new Vector3(0, 0, 0)
-        console.log(position)
-        console.log(position)
-        console.log(position)
-        console.log(position)
-        console.log(position)
-        console.log(position)
-        console.log(position)
-        let mesh
+
         try {
           const result = await SceneLoader.ImportMeshAsync(
             '',
@@ -274,7 +265,7 @@ export default {
             `${itemData.meshName}.glb`,
             scene
           )
-          mesh = result.meshes[0]
+          const mesh = result.meshes[0]
 
           switch (itemData.meshName) {
             case 'eduKit':
@@ -286,38 +277,8 @@ export default {
           }
           mesh.position = position
 
-          // 모든 라벨에 대해 고정된 높이 설정
-          const fixedLabelHeight = -1 // 이 값을 조정하여 원하는 고정 높이 설정
-
-          const plane = MeshBuilder.CreatePlane('labelPlane', { width: 1, height: 0.5 }, scene)
-          plane.parent = mesh
-          plane.position.y = fixedLabelHeight
-          plane.position.z = 0
-          plane.rotation.x = Math.PI
-          plane.billboardMode = Mesh.BILLBOARDMODE_ALL
-
-          const dynamicTexture = new DynamicTexture(
-            'labelTexture',
-            { width: 256, height: 128 },
-            scene
-          )
-          const labelMaterial = new StandardMaterial('labelMaterial', scene)
-          labelMaterial.diffuseTexture = dynamicTexture
-          labelMaterial.specularColor = new Color3(0, 0, 0)
-          labelMaterial.backFaceCulling = false
-          labelMaterial.emissiveColor = new Color3(1, 1, 1)
-          labelMaterial.useAlphaFromDiffuseTexture = true
-          plane.material = labelMaterial
-
-          dynamicTexture.drawText(
-            itemData.name,
-            null,
-            null,
-            'bold 48px Arial',
-            'white',
-            'transparent',
-            true
-          )
+          const label = createLabel(itemData.name, 'white')
+          label.parent = mesh
 
           meshes.value[itemData.meshId] = {
             meshName: itemData.meshName,
@@ -326,254 +287,22 @@ export default {
             mqttTopic: itemData.mqttTopic,
             threshold: itemData.threshold,
             mesh: mesh,
-            label: plane,
-            color: itemData.color
+            label: label,
+            color: 'white'
           }
-          handleReadItems()
+          setupMQTTConnection()
         } catch (error) {
           console.error('Error creating mesh:', error)
         }
       }
     }
-    const handleStart = (item) => {
-      console.log('알람 도착확인', item)
-      changeMeshColorGreen(item)
-    }
 
-    const handleDelete = (item) => {
-      console.log('도착확인', item)
-      removeMesh(item)
-    }
-    const handleAlarm = (item) => {
-      console.log('알람 도착확인', item)
-      changeMeshColorRed(item)
-    }
-
-    const handleUpdateName = (item) => {
+    const removeMesh = (item) => {
       if (meshes.value[item.meshId]) {
-        const mesh = meshes.value[item.meshId].mesh
-        meshes.value[item.meshId].name = item.name
-        meshes.value[item.meshId].mqttTopic = item.mqttTopic
-        meshes.value[item.meshId].threshold = item.threshold
-        // Remove the existing label plane
-        if (meshes.value[item.meshId].label) {
-          meshes.value[item.meshId].label.dispose()
-        }
-
-        // Create a new plane
-        const plane = MeshBuilder.CreatePlane('labelPlane', { width: 1, height: 0.5 }, scene)
-        plane.parent = mesh
-        plane.position.y = -1
-        plane.position.z = 0.1
-        plane.rotation.x = Math.PI
-        plane.billboardMode = Mesh.BILLBOARDMODE_ALL
-
-        // Create a new dynamic texture
-        const dynamicTexture = new DynamicTexture(
-          'labelTexture',
-          { width: 256, height: 128 },
-          scene
-        )
-
-        // Create a new material
-        const labelMaterial = new StandardMaterial('labelMaterial', scene)
-        labelMaterial.diffuseTexture = dynamicTexture
-        labelMaterial.specularColor = new Color3(0, 0, 0)
-        labelMaterial.backFaceCulling = false
-        labelMaterial.emissiveColor = new Color3(1, 1, 1)
-        labelMaterial.useAlphaFromDiffuseTexture = true
-
-        plane.material = labelMaterial
-
-        // Draw the new text
-        dynamicTexture.drawText(
-          item.name,
-          null,
-          null,
-          'bold 48px Arial',
-          'white',
-          'transparent',
-          true
-        )
-
-        // Update the meshes.value with the new label
-
-        meshes.value[item.meshId].label = plane
-      } else {
-        console.log(`Mesh with meshId ${item.meshId} not found.`)
+        meshes.value[item.meshId].mesh.dispose()
+        meshes.value[item.meshId].label.dispose()
+        delete meshes.value[item.meshId]
       }
-    }
-
-    // sensor 하이라이트, 글씨색상 변경 처리
-
-    const handleUpdateNameColor = async (item, color) => {
-      if (meshes.value[item.meshId]) {
-        const position = meshes.value[item.meshId].mesh.position
-
-        let mesh
-        let filename = meshes.value[item.meshId].meshName
-        try {
-          const result = await SceneLoader.ImportMeshAsync(
-            '',
-            './models/',
-            `${filename}.glb`,
-            scene
-          )
-
-          result.meshes.forEach((submesh) => {
-            if (submesh.getClassName() === 'Mesh' && color === 'red') {
-              highlightLayer.addMesh(submesh, Color3.Red())
-            } else if (submesh.getClassName() === 'Mesh' && color === 'white') {
-              highlightLayer.addMesh(submesh, Color3.Green())
-            }
-          })
-
-          mesh = result.meshes[0]
-          mesh.position = position
-          meshes.value[item.meshId].mesh.dispose()
-          meshes.value[item.meshId].mesh = mesh
-          switch (meshes.value[item.meshId].meshName) {
-            case 'eduKit':
-              mesh.scaling = new Vector3(1, 1, -1)
-              break
-            case 'sensor':
-              mesh.scaling = new Vector3(2, 2, -2)
-              break
-          }
-          mesh.position = position
-          // 모든 라벨에 대해 고정된 높이 설정
-        } catch (e) {
-          console.error(`Failed to load mesh ${meshes.value[item.meshId].meshName}.glb`, e)
-        }
-      }
-
-      if (meshes.value[item.meshId]) {
-        const mesh = meshes.value[item.meshId].mesh
-        // Remove the existing label plane
-        if (meshes.value[item.meshId].label) {
-          meshes.value[item.meshId].label.dispose()
-        }
-
-        // Create a new plane
-        const plane = MeshBuilder.CreatePlane('labelPlane', { width: 1, height: 0.5 }, scene)
-        plane.parent = mesh
-        plane.position.y = -1
-        plane.position.z = 0.1
-        plane.rotation.x = Math.PI
-        plane.billboardMode = Mesh.BILLBOARDMODE_ALL
-
-        // Create a new dynamic texture
-        const dynamicTexture = new DynamicTexture(
-          'labelTexture',
-          { width: 256, height: 128 },
-          scene
-        )
-
-        // Create a new material
-        const labelMaterial = new StandardMaterial('labelMaterial', scene)
-        labelMaterial.diffuseTexture = dynamicTexture
-        labelMaterial.specularColor = new Color3(0, 0, 0)
-        labelMaterial.backFaceCulling = false
-        labelMaterial.emissiveColor = new Color3(1, 1, 1)
-        labelMaterial.useAlphaFromDiffuseTexture = true
-
-        plane.material = labelMaterial
-
-        // Draw the new text
-        dynamicTexture.drawText(
-          item.name,
-          null,
-          null,
-          'bold 48px Arial',
-          color,
-          'transparent',
-          true
-        )
-
-        // Update the meshes.value with the new label
-        meshes.value[item.meshId].label = plane
-      } else {
-        console.log(`Mesh with meshId ${item.meshId} not found.`)
-      }
-    }
-
-    const handleReadItems = () => {
-      if (client.value) {
-        client.value.end()
-      }
-      client.value = mqtt.connect(`ws://${import.meta.env.VITE_SOCKET_URL}`, {
-        keepalive: 60,
-        reconnectPeriod: 5000,
-        connectTimeout: 30 * 1000
-      })
-
-      client.value.on('connect', () => {
-        console.log('Connected to MQTT broker')
-        connectionStatus.value = 'Connected'
-
-        Object.values(meshes.value).forEach((item) => {
-          if (item.mqttTopic) {
-            client.value.subscribe(item.mqttTopic, (err) => {
-              if (!err) {
-                console.log(`Subscribed to ${item.mqttTopic}`)
-              }
-            })
-          }
-        })
-      })
-
-      client.value.on('message', (topic, message) => {
-        const messageStr = message.toString()
-        try {
-          const messageObj = JSON.parse(messageStr)
-
-          if (messageObj !== undefined) {
-            const item = Object.values(meshes.value).find((item) => item.mqttTopic === topic)
-            if (item && item.meshName === 'sensor') {
-              const singleValue = Number(messageObj[0].value)
-
-              let newColor = 'white'
-              if (singleValue >= Number(item.threshold)) {
-                newColor = 'red'
-                console.log(newColor)
-              } else if (singleValue < Number(item.threshold)) {
-                newColor = 'white'
-              }
-              if (newColor !== item.color) {
-                meshes.value[item.meshId].color = newColor
-                handleUpdateNameColor(item, newColor)
-              }
-            } else if (item && item.meshName === 'eduKit') {
-              console.log('그린:', messageObj[0].value, messageObj[43].value)
-              console.log('레드:', messageObj[19].value, messageObj[43].value)
-              console.log('타임:', messageObj[43])
-              console.log('그린:', messageObj[0].value, messageObj[43].value)
-              console.log('레드:', messageObj[19].value, messageObj[43].value)
-              console.log('타임:', messageObj[43])
-
-              // let redSign =item.color;
-              // let greenSign =false;
-
-              if (messageObj[19].value === true) {
-                changeMeshColorRed(item)
-              } else if (messageObj[0].value === true) {
-                changeMeshColorGreen(item)
-              }
-            }
-          }
-        } catch (error) {
-          console.error('Error parsing message:', error)
-        }
-      })
-
-      client.value.on('error', (error) => {
-        console.error('MQTT connection error:', error)
-        connectionStatus.value = 'Error: ' + error.message
-      })
-
-      client.value.on('close', () => {
-        connectionStatus.value = 'Disconnected'
-      })
     }
 
     const toggleFullScreen = () => {
@@ -584,7 +313,6 @@ export default {
       }
     }
 
-    // 센서 추가//
     const createInitialSensors = () => {
       const initialSensors = [
         {
@@ -594,18 +322,19 @@ export default {
           meshName: 'eduKit',
           mqttTopic: 'edge/edukit/status',
           threshold: '10',
-          location: '2.1,0.77,-1.25'
+          location: '2.1,0.8,-1.25',
+          color: null
+        },
+        {
+          meshId: 0,
+          name: 'sensor0',
+          type: '3d',
+          meshName: 'sensor',
+          mqttTopic: 'edge/sensor/temperature-1',
+          threshold: '1',
+          location: '4,0.8,-1.25',
+          color: null
         }
-        // {
-        //   meshId: 0,
-        //   name: 'sensor0',
-        //   type: '3d',
-        //   meshName: 'sensor',
-        //   mqttTopic: 'edge/sensor/temperature-1',
-        //   threshold: '1',
-        //   location: '4.0,0.77,-1.5'
-        // }
-        // 추가 초기 센서가 있다면 여기에 추가
       ]
 
       initialSensors.forEach(async (sensor) => {
@@ -620,38 +349,18 @@ export default {
             scene
           )
           const mesh = result.meshes[0]
-          mesh.scaling = new Vector3(2, 2, -2)
+          switch (sensor.meshName) {
+            case 'eduKit':
+              mesh.scaling = new Vector3(1, 1, -1)
+              break
+            case 'sensor':
+              mesh.scaling = new Vector3(2, 2, -2)
+              break
+          }
           mesh.position = position
 
-          const plane = MeshBuilder.CreatePlane('labelPlane', { width: 1, height: 0.5 }, scene)
-          plane.parent = mesh
-          plane.position.y = -1
-          plane.position.z = 0
-          plane.rotation.x = Math.PI
-          plane.billboardMode = Mesh.BILLBOARDMODE_ALL
-
-          const dynamicTexture = new DynamicTexture(
-            'labelTexture',
-            { width: 256, height: 128 },
-            scene
-          )
-          const labelMaterial = new StandardMaterial('labelMaterial', scene)
-          labelMaterial.diffuseTexture = dynamicTexture
-          labelMaterial.specularColor = new Color3(0, 0, 0)
-          labelMaterial.backFaceCulling = false
-          labelMaterial.emissiveColor = new Color3(1, 1, 1)
-          labelMaterial.useAlphaFromDiffuseTexture = true
-          plane.material = labelMaterial
-
-          dynamicTexture.drawText(
-            sensor.name,
-            null,
-            null,
-            'bold 48px Arial',
-            'white',
-            'transparent',
-            true
-          )
+          const label = createLabel(sensor.name, 'white')
+          label.parent = mesh
 
           meshes.value[sensor.meshId] = {
             meshName: sensor.meshName,
@@ -660,39 +369,32 @@ export default {
             mqttTopic: sensor.mqttTopic,
             threshold: sensor.threshold,
             mesh: mesh,
-            label: plane,
+            label: label,
             color: 'white'
           }
-          handleReadItems()
+
+          // 센서 생성 후 즉시 해당 토픽 구독
+          if (client.value && client.value.connected) {
+            subscribeToTopic(sensor.mqttTopic)
+          }
         } catch (error) {
           console.error('Error creating initial sensor mesh:', error)
         }
       })
     }
-    ///
 
     onMounted(() => {
       if (bjsCanvas.value) {
         scene = createScene(bjsCanvas.value)
-        SceneLoader.ImportMesh('', './models/', 'UVC_V02.glb', scene)
-        createInitialSensors()
+        SceneLoader.ImportMesh('', './models/', 'UVC_V02.glb', scene, () => {
+          setupMQTTConnection() // MQTT 연결 먼저 설정
+          createInitialSensors() // 그 다음 초기 센서 생성
+        })
       }
       emitter.on('startItem', handleStart)
       emitter.on('removeItem', handleDelete)
       emitter.on('alarmItem', handleAlarm)
-      emitter.on('updateItem', (item) => {
-        handleUpdateName(item)
-        handleReadItems()
-      })
-      // 미사용 'updateItem'의 handleReadItems에서 색깔도 함께 처리
-      emitter.on('updateItemColor', () => {
-        handleReadItems()
-
-        // handleUpdateNameColor(item, color)
-      })
-
-      // 초기 MQTT 연결
-      //  handleReadItems()
+      emitter.on('updateItem', handleUpdateName)
     })
 
     onUnmounted(() => {
@@ -708,15 +410,27 @@ export default {
       }
     })
 
+    const handleStart = (item) => {
+      console.log('Start item:', item)
+      changeMeshColor(item, 'green')
+    }
+
+    const handleDelete = (item) => {
+      console.log('Delete item:', item)
+      removeMesh(item)
+    }
+
+    const handleAlarm = (item) => {
+      console.log('Alarm item:', item)
+      changeMeshColor(item, 'red')
+    }
+
     return {
       bjsCanvas,
       onDrop,
       removeMesh,
-      removeAllMeshes,
       meshes,
       handleUpdateName,
-      changeMeshColorRed,
-      changeMeshColorGreen,
       connectionStatus,
       toggleFullScreen
     }
