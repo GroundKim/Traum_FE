@@ -5,23 +5,23 @@
       <li v-for="(category, index) in categories" :key="category.name">
         <div class="flex justify-between p-4">
           <div class="flex items-center">
-            <span class="mr-4 text-3xl uppercase font-bold">{{ category.name }}</span>
-            <font-awesome-icon v-if="category.name == 'eduKit'" icon="fire-burner" size="3x" />
-            <font-awesome-icon v-if="category.name == 'sensor'" :icon="['fas', 'bolt']" size="3x" />
+            <span class="mr-4 text-base uppercase font-bold">{{ category.name }}</span>
+            <font-awesome-icon v-if="category.name == 'eduKit'" icon="fire-burner" size="2x" />
+            <font-awesome-icon v-if="category.name == 'sensor'" :icon="['fas', 'bolt']" size="2x" />
           </div>
           <div>
             <font-awesome-icon
               icon="circle-plus"
-              size="3x"
+              size="2x"
               @click="
-                addItem(index, Math.floor(Math.random() * 1000+5), category.name, 1803, 50, '3d')
+                addItem(index, Math.floor(Math.random() * 1000 + 5), category.name, 1803, 50, '3d')
               "
             />
           </div>
         </div>
         <ul>
           <li
-            class="flex items-center justify-between text-center px-4 py-2 text-2xl uppercase rounded-lg shadow-md cursor-move"
+            class="flex items-center justify-between text-base text-center px-4 py-2 text-2xl uppercase rounded-lg shadow-md cursor-move"
             v-for="item in category.items"
             :key="item.name"
             draggable="true"
@@ -34,7 +34,7 @@
               <button
                 v-if="category.name == 'eduKit'"
                 @click="sendStartCommand(item)"
-                class="bg-green-500 text-white text-xl px-4 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
+                class="bg-green-500 text-white text-sm px-1 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
               >
                 가동
               </button>
@@ -42,7 +42,7 @@
               <button
                 v-if="category.name == 'eduKit'"
                 @click="sendStopCommand(item)"
-                class="bg-red-500 text-white text-xl px-4 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
+                class="bg-red-500 text-white text-sm px-1 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
               >
                 중지
               </button>
@@ -50,24 +50,27 @@
               <button
                 v-if="category.name == 'eduKit'"
                 @click="sendResetCommand()"
-                class="bg-blue-500 text-white text-xl px-4 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
+                class="bg-blue-500 text-white text-sm px-1 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
               >
                 리셋
               </button>
               <button
-                
-                @click="category.name == 'sensor'? openPopup(item): $router.push(`/dashboard/${item.meshId}`)"
-                class="bg-blue-500 text-white text-xl px-4 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
-          
-                :class="{ 'opacity-50 cursor-not-allowed': item.meshName == 'eduKit' && item.meshId > 1}"
-                
+                @click="
+                  category.name == 'sensor'
+                    ? openPopup(item)
+                    : $router.push(`/dashboard/${item.meshId}`)
+                "
+                class="bg-blue-500 text-white text-sm px-1 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
+                :class="{
+                  'opacity-50 cursor-not-allowed': item.meshName == 'eduKit' && item.meshId > 1
+                }"
               >
                 조회
               </button>
 
               <button
                 @click="emitRemoveItem(item)"
-                class="bg-black text-white text-xl px-4 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
+                class="bg-black text-white text-sm px-1 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
               >
                 삭제
               </button>
@@ -80,10 +83,11 @@
 </template>
 
 <script>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import emitter from '@/components/eventBus.js'
 import treeModal from '@/components/modals/treeModal.vue'
 import io from 'socket.io-client'
+import axios from 'axios'
 export default {
   name: 'TreeComponent',
   components: {
@@ -113,7 +117,7 @@ export default {
         name: 'eduKit',
         items: [
           {
-            meshId: 1,
+            meshId: 100000,
             name: 'eduKit1',
             type: '3d',
             meshName: 'eduKit',
@@ -121,7 +125,7 @@ export default {
             threshold: '10'
           },
           {
-            meshId: 2,
+            meshId: 100002,
             name: 'eduKit2',
             type: '3d',
             meshName: 'eduKit',
@@ -129,7 +133,7 @@ export default {
             threshold: '10'
           },
           {
-            meshId: 3,
+            meshId: 100003,
             name: 'eduKit3',
             type: '3d',
             meshName: 'eduKit',
@@ -137,7 +141,7 @@ export default {
             threshold: '10'
           },
           {
-            meshId: 4,
+            meshId: 100004,
             name: 'eduKit4',
             type: '3d',
             meshName: 'eduKit',
@@ -145,7 +149,7 @@ export default {
             threshold: '10'
           },
           {
-            meshId: 5,
+            meshId: 100005,
             name: 'eduKit5',
             type: '3d',
             meshName: 'eduKit',
@@ -158,8 +162,8 @@ export default {
         name: 'sensor',
         items: [
           {
-            meshId: 10,
-            name: 'sensor1',
+            meshId: 0,
+            name: 'sensor0',
             type: '3d',
             meshName: 'sensor',
             mqttTopic: 'edge/sensor/temperature-1',
@@ -194,7 +198,6 @@ export default {
         // 해당 요소를 item으로 교체
         categories.value[categoryIndex].items[itemIndex] = item
         emitUpdateItem(item)
-        
       } else {
         console.log(`Item with meshId ${item.meshId} not found.`)
       }
@@ -222,10 +225,8 @@ export default {
       const left = (window.screen.width - width) / 2
       const top = (window.screen.height - height) / 2
 
-
-
       const popupUrl = `/popup/${item.name}/${item.threshold}/${item.mqttTopic}`
-      const popName=`/popup/${item.name}/${item.threshold}/${item.mqttTopic}`
+      const popName = `/popup/${item.name}/${item.threshold}/${item.mqttTopic}`
       const popup = window.open(
         popupUrl,
         popName,
@@ -238,6 +239,18 @@ export default {
         }
       }
     }
+    const fetchSensorList = async () => {
+      try {
+        const response = await axios.get('http://traum.groundkim.com:3001/sensor/object/list')
+        response.data.forEach((el) => {
+          addItem(1, el.id, 'sensor', el.mqttTopic, el.threshold, '3d')
+        })
+      } catch (error) {
+        console.error('Failed to fetch sensor list', error)
+      }
+    }
+
+    onMounted(fetchSensorList)
 
     return {
       categories,
@@ -271,9 +284,7 @@ export default {
         return
       }
 
-
-        this.socket = io(`ws://${import.meta.env.VITE_SOCKET_IO_URL}`, {
-          
+      this.socket = io(`ws://${import.meta.env.VITE_SOCKET_IO_URL}`, {
         transports: ['websocket'],
 
         reconnectionAttempts: 1,
@@ -288,10 +299,10 @@ export default {
       })
 
       this.socket.on('message', (msg) => {
-        console.log("here")
-        console.log("here")
-        console.log("here")
-        console.log("here")
+        console.log('here')
+        console.log('here')
+        console.log('here')
+        console.log('here')
         console.log('Received message: ' + msg)
       })
 

@@ -15,9 +15,6 @@ import { createPinia } from 'pinia'
 import App from './App.vue'
 import router from './router'
 
-// axios
-import axiosPlugin from '@/plugins/axios.js';
-// import axiosPlugin from './plugins/axios.js';
 
 library.add(fas)
 
@@ -31,5 +28,4 @@ app.use(router)
 Object.keys(Flowbite).forEach((key) => {
   app.component(key, Flowbite[key])
 })
-app.use(axiosPlugin);
 app.mount('#app')

@@ -24,6 +24,22 @@
           </router-link>
         </div>
       </div>
+      <div>
+        <router-link
+          to="/myPage"
+          class="bg-color1 text-xl get-started text-white font-bold px-6 py-2 rounded outline-none focus:outline-none mr-2 mb-1 bg-color1 active:bg-color1"
+        >
+          {{ newDate }} {{ userName }}님 마이페이지
+        </router-link>
+
+        <router-link
+          to="/login"
+          class="text-xl bg-color1 get-started text-white font-bold px-6 py-2 rounded outline-none focus:outline-none mr-2 mb-1 bg-color1 active:bg-color1"
+          @click="handleLogout"
+        >
+          로그아웃
+        </router-link>
+      </div>
     </div>
   </nav>
   <!-- End Navbar -->
@@ -39,9 +55,9 @@ export default {
     const links = [
       { path: '/builder', name: 'Builder' },
       { path: '/simulation', name: 'Simulation' },
-      { path: '/digitaltwin/1', name : 'DigitalTwin'},
-      { path: '/dashboard/1', name: 'Dashboard'},
-      { path: '/blackbox', name: 'BlackBox'}
+      { path: '/digitaltwin/1', name: 'DigitalTwin' },
+      { path: '/dashboard/1', name: 'Dashboard' },
+      { path: '/blackbox', name: 'BlackBox' }
     ]
 
     const isActive = (path) => {
@@ -66,21 +82,3 @@ export default {
   }
 }
 </script>
-
-<!-- <template>
-    <nav>
-        <div>
-            <router-link>
-                예시1
-            </router-link>
-        </div>
-    </nav>
-    
-</template>
-
-
-
-
-<script setup>
-
-</script> -->

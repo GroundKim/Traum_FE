@@ -14,7 +14,7 @@
     >
       <div>
         <!--content 모달창의 크기조절 위치-->
-        <div class="bg-white" style="width: 1000px">
+        <div class="bg-white" style="width: 1200px; max-height: 90vh; overflow-y: auto">
           <!--header-->
           <div class="flex items-center justify-between p-5">
             <h3 class="text-3xl font-semibold">설정 변경</h3>
@@ -31,23 +31,72 @@
           </div>
           <!--body-->
           <div>
-           
-        
             <p class="my-4 text-blueGray-500 text-lg leading-relaxed"></p>
             <div class="flex flex-col">
-              
-              <canvas ref="bjsCanvas" style="width: 100%; height: 300px" 
-              
-              @dblclick="(item?.meshId==1)  ? routeToUnity() : null" ></canvas>     
-              <ButtonDropdown/>         
-              <div class="flex" v-for="key in settings" :key="key">
+              <canvas
+                ref="bjsCanvas"
+                style="width: 100%; height: 300px"
+                @dblclick="item?.meshId == 1 ? routeToUnity() : null"
+              ></canvas>
+              <!-- <div class="flex" v-for="key in settings" :key="key">
                 <label>{{ key }}</label>
                 <input v-model="localItem[key]" />
-                
+              </div> -->
+              <div class="space-y-4 mx-auto w-[500px]">
+                <div class="flex justify-between">
+                  <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
+                  <input
+                    id="name"
+                    v-model="localItem['name']"
+                    class="ml-16 mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  />
+                </div>
+
+                <div class="flex justify-between">
+                  <label for="threshold" class="block text-sm font-medium text-gray-700"
+                    >Threshold</label
+                  >
+                  <div>
+                    <div class="mt-1 flex items-center space-x-2">
+                      <input
+                        id="threshold"
+                        v-model="localItem['threshold']"
+                        type="number"
+                        class="block w-20 px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                      />
+                      <fwb-range
+                        v-model="localItem['threshold']"
+                        label=""
+                        size="sm"
+                        :steps="1"
+                        :max="100"
+                        :min="0"
+                        class="flex-grow"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="flex justify-between">
+                  <label for="mqtt" class="block text-sm font-medium text-gray-700"
+                    >MQTT Topic</label
+                  >
+                  <div>
+                    <div class="mt-1 flex items-center space-x-2">
+                      <input
+                        id="mqtt"
+                        v-model="localItem['mqttTopic']"
+                        class="w-2/3 flex-grow px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                      />
+                      <SelectList
+                        :topicList="topicList"
+                        :initialSelected="localItem.mqttTopic"
+                        @update:selected="updateMqttTopic"
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
-     
-              <fwb-range v-model="localItem['threshold']" label="Large range" size="lg" :steps="1" :max="100" :min="0"/>
-             
             </div>
           </div>
           <!--footer-->
@@ -77,7 +126,7 @@
 </template>
 
 <script>
-import { ref, watch, nextTick, reactive,onMounted, inject } from 'vue'
+import { ref, watch, nextTick, reactive, onMounted } from 'vue'
 import {
   Engine,
   Scene,
@@ -87,9 +136,11 @@ import {
   SceneLoader
 } from '@babylonjs/core'
 import { useRouter } from 'vue-router'
-import ButtonDropdown  from '../dropdowns/ButtonDropdown.vue';
+import axios from 'axios'
+import SelectList from '../lists/SelectList.vue'
+
 export default {
-  components: {ButtonDropdown},
+  components: { SelectList },
   props: {
     item: {
       type: Object,
@@ -97,12 +148,21 @@ export default {
     }
   },
   setup(props, { emit }) {
-
     const bjsCanvas = ref(null)
     let engine, scene, camera
     const router = useRouter()
-    const axios = inject('axios');
 
+    const settings = ref(['name', 'mqttTopic', 'threshold'])
+    const topicList = ref([])
+    const fetchTopicList = async () => {
+      try {
+        const response = await axios.get('http://traum.groundkim.com:3001/influx/sensor/topic/list')
+
+        topicList.value = response.data
+      } catch (error) {
+        console.error('Failed to fetch blackbox list', error)
+      }
+    }
 
     const createScene = (canvas) => {
       engine = new Engine(canvas, true, { stencil: true })
@@ -178,28 +238,11 @@ export default {
         }
       }
     })
-    const settings = ref(['name', 'mqttTopic', 'threshold'])
 
-    onMounted( ()=>{
-      
-      //장비목록 불러오는 API GET 실행
-   axios
-       .get(`/influx/sensor/topic/list`, {
-         headers: {
-           authorization:
-             'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MiwibmFtZSI6Iu2Zjeq4uOuPmSIsInJvbGUiOm51bGwsImlhdCI6MTcxNzU0NzIxNSwiZXhwIjoxNzQ2MzQ3MjE1fQ.WGAr3joPF9jBCuHFG3OqfXRnZe5wIjw4smLU4e6TSdQ'
-         }
-       })
-       .then((response) => {
-         // 요청이 성공하면 실행되는 코드
-         console.log('Response:', response.data)
-       })
-       .catch((error) => {
-         // 요청이 실패하면 실행되는 코드
-         console.error('Error:', error)
-
-       })
-})
+    const updateMqttTopic = (selectedTopic) => {
+      localItem.mqttTopic = selectedTopic
+    }
+    onMounted(fetchTopicList)
 
     return {
       showModal,
@@ -208,7 +251,9 @@ export default {
       routeToUnity,
       bjsCanvas,
       settings,
-      localItem
+      localItem,
+      updateMqttTopic,
+      topicList
     }
   }
 }

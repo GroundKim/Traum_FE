@@ -7,18 +7,15 @@
         <div class="relative w-full max-w-full flex-grow flex-1">
           <p class="text-black text-2xl font-semibold">{{ currentName }}</p>
           <button
-                
-                @click="$router.push(`/digitaltwin/`)"
-                class="bg-blue-500 text-white text-xl px-4 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
-              >
-                상세보기
-              </button>
-
+            @click="$router.push(`/digitaltwin/`)"
+            class="bg-blue-500 text-white text-xl px-4 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
+          >
+            상세보기
+          </button>
         </div>
       </div>
     </div>
     <div class="p-4 flex-auto">
-     
       <!-- Chart -->
       <div class="relative chart-container">
         <canvas ref="chart"></canvas>
@@ -36,6 +33,7 @@
 <script>
 import { ref, onMounted, watch } from 'vue'
 import Chart from 'chart.js'
+import axios from 'axios'
 import 'chartjs-plugin-annotation'
 
 export default {
@@ -65,19 +63,44 @@ export default {
     const chart = ref(null)
     let myChart = null
     const currentName = ref(null)
-    
+
+    const initValue = ref([])
+    const initTime = ref([])
+    const fetchChartList = async () => {
+      try {
+        const response = await axios.get(
+          'http://traum.groundkim.com:3001/influx/sensor/topic/history/temperature-1?elapsed=15s'
+        )
+
+        // responseData 배열을 순회하며 temperature 속성이 있는 객체를 찾습니다.
+        response.data.forEach((item) => {
+          if ('temperature' in item) {
+            initValue.value.push(Number(item.temperature))
+            initTime.value.push(new Date(item.time).toLocaleTimeString())
+            myChart.data.labels = initTime.value
+            myChart.data.datasets[0].data = initValue.value
+
+            // singleTime.value = new Date(item.time).toLocaleTimeString()
+          }
+        })
+
+        // 결과 확인
+      } catch (error) {
+        console.error('Failed to fetch sensor list', error)
+      }
+    }
 
     onMounted(() => {
       let config = {
         type: 'line',
         data: {
-          labels: [0],
+          labels: [],
           datasets: [
             {
               label: 'Sensor',
               backgroundColor: '#4c51bf',
               borderColor: '#4c51bf',
-              data: [0],
+              data: [],
               fill: false
             }
           ]
@@ -128,7 +151,7 @@ export default {
                 ticks: {
                   fontColor: 'black', // 변경: y축 레이블 색상을 검은색으로 설정
                   fontSize: 20,
-                  max: 0,
+                  max: 100,
                   min: 0,
                   stepSize: 50 / 2,
                   callback: function (value) {
@@ -175,9 +198,34 @@ export default {
         let ctx = chart.value.getContext('2d')
         myChart = new Chart(ctx, config)
       }
+
+      // fetchChartList()
     })
 
-    const updateChart = (singleValue, singleTime, threshold,name) => {
+    // const initChart = (singleValue, singleTime) => {
+
+    //   if (myChart) {
+    //     // if (myChart.data.labels.length >= 20) {
+    //     //   myChart.data.labels.shift()
+    //     //   myChart.data.datasets[0].data.shift()
+    //     // }
+    //     myChart.data.labels = singleTime
+    //     myChart.data.datasets[0].data = singleValue
+    //   }
+    //   const maxValue = Math.max(...myChart.data.datasets[0].data)
+    //   const minValue = Math.min(...myChart.data.datasets[0].data)
+
+    //   myChart.options.scales.yAxes[0].ticks.max = maxValue * 1.2
+    //   myChart.options.scales.yAxes[0].ticks.min = minValue * 0.8
+
+    //   myChart.options.scales.yAxes[0].ticks.stepSize = maxValue / 4
+
+    //   myChart.update()
+    //   // updateChart()
+    // }
+
+    const updateChart = (singleValue, singleTime, threshold, name) => {
+      threshold = Number(threshold)
       if (myChart) {
         if (myChart.data.labels.length >= 20) {
           myChart.data.labels.shift()
@@ -185,10 +233,6 @@ export default {
         }
         myChart.data.labels.push(singleTime)
         myChart.data.datasets[0].data.push(singleValue)
-        console.log(threshold)
-        console.log(threshold)
-        console.log(threshold)
-        console.log(threshold)
 
         // y축 범위 동적 조정
         const maxValue = Math.max(...myChart.data.datasets[0].data, threshold)
@@ -201,7 +245,7 @@ export default {
 
         myChart.options.annotation.annotations[0].value = threshold
         myChart.update()
-        currentName.value=name
+        currentName.value = name
       }
     }
 
@@ -215,15 +259,15 @@ export default {
     }
 
     watch(
-      () => [props.singleValue, props.singleTime, props.threshold,props.name],
+      () => [props.singleValue, props.singleTime, props.threshold, props.name],
       (newValue) => {
         console.log(newValue)
         console.log(newValue)
         console.log(newValue)
         console.log(newValue)
         console.log(newValue)
-        const [singleValue, singleTime, threshold,name] = newValue
-        updateChart(singleValue, singleTime, threshold,name)
+        const [singleValue, singleTime, threshold, name] = newValue
+        updateChart(singleValue, singleTime, threshold, name)
       },
       { deep: true }
     )

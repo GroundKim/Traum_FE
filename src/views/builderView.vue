@@ -2,37 +2,18 @@
   <div>
     <div class="flex flex-wrap mt-4">
       <div class="w-full">
-        {{ connectionStatus }}
-        <font-awesome-icon :icon="['fas', 'circle-plus']" class="mr-2" />
-        <font-awesome-icon :icon="['fas', 'circle-plus']" class="mr-2" />
-        <fwb-button color="default">Default</fwb-button>
-        <fwb-button color="alternative">Alternative</fwb-button>
-        <fwb-button color="dark">Dark</fwb-button>
-        <fwb-button color="light">Light</fwb-button>
-        <fwb-button color="green">Green</fwb-button>
-        <fwb-button color="red">Red</fwb-button>
-        <fwb-button color="yellow">Yellow</fwb-button>
-        <fwb-button color="purple">Purple</fwb-button>
-        <fwb-button color="pink">Pink</fwb-button>
-        <div class="flex gap-10 w-full h-[500px]">
-          <tree-list
-            class="overflow-y-scroll w-[800px]"
-            @dragStart="onDragStart"
-            @modalOpen="handleModal"
-          />
-          <BabylonScene
-            ref="babylonScene"
-            @removeItem="console.log('도착확인')"
-            class="w-full pr-10"
-          />
+        <div class="flex gap-10 w-full h-[450px]">
+          <div class="overflow-y-auto h-full">
+            <tree-list @dragStart="onDragStart" @modalOpen="handleModal" />
+          </div>
+          <div class="pr-10 h-[400px] flex-grow overflow-hidden">
+            <BabylonScene
+              ref="babylonScene"
+              @removeItem="console.log('도착확인')"
+              class="w-full h-full"
+            />
+          </div>
         </div>
-        <div class="px-10 py-4"></div>
-        <line-chart-detail
-          class="h-[280px]"
-          :selectedItem="selectedItem"
-          :singleValue="singleValue"
-          :singleTime="singleTime"
-        ></line-chart-detail>
       </div>
     </div>
   </div>
@@ -44,7 +25,6 @@ import mqtt from 'mqtt'
 import emitter from '@/components/eventBus.js'
 
 import BabylonScene from '@/components/BabylonScene.vue'
-import LineChartDetail from '@/components/charts/LineChart.vue'
 import TreeList from '@/components/lists/TreeList.vue'
 
 const babylonScene = ref(null)

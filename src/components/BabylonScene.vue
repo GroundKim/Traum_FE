@@ -1,16 +1,18 @@
 <template>
-  <div class="flex flex-col">
-    <div class="flex flex-row-reverse">
+  <div class="babylon-scene-container w-full h-full relative">
+    <div class="absolute top-2 right-2 z-10">
       <font-awesome-icon
         @click="toggleFullScreen"
-        size="3x"
+        size="lg"
         :icon="['fas', 'up-right-and-down-left-from-center']"
+        class="cursor-pointer"
+        style="color: #ffffff"
       />
     </div>
-
-    <canvas ref="bjsCanvas" @dragover.prevent @drop="onDrop"></canvas>
+    <canvas ref="bjsCanvas" class="w-full h-full" @dragover.prevent @drop="onDrop"></canvas>
   </div>
 </template>
+
 <script>
 import { ref, onMounted, onUnmounted } from 'vue'
 import mqtt from 'mqtt'
@@ -51,8 +53,8 @@ export default {
       // engine.runRenderLoop(() => {
       //   scene.render()
       // })
-       // 변경: scene.executeWhenReady 사용
-       scene.executeWhenReady(() => {
+      // 변경: scene.executeWhenReady 사용
+      scene.executeWhenReady(() => {
         engine.runRenderLoop(() => {
           scene.render()
         })
@@ -85,6 +87,12 @@ export default {
         const position = meshes.value[item.meshId].mesh.position
 
         let mesh
+        console.log(item)
+        console.log(item)
+        console.log(item)
+        console.log(item)
+        console.log(item)
+        console.log(item)
         try {
           const result = await SceneLoader.ImportMeshAsync(
             '',
@@ -161,6 +169,12 @@ export default {
         const position = meshes.value[item.meshId].mesh.position
 
         let mesh
+        console.log(item)
+        console.log(item)
+        console.log(item)
+        console.log(item)
+        console.log(item)
+        console.log(item)
         try {
           const result = await SceneLoader.ImportMeshAsync(
             '',
@@ -245,7 +259,13 @@ export default {
           event.clientY - canvasRect.top
         )
         let position = pickResult.hit ? pickResult.pickedPoint : new Vector3(0, 0, 0)
-
+        console.log(position)
+        console.log(position)
+        console.log(position)
+        console.log(position)
+        console.log(position)
+        console.log(position)
+        console.log(position)
         let mesh
         try {
           const result = await SceneLoader.ImportMeshAsync(
@@ -303,7 +323,7 @@ export default {
             meshName: itemData.meshName,
             name: itemData.name,
             meshId: itemData.meshId,
-            mqttTopic:itemData.mqttTopic,
+            mqttTopic: itemData.mqttTopic,
             threshold: itemData.threshold,
             mesh: mesh,
             label: plane,
@@ -329,12 +349,12 @@ export default {
       changeMeshColorRed(item)
     }
 
-    const handleUpdateName = (item) => {      
+    const handleUpdateName = (item) => {
       if (meshes.value[item.meshId]) {
         const mesh = meshes.value[item.meshId].mesh
-        meshes.value[item.meshId].name=item.name
-        meshes.value[item.meshId].mqttTopic=item.mqttTopic
-        meshes.value[item.meshId].threshold=item.threshold
+        meshes.value[item.meshId].name = item.name
+        meshes.value[item.meshId].mqttTopic = item.mqttTopic
+        meshes.value[item.meshId].threshold = item.threshold
         // Remove the existing label plane
         if (meshes.value[item.meshId].label) {
           meshes.value[item.meshId].label.dispose()
@@ -386,9 +406,7 @@ export default {
 
     // sensor 하이라이트, 글씨색상 변경 처리
 
-    
     const handleUpdateNameColor = async (item, color) => {
-     
       if (meshes.value[item.meshId]) {
         const position = meshes.value[item.meshId].mesh.position
 
@@ -493,12 +511,7 @@ export default {
         console.log('Connected to MQTT broker')
         connectionStatus.value = 'Connected'
 
-        Object.values(meshes.value).forEach(item => {
-          console.log(item)
-          console.log(item)
-          console.log(item)
-          console.log(item)
-          console.log(item)
+        Object.values(meshes.value).forEach((item) => {
           if (item.mqttTopic) {
             client.value.subscribe(item.mqttTopic, (err) => {
               if (!err) {
@@ -513,45 +526,42 @@ export default {
         const messageStr = message.toString()
         try {
           const messageObj = JSON.parse(messageStr)
-         
+
           if (messageObj !== undefined) {
-            const item = Object.values(meshes.value).find(item => item.mqttTopic === topic)
-            if (item && item.meshName==='sensor') {
+            const item = Object.values(meshes.value).find((item) => item.mqttTopic === topic)
+            if (item && item.meshName === 'sensor') {
               const singleValue = Number(messageObj[0].value)
-            
+
               let newColor = 'white'
               if (singleValue >= Number(item.threshold)) {
                 newColor = 'red'
-              console.log(newColor)
-
-              }
-              else if (singleValue < Number(item.threshold)) {
+                console.log(newColor)
+              } else if (singleValue < Number(item.threshold)) {
                 newColor = 'white'
               }
               if (newColor !== item.color) {
                 meshes.value[item.meshId].color = newColor
                 handleUpdateNameColor(item, newColor)
               }
-            }
-            else if (item && item.meshName==='eduKit') {
-              console.log("그린:",messageObj[0].value, messageObj[43].value)
-              console.log("레드:",messageObj[19].value, messageObj[43].value)
-              console.log("타임:",messageObj[43])
+            } else if (item && item.meshName === 'eduKit') {
+              console.log('그린:', messageObj[0].value, messageObj[43].value)
+              console.log('레드:', messageObj[19].value, messageObj[43].value)
+              console.log('타임:', messageObj[43])
+              console.log('그린:', messageObj[0].value, messageObj[43].value)
+              console.log('레드:', messageObj[19].value, messageObj[43].value)
+              console.log('타임:', messageObj[43])
 
               // let redSign =item.color;
               // let greenSign =false;
-              
 
-              if(messageObj[19].value === true ){
+              if (messageObj[19].value === true) {
                 changeMeshColorRed(item)
-              } 
-              else if(messageObj[0].value === true){
+              } else if (messageObj[0].value === true) {
                 changeMeshColorGreen(item)
               }
             }
           }
-      }
-         catch (error) {
+        } catch (error) {
           console.error('Error parsing message:', error)
         }
       })
@@ -573,12 +583,99 @@ export default {
         document.exitFullscreen()
       }
     }
-  
+
+    // 센서 추가//
+    const createInitialSensors = () => {
+      const initialSensors = [
+        {
+          meshId: 100000,
+          name: 'eduKit1',
+          type: '3d',
+          meshName: 'eduKit',
+          mqttTopic: 'edge/edukit/status',
+          threshold: '10',
+          location: '2.1,0.77,-1.25'
+        }
+        // {
+        //   meshId: 0,
+        //   name: 'sensor0',
+        //   type: '3d',
+        //   meshName: 'sensor',
+        //   mqttTopic: 'edge/sensor/temperature-1',
+        //   threshold: '1',
+        //   location: '4.0,0.77,-1.5'
+        // }
+        // 추가 초기 센서가 있다면 여기에 추가
+      ]
+
+      initialSensors.forEach(async (sensor) => {
+        const [x, y, z] = sensor.location.split(',').map(Number)
+        const position = new Vector3(x, y, z)
+
+        try {
+          const result = await SceneLoader.ImportMeshAsync(
+            '',
+            './models/',
+            `${sensor.meshName}.glb`,
+            scene
+          )
+          const mesh = result.meshes[0]
+          mesh.scaling = new Vector3(2, 2, -2)
+          mesh.position = position
+
+          const plane = MeshBuilder.CreatePlane('labelPlane', { width: 1, height: 0.5 }, scene)
+          plane.parent = mesh
+          plane.position.y = -1
+          plane.position.z = 0
+          plane.rotation.x = Math.PI
+          plane.billboardMode = Mesh.BILLBOARDMODE_ALL
+
+          const dynamicTexture = new DynamicTexture(
+            'labelTexture',
+            { width: 256, height: 128 },
+            scene
+          )
+          const labelMaterial = new StandardMaterial('labelMaterial', scene)
+          labelMaterial.diffuseTexture = dynamicTexture
+          labelMaterial.specularColor = new Color3(0, 0, 0)
+          labelMaterial.backFaceCulling = false
+          labelMaterial.emissiveColor = new Color3(1, 1, 1)
+          labelMaterial.useAlphaFromDiffuseTexture = true
+          plane.material = labelMaterial
+
+          dynamicTexture.drawText(
+            sensor.name,
+            null,
+            null,
+            'bold 48px Arial',
+            'white',
+            'transparent',
+            true
+          )
+
+          meshes.value[sensor.meshId] = {
+            meshName: sensor.meshName,
+            name: sensor.name,
+            meshId: sensor.meshId,
+            mqttTopic: sensor.mqttTopic,
+            threshold: sensor.threshold,
+            mesh: mesh,
+            label: plane,
+            color: 'white'
+          }
+          handleReadItems()
+        } catch (error) {
+          console.error('Error creating initial sensor mesh:', error)
+        }
+      })
+    }
+    ///
 
     onMounted(() => {
       if (bjsCanvas.value) {
         scene = createScene(bjsCanvas.value)
         SceneLoader.ImportMesh('', './models/', 'UVC_V02.glb', scene)
+        createInitialSensors()
       }
       emitter.on('startItem', handleStart)
       emitter.on('removeItem', handleDelete)
@@ -586,17 +683,15 @@ export default {
       emitter.on('updateItem', (item) => {
         handleUpdateName(item)
         handleReadItems()
-        
       })
       // 미사용 'updateItem'의 handleReadItems에서 색깔도 함께 처리
       emitter.on('updateItemColor', () => {
         handleReadItems()
-     
 
         // handleUpdateNameColor(item, color)
       })
 
-       // 초기 MQTT 연결
+      // 초기 MQTT 연결
       //  handleReadItems()
     })
 
