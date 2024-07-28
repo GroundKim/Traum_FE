@@ -2,7 +2,7 @@
   <div class="main open-sans-main">
     <div class="top">
       <div class="top-contents top-left">
-        <p> SELECTED : </p>
+        <div class = "pb"> SELECTED : </div>
         <select id="edukit-select" v-model="selectedEdukit" class="select">
           <option value="EDUKIT1">EDUKIT1</option>
           <option value="EDUKIT2" disabled>EDUKIT2</option>
@@ -12,12 +12,12 @@
         </select>
       </div>
       <div class="top-contents top-mid">
-        <p> PROGRESS</p>
+        <div class= "pb"> PROGRESS</div>
         <div class="progress-bar">
           <div class="progress" :style="{ width: progress + '%' }"></div>
           <img src="/img/turtle.png" alt="Turtle Icon" class="turtle-icon" :style="{ left: progress + '%' }"/>
         </div>
-        <p>{{ Math.floor(progress) }}%</p>
+        <div>{{ progress }}%</div>
       </div>
       <div class="top-contents top-right">
         <div class="lamp-status">
@@ -96,7 +96,14 @@
           {{ datalist.No2PowerState ? 'Turn Off' : 'Turn On' }}
         </button>
       </div>
-      <div class="circle-container">
+      <div class="circle-container" v-if="datalist.StartState">
+        <div :class="['circle', { 'animate-circle': datalist.StartState }]"></div>
+        <div :class="['circle', { 'animate-circle': datalist.StartState }]"></div>
+        <img v-if="!datalist.No3PowerState" src="/img/redCross.png" class="redCross">
+        <div :class="['circle', { 'animate-circle': datalist.StartState }]"></div>
+        <div :class="['circle', { 'animate-circle': datalist.StartState }]"></div>
+      </div>
+      <div class="circle-container" v-else>
         <div class="circle"></div>
         <div class="circle"></div>
         <img v-if="!datalist.No3PowerState" src="/img/redCross.png" class="redCross">
@@ -120,8 +127,9 @@
         </div>
         <div class="status">
           <span>STATUS: </span>
-          <span class="status-unknown">데이터 없음</span>
-        </div>
+          <span :class="{ 'status-normal': datalist.No3Count < 5, 'status-warning': datalist.No3Count >=5 }">
+            {{ datalist.No3Count < 5 ? '적재 가능' : '적재량 최대' }}
+          </span>        </div>
         <button @click="openModal('Unit No.3', '11', datalist.No3PowerState)">
           {{ datalist.No3PowerState ? 'Turn Off' : 'Turn On' }}
         </button>
@@ -151,7 +159,6 @@ import mqtt from 'mqtt';
 import io from 'socket.io-client';
 
 const selectedEdukit = ref('EDUKIT1');
-const progress = ref(10);
 
 const plcData = ref('');
 const datalist = ref({
@@ -215,15 +222,15 @@ const updateDatalist = (parsedData) => {
     }
   });
 
-  updateProgressBar(); // Update the progress bar when new data is received
+  updateProgressBar();
 };
+const progress = ref(datalist.value.No3Count);
 
 const updateProgressBar = () => {
-  if (datalist.value.StartState) {
+  // if (datalist.value.StartState) {
     // Calculate progress based on No3Count
-    progress.value = Math.min((datalist.value.No3Count / 5) * 100, 100);
-    console.log(progress.value);
-  }
+    progress.value = ((datalist.value.No3Count / 5) * 100, 100);
+  // }
 };
 
 const connectMQTT = () => {
@@ -306,6 +313,7 @@ onMounted(() => {
   socket.on('connect_error', (error) => {
     console.log(`WebSocket 연결 오류: ${error}`);
   });
+  updateProgressBar();
 });
 
 onUnmounted(() => {
@@ -396,6 +404,9 @@ onUnmounted(() => {
 .process.inactive {
   background-color: #7c7c7c;
   box-shadow: none;
+}
+.pb {
+  padding : 10px;
 }
 .standby {
   margin : 10px;
@@ -572,15 +583,15 @@ button:hover {
   transition: background-color 0.3s, opacity 0.3s;
 }
 .lamp.green.active {
-  background-color: lightgreen;
+  background-color: rgb(133, 239, 133);
   opacity: 1;
 }
 .lamp.yellow.active {
-  background-color: lightyellow;
+  background-color: rgb(233, 233, 134);
   opacity: 1;
 }
 .lamp.red.active {
-  background-color: lightcoral;
+  background-color: rgb(235, 120, 120);
   opacity: 1;
 }
 
@@ -635,7 +646,7 @@ p {
 .top-contents .progress-bar {
   position: relative;
   width: 100%;
-  height: 20px;
+  height: 40px;
   background-color: transparent; /* 바탕색 없음 */
   border: 1px solid #4a90e2; /* 테두리만 있음 */
   border-radius: 5px;
@@ -650,9 +661,9 @@ p {
 
 .turtle-icon {
   position: absolute;
-  top: -15px; /* 프로그래스 바 위로 올라오게 */
+  top: -5px;
   transform: translateX(-50%);
-  height: 30px;
+  height: 50px;
 }
 
 .progress-text {

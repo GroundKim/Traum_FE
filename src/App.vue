@@ -1,5 +1,6 @@
 <script setup>
 import NavBar from '@/components/NavBars/NavBar.vue'
+import BlackboxNav from '@/components/NavBars/BlackboxNav.vue'
 import Footer from '@/components/footers/MainFooter.vue'
 import { useRoute } from 'vue-router';
 import { computed } from 'vue';
@@ -17,14 +18,20 @@ const showNavBar = computed(() => !hideNavBarRoutes.includes(route.name));
 const showFooter = computed(() => !hideFooterRoutes.includes(route.name));
 </script>
 <template>
-  <div>
-    <NavBar v-if="showNavBar"></NavBar>
+  <div class = "main">
+    <!-- <NavBar v-if="showNavBar"></NavBar> -->
+    <BlackboxNav v-if="showNavBar"></BlackboxNav>
     <RouterView />
-    <Footer v-if="showFooter" />
   </div>
+  <Footer v-if="showFooter"></Footer>
+
 </template>
 
 <style scoped>
+.main {
+  display: flex;
+  flex-direction : row;
+}
 header {
   line-height: 1.5;
   max-height: 100vh;
