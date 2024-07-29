@@ -14,7 +14,7 @@
     >
       <div>
         <!--content 모달창의 크기조절 위치-->
-        <div class="text-white bg-gray-600 justify-end" style="left: 800px; right: 0">
+        <div class="text-white bg-gray-600">
           <!--header-->
           <div class="flex items-center justify-between p-5">
             <h3 class="text-3xl font-semibold">설정 변경</h3>
@@ -35,16 +35,12 @@
             <div class="flex flex-col">
               <canvas
                 ref="bjsCanvas"
-                style="width: 100%; height: 200px"
+                class="mx-auto w-[95%]"
                 @dblclick="item?.meshId == 1 ? routeToUnity() : null"
               ></canvas>
-              <!-- <div class="flex" v-for="key in settings" :key="key">
-                <label>{{ key }}</label>
-                <input v-model="localItem[key]" />
-              </div> -->
-              <div class="space-y-4 mx-auto w-[500px] text-black">
-                <div class="flex justify-between">
-                  <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
+              <div class="space-y-4 mx-auto w-[95%] text-black">
+                <div class="flex items-center justify-between">
+                  <label for="name" class="block text-sm font-medium text-white">Name</label>
                   <input
                     id="name"
                     v-model="localItem['name']"
@@ -52,8 +48,8 @@
                   />
                 </div>
 
-                <div class="flex justify-between">
-                  <label for="threshold" class="block text-sm font-medium text-gray-700"
+                <div class="flex justify-between items-center">
+                  <label for="threshold" class="block text-sm font-medium text-white"
                     >Threshold</label
                   >
                   <div>
@@ -77,16 +73,17 @@
                   </div>
                 </div>
 
-                <div class="flex justify-between">
-                  <label for="mqtt" class="block text-sm font-medium text-gray-700"
-                    >MQTT Topic</label
-                  >
+                <div class="flex justify-between items-center">
+                  <div class="mr-2">
+                    <label for="mqtt" class="block text-sm font-medium text-white">Topic</label>
+                  </div>
+
                   <div>
-                    <div class="mt-1 flex items-center space-x-2">
+                    <div class="mt-1 mr-1 flex items-center space-x-2">
                       <input
                         id="mqtt"
                         v-model="localItem['mqttTopic']"
-                        class="w-2/3 flex-grow px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                        class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                       />
                       <SelectList
                         :topicList="topicList"

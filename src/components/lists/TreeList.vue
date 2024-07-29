@@ -52,7 +52,7 @@
           >
             {{ item.name }}
             <div class="flex justify-between">
-              <treeModal :item="item" @setCondition="setCondition" />
+              <treeModal :item="item" @click="prevCategory" @setCondition="setCondition" />
               <button
                 v-if="category.name == 'eduKit'"
                 @click="sendStartCommand(item)"
