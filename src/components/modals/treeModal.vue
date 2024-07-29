@@ -7,11 +7,7 @@
     >
       <i class="fas fa-cog mr-2"></i>
     </button>
-    <div
-      v-if="showModal"
-      class="fixed inset-0 z-50 flex items-center justify-center"
-      style="top: 0; left: 0; right: 0; bottom: 0"
-    >
+    <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center">
       <div>
         <!--content 모달창의 크기조절 위치-->
         <div class="text-white bg-gray-600">
@@ -23,7 +19,7 @@
               v-on:click="toggleModal()"
             >
               <span
-                class="text-5xl bg-transparent text-black opacity-5 h-6 w-6 text-2xl block outline-none focus:outline-none"
+                class="bg-transparent text-black opacity-5 h-6 w-6 text-2xl block outline-none focus:outline-none"
               >
                 ×
               </span>
@@ -135,6 +131,7 @@ import {
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 import SelectList from '../lists/SelectList.vue'
+import emitter from '../eventBus'
 
 export default {
   components: { SelectList },
@@ -187,6 +184,9 @@ export default {
       if (showModal.value) {
         // 모달이 열릴 때 localItem을 props.item으로 초기화
         Object.assign(localItem, props.item)
+      }
+      if (!showModal.value && props.item.meshName === 'sensor') {
+        emitter.emit('resetLocation', props.item)
       }
     }
     const handleModal = () => {

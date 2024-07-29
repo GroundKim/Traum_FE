@@ -1,6 +1,6 @@
 <template>
   <div
-    class="bg-white relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded bg-opacity-50"
+    class="h-full bg-white relative flex flex-col min-w-0 break-words w-full mb-6 shadow-lg rounded bg-opacity-50"
   >
     <div class="rounded-t mb-0 px-4 py-3 bg-transparent">
       <div class="flex flex-wrap items-center">
@@ -15,7 +15,7 @@
         </div>
       </div>
     </div>
-    <div class="p-4 flex-auto">
+    <div class="p-4 flex-auto overflow-y-hidden w-screen">
       <!-- Chart -->
       <div class="relative chart-container">
         <canvas class="canvas" ref="chart"></canvas>
@@ -27,8 +27,8 @@
 <style>
 .chart-container {
   position: relative;
-  height: 100vh;
-  width: 100vw;
+  height: 70vh;
+  width: 80vw;
 }
 .canvas {
   width: 100%;

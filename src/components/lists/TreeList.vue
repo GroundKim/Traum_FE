@@ -1,170 +1,130 @@
-<!-- TreeComponent.vue -->
 <template>
-  <div class="tree-carousel flex flex-col h-full">
-    <div
-      class="carousel-container flex-grow"
-      :style="{ transform: `translateX(-${currentIndex * 100}%)` }"
-    >
-      <div
-        v-for="(category, index) in categories"
-        :key="category.name"
-        class="carousel-item h-full flex flex-col"
+  <div class="tree-list flex flex-col h-full">
+    <div class="flex items-center justify-between p-4 flex-shrink-0">
+      <button @click="prevCategory" class="category-button" :disabled="currentIndex === 0">
+        <font-awesome-icon icon="chevron-left" />
+      </button>
+      <div class="flex-grow flex items-center justify-between px-4 text-white">
+        <div class="flex items-center">
+          <span class="mr-4 text-base uppercase font-bold">{{ currentCategory.name }}</span>
+          <font-awesome-icon v-if="currentCategory.name == 'eduKit'" icon="fire-burner" size="2x" />
+          <font-awesome-icon
+            v-if="currentCategory.name == 'sensor'"
+            :icon="['fas', 'bolt']"
+            size="2x"
+          />
+        </div>
+        <div>
+          <font-awesome-icon
+            icon="circle-plus"
+            size="2x"
+            @click="
+              addItem(
+                currentIndex,
+                Math.floor(Math.random() * 1000 + 5),
+                currentCategory.name,
+                1803,
+                50,
+                '3d'
+              )
+            "
+          />
+        </div>
+      </div>
+      <button
+        @click="nextCategory"
+        class="category-button"
+        :disabled="currentIndex === categories.length - 1"
       >
-        <div class="flex items-center justify-between p-4 flex-shrink-0">
-          <button @click="prevCategory" class="carousel-button" :disabled="currentIndex === 0">
-            <font-awesome-icon icon="chevron-left" />
-          </button>
-          <div class="flex-grow flex items-center justify-between px-4 text-white">
-            <div class="flex items-center">
-              <span class="mr-4 text-base uppercase font-bold">{{ category.name }}</span>
-              <font-awesome-icon v-if="category.name == 'eduKit'" icon="fire-burner" size="2x" />
-              <font-awesome-icon
-                v-if="category.name == 'sensor'"
-                :icon="['fas', 'bolt']"
-                size="2x"
-              />
-            </div>
-            <div>
-              <font-awesome-icon
-                icon="circle-plus"
-                size="2x"
-                @click="
-                  addItem(
-                    index,
-                    Math.floor(Math.random() * 1000 + 5),
-                    category.name,
-                    1803,
-                    50,
-                    '3d'
-                  )
-                "
-              />
-            </div>
-          </div>
+        <font-awesome-icon icon="chevron-right" />
+      </button>
+    </div>
+    <ul class="flex-grow flex flex-col overflow-auto">
+      <li
+        v-for="item in currentCategory.items"
+        :key="item.name"
+        class="flex items-center justify-between text-base text-white text-center px-4 py-2 uppercase rounded-lg shadow-md cursor-move mb-2 flex-shrink-0"
+        draggable="true"
+        @dragstart="onDragStart($event, item)"
+      >
+        {{ item.name }}
+        <div class="flex justify-end w-[300px]">
+          <treeModal :item="item" @setCondition="setCondition" />
           <button
-            @click="nextCategory"
-            class="carousel-button"
-            :disabled="currentIndex === categories.length - 1"
+            v-if="currentCategory.name == 'eduKit'"
+            @click="sendStartCommand(item)"
+            class="bg-green-500 text-white text-sm px-1 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
+            :class="{
+              'opacity-50 cursor-not-allowed': item.meshName == 'eduKit' && item.meshId < 100005
+            }"
           >
-            <font-awesome-icon icon="chevron-right" />
+            가동
+          </button>
+          <button
+            v-if="currentCategory.name == 'eduKit'"
+            @click="sendStopCommand(item)"
+            class="bg-red-500 text-white text-sm px-1 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
+            :class="{
+              'opacity-50 cursor-not-allowed': item.meshName == 'eduKit' && item.meshId < 100005
+            }"
+          >
+            중지
+          </button>
+          <button
+            v-if="currentCategory.name == 'eduKit'"
+            @click="sendResetCommand()"
+            class="bg-blue-500 text-white text-sm px-1 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
+            :class="{
+              'opacity-50 cursor-not-allowed': item.meshName == 'eduKit' && item.meshId < 100005
+            }"
+          >
+            리셋
+          </button>
+          <button
+            @click="
+              currentCategory.name == 'sensor'
+                ? openPopup(item)
+                : $router.push(`/dashboard/${item.meshId}`)
+            "
+            class="bg-blue-500 text-white text-sm px-1 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
+            :class="{
+              'opacity-50 cursor-not-allowed': item.meshName == 'eduKit' && item.meshId < 100005
+            }"
+          >
+            조회
+          </button>
+          <button
+            @click="emitRemoveItem(item)"
+            class="bg-black text-white text-sm px-1 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
+          >
+            삭제
           </button>
         </div>
-        <ul class="flex-grow flex flex-col">
-          <li
-            v-for="item in category.items"
-            :key="item.name"
-            class="flex items-center justify-between text-base text-white text-center px-4 py-2 text-2xl uppercase rounded-lg shadow-md cursor-move mb-2 flex-shrink-0"
-            draggable="true"
-            @dragstart="onDragStart($event, item)"
-          >
-            {{ item.name }}
-            <div class="flex justify-between">
-              <treeModal :item="item" @click="prevCategory" @setCondition="setCondition" />
-              <button
-                v-if="category.name == 'eduKit'"
-                @click="sendStartCommand(item)"
-                class="bg-green-500 text-white text-sm px-1 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
-                :class="{
-                  'opacity-50 cursor-not-allowed': item.meshName == 'eduKit' && item.meshId > 100000
-                }"
-              >
-                가동
-              </button>
-              <button
-                v-if="category.name == 'eduKit'"
-                @click="sendStopCommand(item)"
-                class="bg-red-500 text-white text-sm px-1 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
-                :class="{
-                  'opacity-50 cursor-not-allowed': item.meshName == 'eduKit' && item.meshId > 100000
-                }"
-              >
-                중지
-              </button>
-              <button
-                v-if="category.name == 'eduKit'"
-                @click="sendResetCommand()"
-                class="bg-blue-500 text-white text-sm px-1 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
-                :class="{
-                  'opacity-50 cursor-not-allowed': item.meshName == 'eduKit' && item.meshId > 100000
-                }"
-              >
-                리셋
-              </button>
-              <button
-                @click="
-                  category.name == 'sensor'
-                    ? openPopup(item)
-                    : $router.push(`/dashboard/${item.meshId}`)
-                "
-                class="bg-blue-500 text-white text-sm px-1 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
-                :class="{
-                  'opacity-50 cursor-not-allowed': item.meshName == 'eduKit' && item.meshId > 100000
-                }"
-              >
-                조회
-              </button>
-
-              <button
-                @click="emitRemoveItem(item)"
-                class="bg-black text-white text-sm px-1 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
-              >
-                삭제
-              </button>
-            </div>
-          </li>
-        </ul>
-      </div>
-    </div>
+      </li>
+    </ul>
   </div>
 </template>
 
 <script>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import emitter from '@/components/eventBus.js'
 import treeModal from '@/components/modals/treeModal.vue'
 import io from 'socket.io-client'
 import axios from 'axios'
+
 export default {
   name: 'TreeComponent',
   components: {
     treeModal
   },
-  setup(props, { emit }) {
+  setup() {
     const currentIndex = ref(0)
-
-    const prevCategory = () => {
-      if (currentIndex.value > 0) {
-        currentIndex.value--
-      }
-    }
-
-    const nextCategory = () => {
-      if (currentIndex.value < categories.value.length - 1) {
-        currentIndex.value++
-      }
-    }
-    class MeshItem {
-      constructor(meshId, meshName, mqttTopic, threshold, type) {
-        this.meshId = meshId // Automatically assign a unique ID
-        this.name = meshName + meshId
-        this.type = type
-        this.meshName = meshName
-        this.mqttTopic = mqttTopic
-        this.threshold = threshold
-        this.color = null
-      }
-    }
-
-    const addItem = (index, meshId, meshName, mqttTopic, threshold, type) => {
-      const newItem = new MeshItem(meshId, meshName, mqttTopic, threshold, type)
-      categories.value[index].items.push(newItem)
-    }
     const categories = ref([
       {
         name: 'eduKit',
         items: [
           {
-            meshId: 100000,
+            meshId: 100005,
             name: 'eduKit1',
             type: '3d',
             meshName: 'eduKit',
@@ -174,7 +134,7 @@ export default {
             color: null
           },
           {
-            meshId: 100002,
+            meshId: 100004,
             name: 'eduKit2',
             type: '3d',
             meshName: 'eduKit',
@@ -194,7 +154,7 @@ export default {
             color: null
           },
           {
-            meshId: 100004,
+            meshId: 100002,
             name: 'eduKit4',
             type: '3d',
             meshName: 'eduKit',
@@ -204,7 +164,7 @@ export default {
             color: null
           },
           {
-            meshId: 100005,
+            meshId: 100001,
             name: 'eduKit5',
             type: '3d',
             meshName: 'eduKit',
@@ -213,69 +173,56 @@ export default {
             location: '0,0,0',
             color: null
           }
+          // ... 다른 eduKit 아이템들
         ]
       },
       {
         name: 'sensor',
-        items: [
-          // {
-          //   meshId: 0,
-          //   name: 'sensor0',
-          //   type: '3d',
-          //   meshName: 'sensor',
-          //   mqttTopic: 'edge/sensor/temperature-1',
-          //   threshold: '1',
-          //   location: '0,0,0',
-          //   color: null
-          // }
-        ]
+        items: []
       }
     ])
-    const onDragStart = (event, item) => {
-      event.dataTransfer.setData('application/json', JSON.stringify(item))
-      emit('dragStart', item)
+
+    const currentCategory = computed(() => categories.value[currentIndex.value])
+
+    const prevCategory = () => {
+      if (currentIndex.value > 0) currentIndex.value--
     }
 
-    const openModal = (item) => {
-      emit('modalOpen', item)
+    const nextCategory = () => {
+      if (currentIndex.value < categories.value.length - 1) currentIndex.value++
+    }
+
+    const addItem = (index, meshId, meshName, mqttTopic, threshold, type) => {
+      const newItem = {
+        meshId,
+        name: meshName + meshId,
+        type,
+        meshName,
+        mqttTopic,
+        threshold,
+        color: null
+      }
+      categories.value[index].items.push(newItem)
+    }
+
+    const onDragStart = (event, item) => {
+      event.dataTransfer.setData('application/json', JSON.stringify(item))
     }
 
     const setCondition = (item) => {
-      let categoryIndex
-      let itemIndex
-      switch (item.meshName) {
-        case 'eduKit':
-          categoryIndex = 0
-          break
-        case 'sensor':
-          categoryIndex = 1
-          break
-      }
-      itemIndex = categories.value[categoryIndex].items.findIndex((el) => el.meshId === item.meshId)
-
+      const categoryIndex = item.meshName === 'eduKit' ? 0 : 1
+      const itemIndex = categories.value[categoryIndex].items.findIndex(
+        (el) => el.meshId === item.meshId
+      )
       if (itemIndex !== -1) {
-        // 해당 요소를 item으로 교체
         categories.value[categoryIndex].items[itemIndex] = item
-        emitUpdateItem(item)
-      } else {
-        console.log(`Item with meshId ${item.meshId} not found.`)
+        emitter.emit('updateItem', item)
+        openPopup(item)
       }
     }
 
     const emitRemoveItem = (item) => {
       emitter.emit('removeItem', item)
-    }
-    const emitAlarmItem = (item) => {
-      emitter.emit('alarmItem', item)
-    }
-    const emitUpdateItem = (item) => {
-      emitter.emit('updateItem', item)
-      // emitter.emit('updateItemColor', item)
-      openPopup(item)
-    }
-
-    const emitReadItem = (item) => {
-      emitter.emit('readItem', item)
     }
 
     const openPopup = (item) => {
@@ -283,21 +230,10 @@ export default {
       const height = 400
       const left = (window.screen.width - width) / 2
       const top = (window.screen.height - height) / 2
-
       const popupUrl = `/popup/${item.name}/${item.threshold}/${item.mqttTopic}`
-      const popName = `/popup/${item.name}/${item.threshold}/${item.mqttTopic}`
-      const popup = window.open(
-        popupUrl,
-        popName,
-        `width=${width},height=${height},left=${left},top=${top}`
-      )
-
-      if (popup) {
-        popup.onload = () => {
-          // 필요한 경우 추가 로직
-        }
-      }
+      window.open(popupUrl, item.name, `width=${width},height=${height},left=${left},top=${top}`)
     }
+
     const fetchSensorList = async () => {
       try {
         const response = await axios.get('http://traum.groundkim.com:3001/sensor/object/list')
@@ -309,127 +245,81 @@ export default {
       }
     }
 
+    const socket = ref(null)
+    const connectSocket = () => {
+      socket.value = io(`ws://${import.meta.env.VITE_SOCKET_IO_URL}`, {
+        transports: ['websocket'],
+        reconnectionAttempts: 1,
+        reconnectionDelay: 1000
+      })
+
+      socket.value.on('connect', () => {
+        console.log('Connected to Socket.IO server.')
+        socket.value.emit('joinRoom', 'UVC-EDU-01')
+      })
+
+      socket.value.on('disconnect', () => {
+        console.log('Disconnected from Socket.IO server.')
+      })
+
+      socket.value.on('connect_error', (error) => {
+        console.log('Socket.IO Error:', error)
+      })
+    }
+
+    const sendSocketMessage = (command) => {
+      if (socket.value && socket.value.connected) {
+        socket.value.emit(`SENDUVC-EDU-01`, JSON.stringify(command))
+        console.log(`Command sent:`, command)
+      } else {
+        console.log('Socket.IO is not connected. Cannot send command.')
+      }
+    }
+
+    const sendStartCommand = (item) => {
+      sendSocketMessage({ tagId: '1', value: '1' })
+      emitter.emit('startItem', item)
+    }
+
+    const sendStopCommand = (item) => {
+      sendSocketMessage({ tagId: '1', value: '0' })
+      emitter.emit('alarmItem', item)
+    }
+
+    const sendResetCommand = () => {
+      sendSocketMessage({ tagId: '8', value: '1' })
+    }
     onMounted(() => {
       fetchSensorList()
-      emitter.on('resetLocation', () => {
-        nextCategory()
-      })
+      connectSocket()
     })
 
     return {
       categories,
       currentIndex,
+      currentCategory,
       prevCategory,
       nextCategory,
-      onDragStart,
-      openModal,
-      setCondition,
-      emitAlarmItem,
-      emitUpdateItem,
-      emitReadItem,
       addItem,
+      onDragStart,
+      setCondition,
       emitRemoveItem,
-      openPopup
-    }
-  },
-  data() {
-    return {
-      socket: null,
-      socketStatus: 'Disconnected',
-      edukitId: 'UVC-EDU-01',
-      connectAttempts: 0,
-      maxConnectAttempts: 1
-    }
-  },
-  mounted() {
-    this.connectSocket()
-  },
-  methods: {
-    connectSocket() {
-      if (this.connectAttempts >= this.maxConnectAttempts) {
-        console.log('Maximum connection attempts reached. Stopping further attempts.')
-        return
-      }
-
-      this.socket = io(`ws://${import.meta.env.VITE_SOCKET_IO_URL}`, {
-        transports: ['websocket'],
-
-        reconnectionAttempts: 1,
-        reconnectionDelay: 1000
-      })
-
-      this.socket.on('connect', () => {
-        this.socketStatus = 'Connected'
-        console.log('Connected to Socket.IO server.')
-        this.socket.emit('joinRoom', this.edukitId)
-        this.connectAttempts = 0 // Reset attempts on successful connection
-      })
-
-      this.socket.on('message', (msg) => {
-        console.log('Received message: ' + msg)
-      })
-
-      this.socket.on('disconnect', () => {
-        this.socketStatus = 'Disconnected'
-        console.log('Disconnected from Socket.IO server.')
-      })
-
-      this.socket.on('connect_error', (error) => {
-        this.socketStatus = 'Error'
-        this.connectAttempts++
-        console.log('Socket.IO Error: ' + error)
-        if (this.connectAttempts < this.maxConnectAttempts) {
-          console.log(`Reconnection attempt ${this.connectAttempts}`)
-          this.connectSocket()
-        } else {
-          console.log('Reconnection failed. Stopping further attempts.')
-        }
-      })
-    },
-    sendSocketMessage(command) {
-      if (this.socket && this.socket.connected) {
-        const message = {
-          tagId: command.tagId,
-          value: command.value
-        }
-        this.socket.emit(`SEND${this.edukitId}`, JSON.stringify(message))
-        console.log(`Command sent with tagId ${command.tagId} and value ${command.value}.`)
-      } else {
-        console.log('Socket.IO is not connected. Cannot send command.')
-      }
-    },
-    sendStartCommand(item) {
-      this.sendSocketMessage({ tagId: '1', value: '1' })
-      emitter.emit('startItem', item)
-      console.log(item)
-    },
-    sendStopCommand(item) {
-      this.sendSocketMessage({ tagId: '1', value: '0' })
-      emitter.emit('alarmItem', item)
-    },
-    sendResetCommand() {
-      this.sendSocketMessage({ tagId: '8', value: '1' })
+      openPopup,
+      sendStartCommand,
+      sendStopCommand,
+      sendResetCommand
     }
   }
 }
 </script>
+
 <style scoped>
-.tree-carousel {
+.tree-list {
   display: flex;
   flex-direction: column;
 }
 
-.carousel-container {
-  display: flex;
-  transition: transform 0.3s ease;
-}
-
-.carousel-item {
-  flex: 0 0 100%;
-  width: 100%;
-}
-
-.carousel-button {
+.category-button {
   background-color: transparent;
   color: white;
   border: none;
@@ -438,12 +328,12 @@ export default {
   transition: opacity 0.3s ease;
 }
 
-.carousel-button:disabled {
+.category-button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
 }
 
-.carousel-button:not(:disabled):hover {
+.category-button:not(:disabled):hover {
   opacity: 0.7;
 }
 
@@ -452,8 +342,7 @@ ul {
   padding-left: 0;
 }
 
-/* 새로 추가된 스타일 */
 li {
-  min-height: 60px; /* 아이템의 최소 높이 설정 */
+  min-height: 60px;
 }
 </style>

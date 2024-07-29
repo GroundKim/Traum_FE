@@ -1,5 +1,5 @@
 <template>
-  <div class="babylon-scene-container w-full h-full relative">
+  <div class="babylon-scene-container w-full h-full relative flex">
     <div class="absolute top-2 right-2 z-10 my-auto">
       <font-awesome-icon
         @click="toggleFullScreen"
@@ -58,8 +58,18 @@ export default {
       scene = new Scene(engine)
       highlightLayer = new HighlightLayer('hl1', scene)
 
-      camera = new ArcRotateCamera('camera', -Math.PI / 2, Math.PI / 2.5, 10, Vector3.Zero(), scene)
+      // 카메라 설정 수정
+      camera = new ArcRotateCamera(
+        'camera',
+        -Math.PI / 2, // alpha (회전 각도)
+        Math.PI / 3, // beta (고도 각도, 약간 위에서 내려다보는 각도)
+        20, // 반지름 (거리)
+        new Vector3(0, 0, 0), // 타겟 위치
+        scene
+      )
       camera.attachControl(canvas, true)
+      camera.lowerRadiusLimit = 5 // 최소 줌 거리 설정
+      camera.upperRadiusLimit = 50 // 최대 줌 거리 설정
       new HemisphericLight('light', new Vector3(1, 1, 1), scene)
 
       scene.executeWhenReady(() => {
@@ -324,7 +334,7 @@ export default {
     const createInitialSensors = () => {
       const initialSensors = [
         {
-          meshId: 100000,
+          meshId: 100005,
           name: 'eduKit1',
           type: '3d',
           meshName: 'eduKit',
