@@ -1,6 +1,8 @@
 <template>
   <div>
+    <FwbSpinner v-if="ispending" size="12" />
     <LineChart
+      v-else-if="!ispending"
       :singleTime="watchedSingleTime"
       :singleValue="watchedSingleValue"
       :threshold="Number(threshold)"
@@ -12,6 +14,8 @@
 <script setup>
 import { ref, onMounted, onUnmounted, computed } from 'vue'
 import LineChart from '@/components/charts/LineChartPop.vue'
+import { FwbSpinner } from 'flowbite-vue'
+
 import mqtt from 'mqtt'
 import axios from 'axios'
 const client = ref(null)
@@ -20,6 +24,7 @@ const singleTime = ref(null)
 const singleValue = ref(null)
 const initValue = ref([])
 const initTime = ref([])
+const ispending = ref(true)
 
 const watchedSingleTime = computed(() => {
   console.log('Single time updated:', initTime.value.length)
@@ -38,6 +43,7 @@ const props = defineProps({
 
 const handleReadItem2 = async () => {
   try {
+    ispending.value = true
     const response = await axios.get(
       'http://traum.groundkim.com:3001/influx/sensor/topic/history/temperature-1?elapsed=15s'
     )
@@ -53,6 +59,7 @@ const handleReadItem2 = async () => {
         singleTime.value = initTime.value[initTime.value.length - 1]
       }
     })
+    ispending.value = false
 
     // REST API 데이터 처리가 완료된 후 MQTT 연결 시작
   } catch (error) {

@@ -9,7 +9,8 @@
         style="color: #ffffff"
       />
     </div>
-    <canvas ref="bjsCanvas" class="w-full h-full" @dragover.prevent @drop="onDrop"></canvas>
+    <FwbSpinner v-if="ispending" size="6" />
+    <canvas v-else ref="bjsCanvas" class="w-full h-full" @dragover.prevent @drop="onDrop"></canvas>
   </div>
 </template>
 
@@ -32,15 +33,20 @@ import {
 } from '@babylonjs/core'
 import '@babylonjs/loaders'
 import emitter from '@/components/eventBus.js'
+import { FwbSpinner } from 'flowbite-vue'
 
 export default {
   name: 'BabylonScene',
+  components: {
+    FwbSpinner
+  },
   setup() {
     const meshes = ref({})
     const bjsCanvas = ref(null)
     let engine, scene, camera, highlightLayer
     const client = ref(null)
     const connectionStatus = ref('Disconnected')
+    const isPending = ref(true)
 
     const createScene = (canvas) => {
       engine = new Engine(canvas, true, { stencil: true })
@@ -314,6 +320,7 @@ export default {
     }
 
     const createInitialSensors = () => {
+      isPending.value = true
       const initialSensors = [
         {
           meshId: 100000,
@@ -326,13 +333,13 @@ export default {
           color: null
         },
         {
-          meshId: 0,
-          name: 'sensor0',
+          meshId: 1,
+          name: 'sensor1',
           type: '3d',
           meshName: 'sensor',
           mqttTopic: 'edge/sensor/temperature-1',
-          threshold: '1',
-          location: '4,0.8,-1.25',
+          threshold: '-1',
+          location: '3.5,0.8,-1.25',
           color: null
         }
       ]
@@ -377,6 +384,7 @@ export default {
           if (client.value && client.value.connected) {
             subscribeToTopic(sensor.mqttTopic)
           }
+          isPending.value = false
         } catch (error) {
           console.error('Error creating initial sensor mesh:', error)
         }
@@ -432,7 +440,8 @@ export default {
       meshes,
       handleUpdateName,
       connectionStatus,
-      toggleFullScreen
+      toggleFullScreen,
+      isPending
     }
   }
 }

@@ -1,56 +1,85 @@
 <!-- TreeComponent.vue -->
 <template>
-  <div class="tree flex">
-    <ul>
-      <li v-for="(category, index) in categories" :key="category.name">
-        <div class="flex justify-between p-4">
-          <div class="flex items-center">
-            <span class="mr-4 text-base uppercase font-bold">{{ category.name }}</span>
-            <font-awesome-icon v-if="category.name == 'eduKit'" icon="fire-burner" size="2x" />
-            <font-awesome-icon v-if="category.name == 'sensor'" :icon="['fas', 'bolt']" size="2x" />
+  <div class="tree-carousel relative overflow-hidden">
+    <div class="carousel-container" :style="{ transform: `translateX(-${currentIndex * 100}%)` }">
+      <div v-for="(category, index) in categories" :key="category.name" class="carousel-item">
+        <div class="flex items-center justify-between p-4">
+          <button @click="prevCategory" class="carousel-button" :disabled="currentIndex === 0">
+            <font-awesome-icon icon="chevron-left" />
+          </button>
+          <div class="flex-grow flex items-center justify-between px-4 text-white">
+            <div class="flex items-center">
+              <span class="mr-4 text-base uppercase font-bold">{{ category.name }}</span>
+              <font-awesome-icon v-if="category.name == 'eduKit'" icon="fire-burner" size="2x" />
+              <font-awesome-icon
+                v-if="category.name == 'sensor'"
+                :icon="['fas', 'bolt']"
+                size="2x"
+              />
+            </div>
+            <div>
+              <font-awesome-icon
+                icon="circle-plus"
+                size="2x"
+                @click="
+                  addItem(
+                    index,
+                    Math.floor(Math.random() * 1000 + 5),
+                    category.name,
+                    1803,
+                    50,
+                    '3d'
+                  )
+                "
+              />
+            </div>
           </div>
-          <div>
-            <font-awesome-icon
-              icon="circle-plus"
-              size="2x"
-              @click="
-                addItem(index, Math.floor(Math.random() * 1000 + 5), category.name, 1803, 50, '3d')
-              "
-            />
-          </div>
+          <button
+            @click="nextCategory"
+            class="carousel-button"
+            :disabled="currentIndex === categories.length - 1"
+          >
+            <font-awesome-icon icon="chevron-right" />
+          </button>
         </div>
         <ul>
           <li
-            class="flex items-center justify-between text-base text-center px-4 py-2 text-2xl uppercase rounded-lg shadow-md cursor-move"
             v-for="item in category.items"
             :key="item.name"
+            class="flex items-center justify-between text-base text-white text-center px-4 py-2 text-2xl uppercase rounded-lg shadow-md cursor-move"
             draggable="true"
             @dragstart="onDragStart($event, item)"
           >
             {{ item.name }}
-
             <div class="flex justify-between">
               <treeModal :item="item" @setCondition="setCondition" />
               <button
                 v-if="category.name == 'eduKit'"
                 @click="sendStartCommand(item)"
                 class="bg-green-500 text-white text-sm px-1 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
+                :class="{
+                  'opacity-50 cursor-not-allowed': item.meshName == 'eduKit' && item.meshId > 100000
+                }"
               >
                 가동
               </button>
-
               <button
                 v-if="category.name == 'eduKit'"
                 @click="sendStopCommand(item)"
                 class="bg-red-500 text-white text-sm px-1 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
+                :class="{
+                  'opacity-50 cursor-not-allowed': item.meshName == 'eduKit' && item.meshId > 100000
+                }"
               >
                 중지
               </button>
-
               <button
                 v-if="category.name == 'eduKit'"
                 @click="sendResetCommand()"
                 class="bg-blue-500 text-white text-sm px-1 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
+                :class="{
+                  'opacity-50 cursor-not-allowed': item.meshName == 'eduKit' && item.meshId > 100000
+                }"
               >
                 리셋
               </button>
@@ -62,7 +91,7 @@
                 "
                 class="bg-blue-500 text-white text-sm px-1 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
                 :class="{
-                  'opacity-50 cursor-not-allowed': item.meshName == 'eduKit' && item.meshId > 1
+                  'opacity-50 cursor-not-allowed': item.meshName == 'eduKit' && item.meshId > 100000
                 }"
               >
                 조회
@@ -77,8 +106,8 @@
             </div>
           </li>
         </ul>
-      </li>
-    </ul>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -94,6 +123,19 @@ export default {
     treeModal
   },
   setup(props, { emit }) {
+    const currentIndex = ref(0)
+
+    const prevCategory = () => {
+      if (currentIndex.value > 0) {
+        currentIndex.value--
+      }
+    }
+
+    const nextCategory = () => {
+      if (currentIndex.value < categories.value.length - 1) {
+        currentIndex.value++
+      }
+    }
     class MeshItem {
       constructor(meshId, meshName, mqttTopic, threshold, type) {
         this.meshId = meshId // Automatically assign a unique ID
@@ -169,16 +211,16 @@ export default {
       {
         name: 'sensor',
         items: [
-          {
-            meshId: 0,
-            name: 'sensor0',
-            type: '3d',
-            meshName: 'sensor',
-            mqttTopic: 'edge/sensor/temperature-1',
-            threshold: '1',
-            location: '0,0,0',
-            color: null
-          }
+          // {
+          //   meshId: 0,
+          //   name: 'sensor0',
+          //   type: '3d',
+          //   meshName: 'sensor',
+          //   mqttTopic: 'edge/sensor/temperature-1',
+          //   threshold: '1',
+          //   location: '0,0,0',
+          //   color: null
+          // }
         ]
       }
     ])
@@ -264,6 +306,9 @@ export default {
 
     return {
       categories,
+      currentIndex,
+      prevCategory,
+      nextCategory,
       onDragStart,
       openModal,
       setCondition,
@@ -365,5 +410,38 @@ export default {
 .tree ul {
   list-style-type: none;
   padding-left: 20px;
+}
+.tree-carousel {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.carousel-container {
+  display: flex;
+  transition: transform 0.3s ease;
+}
+
+.carousel-item {
+  flex: 0 0 100%;
+  width: 100%;
+}
+
+.carousel-button {
+  background-color: transparent;
+  color: white;
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+}
+
+.carousel-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.carousel-button:not(:disabled):hover {
+  opacity: 0.7;
 }
 </style>
