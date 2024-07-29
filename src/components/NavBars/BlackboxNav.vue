@@ -1,76 +1,139 @@
 <template>
   <div class="navbar">
-    <button class="button" @click="changeContents(0)" :disabled="nowContents == 0">
-        <img src="/img/builder.png">
-        <div>BUILDER</div>
+    <button class="button" @click="changeContents(0)" :disabled="currentPage === 0">
+      <img src="/img/builder.png">
+      <div>BUILDER</div>
     </button>
-    <button class="button" @click="changeContents(1)" :disabled="nowContents == 1">
-        <img src="/img/dashboard.png">
-        <div>DASHBOARD</div>
+    <button class="button" @click="changeContents(1)" :disabled="currentPage === 1">
+      <img src="/img/dashboard.png">
+      <div>DASHBOARD</div>
     </button>
-    <button class="button" @click="changeContents(2)" :disabled="nowContents == 2">
-        <img src="/img/digitaltwin.png">
-        <div>DIGITAL-TWIN</div>
+    <button class="button" @click="changeContents(2)" :disabled="currentPage === 2">
+      <img src="/img/digitaltwin.png">
+      <div>DIGITAL-TWIN</div>
     </button>
-    <button class="button" @click="changeContents(3)" :disabled="nowContents == 3">
-        <img src="/img/blackbox.png">
-        <div>BLACK-BOX</div>
+    <button class="button" @click="changeContents(3)" :disabled="currentPage === 3">
+      <img src="/img/blackbox.png">
+      <div>BLACK-BOX</div>
     </button>
-    <button class="button" @click="changeContents(4)" :disabled="nowContents == 4">
-        <img src="/img/logout.png">
-        <div>LOGOUT</div>
+    <div class="spacer"></div> <!-- 빈 공간을 채워줄 div -->
+    <button class="button no4" @click="changeContents(4)" :disabled="currentPage === 4">
+      <img src="/img/logout.png">
+      <div>LOGOUT</div>
     </button>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router'; // useRouter 가져오기
+import { ref, onMounted, watch } from 'vue';
+import { useRouter, useRoute } from 'vue-router';
 
-const router = useRouter(); // useRouter 호출
+const router = useRouter();
+const route = useRoute();
 const links = [
   { path: '/builder', name: 'Builder' },
+  { path: '/dashboard/1', name: 'Dashboard' },
+  { path: '/digitaltwin/1', name: 'DigitalTwin' },
+  { path: '/blackbox', name: 'BlackBox' },
   { path: '/simulation', name: 'Simulation' },
-  { path: '/digitaltwin/1', name : 'DigitalTwin'},
-  { path: '/dashboard/1', name: 'Dashboard'},
-  { path: '/blackbox', name: 'BlackBox'}
-]
-const nowContents = ref(0);
+];
+
+const currentPage = ref(null);
 
 const changeContents = (contents) => {
-  nowContents.value = contents;
-  router.push(links[contents].path); // 라우터로 경로 이동
-  console.log(nowContents.value);
+  currentPage.value = contents;
+  router.push(links[contents].path);
 };
+
+const updateCurrentPage = () => {
+  const path = route.path;
+  if (path.includes('dashboard')) {
+    currentPage.value = 1;
+  } else if (path.includes('digitaltwin')) {
+    currentPage.value = 2;
+  } else if (path.includes('builder')) {
+    currentPage.value = 0;
+  } else if (path.includes('blackbox')) {
+    currentPage.value = 3;
+  } else if (path.includes('simulation')) {
+    currentPage.value = 4;
+  } else {
+    currentPage.value = null;
+  }
+};
+
+onMounted(updateCurrentPage);
+
+watch(() => route.path, updateCurrentPage);
 </script>
 
 <style scoped>
 .button {
-  width: 150px;
-  height: 150px;
-  border: 1px solid grey;
-  background-color: rgb(21, 20, 20);
+  width: 75px;
+  height: 75px;
+  border: none;
+  background : #1b263b;
   color: white;
-  font-size: 15px;
+  font-size: 10px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  opacity: 1;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2), 
+              inset 0 -3px 0 rgba(0, 0, 0, 0.3);
   cursor: pointer;
-  transition: opacity 0.3s, background-color 0.3s;
+  transition: box-shadow 0.3s, transform 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color : #415a77;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.button:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1), 
+              inset 0 -3px 0 rgba(0, 0, 0, 0.4);
+}
+
+.button:hover::before {
+  opacity: 0.5;
 }
 
 .button:disabled {
-  opacity: 0.5;
   cursor: not-allowed;
-  background-color: grey;
+  background :#415a77;
+  box-shadow: none;
 }
 
 img {
-  filter: invert(1);
-  width: 60px;
-  height: 60px;
+  filter: invert();
+  width: 30px;
+  height: 30px;
   margin: 10px;
+}
+
+.navbar {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  height: 100vh;
+  background : #1b263b;
+}
+
+.spacer {
+  flex-grow: 1; /* 빈 공간을 채우기 위해 사용 */
+}
+.no4 {
+  bottom : 4%;
 }
 </style>

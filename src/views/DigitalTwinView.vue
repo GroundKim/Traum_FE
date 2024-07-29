@@ -1,16 +1,20 @@
 <template>
-  <div>
-    <h1>Edukit {{ meshId }} View</h1>
-    <div id="unity-container" class="unity-desktop">
-      <canvas id="unity-canvas"></canvas>
-      <div id="unity-loading-bar">
-        <div id="unity-logo"></div>
-        <div id="unity-progress-bar-empty">
-          <div id="unity-progress-bar-full"></div>
+      <div id="unity-container" class="unity-desktop main">
+        <canvas id="unity-canvas"></canvas>
+        <div id="unity-loading-bar">
+          <div id="unity-logo"></div>
+          <div id="unity-progress-bar-empty">
+            <div id="unity-progress-bar-full"></div>
+          </div>
+        </div>
+        <div class = "buttons">
+          <button>A</button>
+          <button>B</button>
+          <button>C</button>
         </div>
       </div>
-    </div>
-  </div>
+
+    
 </template>
 
 <script>
@@ -91,11 +95,14 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
+
+.buttons {
+  background-color : black;
+}
 #unity-container {
   width: 960px;
   margin: auto;
-  position: relative;
 }
 #unity-canvas {
   width: 100%;
@@ -113,11 +120,18 @@ export default {
 #unity-progress-bar-empty {
   width: 100%;
   height: 20px;
-  background: gray;
+  background: rgb(255, 255, 255);
 }
 #unity-progress-bar-full {
   width: 0;
   height: 100%;
   background: green;
+}
+.unity-desktop {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  height: 100vh;
 }
 </style>

@@ -340,8 +340,11 @@ onUnmounted(() => {
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  background-color: #f0f2f5;
+  /* background-color: #212529; */
+  background: linear-gradient(180deg, #33475e, #212529); /* 네이비색 그라데이션 */
   padding: 20px;
+  color: #f8f9fa;
+  border : 2px solid grey;
 }
 
 .container {
@@ -349,42 +352,45 @@ onUnmounted(() => {
   justify-content: center;
   flex-wrap: wrap;
   gap: 20px;
-  align-items : center;
+  align-items: center;
+  
 }
+
 .top {
-  display : flex;
-  margin : 20px;
-  margin-bottom : 60px;
+  display: flex;
+  margin: 20px;
+  margin-bottom: 60px;
   border-radius: 10px;
 }
 
-.top-contents{
-  background-color: white;
+.top-contents {
+  background-color: #343a40;
   border-radius: 15px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-  transition: background-color 0.3s, box-shadow 0.3s;
-  width : 375px;
-  height : 150px;
-  margin : 20px;
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.5);
+  transition: background-color 0.5s, box-shadow 0.3s;
+  width: 375px;
+  height: 150px;
+  margin: 20px;
   display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #f8f9fa;
+}
+
+.top-right {
+  display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
 }
 
-.top-right{
-  display: flex;
-    flex-direction: column;
-    justify-items: start;
-    align-items: center;
-    justify-content: center;
-}
-.progress{
+.progress {
   position: relative;
   width: 100%;
   height: 20px;
-  background-color: #7c7c7c;
+  background-color: #677079;
   border-radius: 5px;
-  transition: background-color 0.3s;
+  transition: background-color 2s;
 }
 
 .process {
@@ -394,25 +400,30 @@ onUnmounted(() => {
   align-items: center;
   width: 280px;
   padding: 20px;
-  background-color: white;
+  background-color: #576c84;
   border-radius: 15px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
   transition: background-color 0.3s, box-shadow 0.3s;
-
+  color: #ffffff;
 }
 
 .process.inactive {
-  background-color: #7c7c7c;
+  background-color: #c8c8c8;
   box-shadow: none;
 }
+
 .pb {
-  padding : 10px;
+  padding: 10px;
+  color: #ffffff;
 }
+
 .standby {
-  margin : 10px;
-  padding : 8px;
-  font-size : 30px;
+  margin: 10px;
+  padding: 8px;
+  font-size: 30px;
+  color: #ffffff;
 }
+
 .topic {
   display: flex;
   align-items: center;
@@ -428,18 +439,18 @@ onUnmounted(() => {
   height: 50px;
   padding: 0 20px;
   font-size: 20px;
-  background-color: #4a90e2;
-  color: white;
+  background-color: #28588c;
+  color: #ffffff;
   border-radius: 25px;
   justify-content: center;
   align-items: center;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
 }
 
 .data {
-  margin : 20px;
+  margin: 20px;
   font-size: 14px;
-  color: #333;
+  color: #f8f9fa;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -447,16 +458,16 @@ onUnmounted(() => {
 
 .bar-chart {
   width: 100%;
-  background-color: white;
+  background-color: #dee2e6;
   border-radius: 5px;
   overflow: hidden;
   margin: 0 10px;
-  border: 1px solid #ddd;
+  border: 1px solid #ced4da;
 }
 
 .bar {
   height: 10px;
-  background-color: #4a90e2;
+  background-color: #1b263b;
 }
 
 .chip-container {
@@ -469,26 +480,27 @@ onUnmounted(() => {
 .chip {
   width: 20px;
   height: 40px;
-  background-color: white;
-  border: 1px solid #bbb;
+  background-color: #f8f9fa;
+  border: 1px solid #adb5bd;
   border-radius: 5px;
 }
 
 .chip-active {
-  background-color: #4a90e2;
+  background-color: #1b263b;
 }
 
 span {
   margin-top: 10px;
   font-size: 20px;
+  color : white; 
 }
 
 .status-normal {
-  color: green;
+  color: #5bf65e;
 }
 
 .status-warning {
-  color: red;
+  color: #f56342;
 }
 
 .status-unknown {
@@ -500,25 +512,32 @@ button {
   padding: 10px 20px;
   border: none;
   border-radius: 5px;
-  background-color: #4a90e2;
-  color: white;
+  background-color: #1b263b;
+  color: #f8f9fa;
   cursor: pointer;
   transition: background-color 0.3s, transform 0.2s;
 }
+
 .status {
-  margin : 20px;
+  margin: 20px;
 }
+
 button:hover {
-  background-color: #357ab7;
+  background-color: #415a77;
   transform: scale(1.05);
 }
-.select{
-  border-radius : 10px;
+
+.select {
+  border-radius: 10px;
+  background-color: #495057;
+  color: #f8f9fa;
+  border: 1px solid #1b263b;
 }
+
 .plcData {
   width: 1000px;
   margin-top: 20px;
-  background-color: white;
+  background-color: #f8f9fa;
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -533,7 +552,7 @@ button:hover {
   justify-content: center;
   align-items: center;
   position: relative;
-  height: 50px; /* 원하는 높이로 조정 */
+  height: 50px;
 }
 
 .circle, .redCross {
@@ -541,7 +560,7 @@ button:hover {
 }
 
 .circle {
-  background-color: grey;
+  background-color: #778da9;
   width: 15px;
   height: 15px;
   border-radius: 50%;
@@ -561,10 +580,10 @@ button:hover {
 
 @keyframes circle-loading {
   0%, 100% {
-    background-color: grey;
+    background-color: #778da9;
   }
   50% {
-    background-color: #4a90e2; /* 파란색 포인트 */
+    background-color: #1b263b;
   }
 }
 
@@ -572,26 +591,30 @@ button:hover {
   display: flex;
   justify-content: space-around;
 }
+
 .lamp {
   width: 40px;
   height: 40px;
   border-radius: 50%;
   margin: 20px;
-  border: 3px solid black;
-  background-color: lightgrey; /* 기본 색상 */
-  opacity: 0.3; /* 기본 상태에서 반투명 */
+  border: 3px solid #f8f9fa;
+  background-color: lightgrey;
+  opacity: 0.3;
   transition: background-color 0.3s, opacity 0.3s;
 }
+
 .lamp.green.active {
-  background-color: rgb(133, 239, 133);
+  background-color: #6beb7a;
   opacity: 1;
 }
+
 .lamp.yellow.active {
-  background-color: rgb(233, 233, 134);
+  background-color: #e6d769;
   opacity: 1;
 }
+
 .lamp.red.active {
-  background-color: rgb(235, 120, 120);
+  background-color: #ea785f;
   opacity: 1;
 }
 
@@ -609,17 +632,18 @@ button:hover {
 }
 
 .modal-content {
-  display : flex;
+  display: flex;
   justify-content: center;
   flex-direction: column;
-  background: #fff;
+  background: #343a40;
   padding: 20px;
   border-radius: 10px;
   max-width: 400px;
-  height : 200px;
+  height: 200px;
   width: 100%;
   text-align: center;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+  color: #f8f9fa;
 }
 
 .modal-buttons {
@@ -631,31 +655,33 @@ button:hover {
   padding: 10px 20px;
   border: none;
   border-radius: 5px;
-  background-color: #4a90e2;
-  color: white;
+  background-color: #1b263b;
+  color: #f8f9fa;
   cursor: pointer;
   transition: background-color 0.3s;
 }
 
 .modal-buttons button:hover {
-  background-color: #357ab7;
+  background-color: #415a77;
 }
+
 p {
-  margin : 20px;
+  margin: 20px;
 }
+
 .top-contents .progress-bar {
   position: relative;
   width: 100%;
   height: 40px;
-  background-color: transparent; /* 바탕색 없음 */
-  border: 1px solid #4a90e2; /* 테두리만 있음 */
+  background-color: transparent;
+  border: 1px solid #1b263b;
   border-radius: 5px;
   overflow: hidden;
 }
 
 .top-contents .progress-bar .progress {
   height: 100%;
-  background-color: #4a90e2;
+  background-color: #1b263b;
   transition: width 0.5s ease-in-out;
 }
 
@@ -671,10 +697,13 @@ p {
   left: 50%;
   transform: translateX(-50%);
   font-size: 14px;
-  color: #333;
+  color: #f8f9fa;
 }
+
 .top-mid {
-  display : flex;
+  display: flex;
   flex-direction: column;
 }
+
+
 </style>
