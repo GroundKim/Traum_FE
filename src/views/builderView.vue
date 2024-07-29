@@ -2,14 +2,14 @@
   <div class="flex flex-col h-screen">
     <!-- 상단 네비게이션이나 헤더가 있다면 여기에 배치 -->
     <div class="flex flex-grow overflow-hidden">
-      <div class="w-[32%] overflow-hidden">
+      <div class="w-[400px] overflow-hidden">
         <tree-list @dragStart="onDragStart" @modalOpen="handleModal" />
       </div>
       <div class="flex-grow overflow-hidden">
         <BabylonScene
           ref="babylonScene"
           @removeItem="console.log('도착확인')"
-          class="w-full h-full"
+          class="w-[60vw] h-full"
         />
       </div>
     </div>
@@ -95,9 +95,3 @@ onUnmounted(() => {
   }
 })
 </script>
-
-<!-- <ul>
-          <li v-for="(value, index) in values" :key="index">
-            Value: {{ value }}, Time: {{ times[index] }}
-          </li>
-        </ul> -->
