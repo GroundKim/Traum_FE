@@ -78,8 +78,8 @@ watch(() => route.path, updateCurrentPage)
   width: 90px;
   height: 90px;
   border: none;
-  background: #1b263b;
-  /* background : #0d1b2a; */
+  /* background: #1b263b; */
+  background : #0d1b2a;
 
 
   color: white;
@@ -106,8 +106,8 @@ watch(() => route.path, updateCurrentPage)
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #415a77;
-  /* background : #0d1b2a; */
+  /* background-color: #415a77; */
+  background : #0d1b2a;
   opacity: 0;
   transition: opacity 0.3s;
 }
@@ -141,8 +141,8 @@ img {
   justify-content: space-between;
   align-items: center;
   height: 100vh;
-  background: #1b263b;
-  /* background : #0d1b2a; */
+  /* background: #1b263b; */
+  background : #0d1b2a;
 }
 
 .spacer {
