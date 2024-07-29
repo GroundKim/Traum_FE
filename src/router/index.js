@@ -10,7 +10,7 @@ const router = createRouter({
     },
     {
       path: '/builder',
-      component: () => import('../views/BuilderView.vue'),
+      component: () => import('../views/builderView.vue'),
       name: 'builder'
     },
     {
