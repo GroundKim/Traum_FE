@@ -1,37 +1,10 @@
-<template>
+<template>  
   <div class="main open-sans-main">
-    <div class="top">
-      <div class="top-contents top-left">
-        <div class = "pb"> SELECTED : </div>
-        <select id="edukit-select" v-model="selectedEdukit" class="select">
-          <option value="EDUKIT1">EDUKIT1</option>
-          <option value="EDUKIT2" disabled>EDUKIT2</option>
-          <option value="EDUKIT3" disabled>EDUKIT3</option>
-          <option value="EDUKIT4" disabled>EDUKIT4</option>
-          <option value="EDUKIT5" disabled>EDUKIT5</option>
-        </select>
-      </div>
-      <div class="top-contents top-mid">
-        <div class= "pb"> PROGRESS</div>
-        <div class="progress-bar">
-          <div class="progress" :style="{ width: progress + '%' }"></div>
-          <img src="/img/turtle.png" alt="Turtle Icon" class="turtle-icon" :style="{ left: progress + '%' }"/>
-        </div>
-        <div>{{ progress }}%</div>
-      </div>
-      <div class="top-contents top-right">
-        <div class="lamp-status">
-          <div class="lamp green" :class="{ active: datalist.GreenLampState }"></div>
-          <div class="lamp yellow" :class="{ active: datalist.YellowLampState }"></div>
-          <div class="lamp red" :class="{ active: datalist.RedLampState }"></div>
-        </div>
-        <div v-if="datalist.RedLampState"> ERROR </div>
-        <div v-else-if="!datalist.No1PowerState || !datalist.No2PowerState || !datalist.No3PowerState"> CHECK UNIT'S POWER</div>
-        <div v-else> CLEAR </div>
-      </div>
-    </div>
-
     <div class="container">
+      <div class="fortime">
+        <div class="time"> {{ currentTime }} </div>
+        <div style="height:6px; width:450px;background:#40556b;margin-bottom:25px;"></div>
+      </div>
       <div :class="['process', 'no1', { inactive: !datalist.No1PowerState }]">
         <div class="topic">
           <div class="name">Unit No.1</div>
@@ -40,18 +13,22 @@
           <span class="standby run" v-if="datalist.No1Push">RUNNING</span>
           <span class="standby ready" v-else>READY</span>
         </div>
+        <div style="width: 6px; height:60px; background:lightgrey; opacity:0.5;"></div>
         <div class="data">
           <span>INPUT : {{ datalist.No1Count }}</span>
           <div class="chip-container">
             <div v-for="n in 5" :key="n" :class="['chip', { 'chip-active': n <= datalist.No1Count }]"></div>
           </div>
         </div>
+        <div style="width: 6px; height:60px; background:lightgrey; opacity:0.5;"></div>
+
         <div class="status">
-          <span>STATUS: </span>
+          <span>STATUS :  </span>
           <span :class="{ 'status-normal': datalist.No1ChipFull, 'status-warning': !datalist.No1ChipFull }">
             {{ datalist.No1ChipFull ? '자재 정상' : '자재 부족' }}
           </span>
         </div>
+        <div style="width: 6px; height:60px; background:lightgrey; opacity:0.5;"></div>
         <button @click="openModal('Unit No.1', '9', datalist.No1PowerState)">
           {{ datalist.No1PowerState ? 'Turn Off' : 'Turn On' }}
         </button>
@@ -63,11 +40,13 @@
         <img v-if="!datalist.No1PowerState" src="/img/redCross.png" class="redCross">
         <div :class="['circle', { 'animate-circle': datalist.StartState }]"></div>
         <div :class="['circle', { 'animate-circle': datalist.StartState }]"></div>
+        <div :class="['circle', { 'animate-circle': datalist.StartState }]"></div>
       </div>
       <div class="circle-container" v-else>
         <div class="circle"></div>
         <div class="circle"></div>
         <img v-if="!datalist.No1PowerState" src="/img/redCross.png" class="redCross">
+        <div class="circle"></div>
         <div class="circle"></div>
         <div class="circle"></div>
       </div>
@@ -80,18 +59,24 @@
           <span class="standby run" v-if="datalist.No1Push">RUNNING</span>
           <span class="standby ready" v-else>READY</span>
         </div>
+        <div style="width: 6px; height:60px; background:lightgrey; opacity:0.5;"></div>
+
         <div class="data">
           <span>ASSEMBLY : {{ datalist.No2Count }}</span>
           <div class="chip-container">
             <div v-for="n in 5" :key="n" :class="['chip', { 'chip-active': n <= datalist.No2Count }]"></div>
           </div>
         </div>
+        <div style="width: 6px; height:60px; background:lightgrey; opacity:0.5;"></div>
+
         <div class="status">
-          <span>STATUS: </span>
+          <span>STATUS :  </span>
           <span :class="{ 'status-normal': !datalist.No2CubeFull, 'status-warning': datalist.No2CubeFull }">
             {{ !datalist.No2CubeFull ? '부품 정상' : '부품 부족' }}
           </span>
         </div>
+        <div style="width: 6px; height:60px; background:lightgrey; opacity:0.5;"></div>
+
         <button @click="openModal('Unit No.2', '10', datalist.No2PowerState)">
           {{ datalist.No2PowerState ? 'Turn Off' : 'Turn On' }}
         </button>
@@ -102,11 +87,13 @@
         <img v-if="!datalist.No3PowerState" src="/img/redCross.png" class="redCross">
         <div :class="['circle', { 'animate-circle': datalist.StartState }]"></div>
         <div :class="['circle', { 'animate-circle': datalist.StartState }]"></div>
+        <div :class="['circle', { 'animate-circle': datalist.StartState }]"></div>
       </div>
       <div class="circle-container" v-else>
         <div class="circle"></div>
         <div class="circle"></div>
         <img v-if="!datalist.No3PowerState" src="/img/redCross.png" class="redCross">
+        <div class="circle"></div>
         <div class="circle"></div>
         <div class="circle"></div>
       </div>
@@ -119,20 +106,59 @@
           <span class="standby run" v-if="datalist.No3Motor1Action || datalist.No3Motor2Action">RUNNING</span>
           <span class="standby ready" v-else>READY</span>
         </div>
+        <div style="width: 6px; height:60px; background:lightgrey; opacity:0.5;"></div>
+
         <div class="data">
           <span>STACK : {{ datalist.No3Count }}</span>
           <div class="chip-container">
             <div v-for="n in 5" :key="n" :class="['chip', { 'chip-active': n <= datalist.No3Count }]"></div>
           </div>
         </div>
+        <div style="width: 6px; height:60px; background:lightgrey; opacity:0.5;"></div>
+
         <div class="status">
-          <span>STATUS: </span>
+          <span>STATUS :  </span>
           <span :class="{ 'status-normal': datalist.No3Count < 5, 'status-warning': datalist.No3Count >=5 }">
             {{ datalist.No3Count < 5 ? '적재 가능' : '적재량 최대' }}
-          </span>        </div>
+          </span>
+        </div>
+        <div style="width: 6px; height:60px; background:lightgrey; opacity:0.5;"></div>
+
         <button @click="openModal('Unit No.3', '11', datalist.No3PowerState)">
           {{ datalist.No3PowerState ? 'Turn Off' : 'Turn On' }}
         </button>
+      </div>
+    </div>
+    <div class="line"></div>
+    <div class="top">
+      <div style="height:20px;"></div>
+      <div class="top-contents top-left">
+        <div class="lamp-status">
+          <div class="lamp green" :class="{ active: datalist.GreenLampState }"></div>
+          <div class="lamp yellow" :class="{ active: datalist.YellowLampState }"></div>
+          <div class="lamp red" :class="{ active: datalist.RedLampState }"></div>
+        </div>
+        <div v-if="datalist.RedLampState"> ERROR </div>
+        <div v-else-if="!datalist.No1PowerState || !datalist.No2PowerState || !datalist.No3PowerState"> CHECK UNIT'S POWER</div>
+        <div v-else> CLEAR </div>
+      </div>
+      <div class="top-contents top-mid">
+        <div class = "pb"> SELECTED : </div>
+        <select id="edukit-select" v-model="selectedEdukit" class="select">
+          <option value="EDUKIT1">EDUKIT1</option>
+          <option value="EDUKIT2" disabled>EDUKIT2</option>
+          <option value="EDUKIT3" disabled>EDUKIT3</option>
+          <option value="EDUKIT4" disabled>EDUKIT4</option>
+          <option value="EDUKIT5" disabled>EDUKIT5</option>
+        </select>
+      </div>
+      <div class="top-contents top-right">
+        <div class= "pb"> PROGRESS</div>
+        <div class="progress-bar">
+          <div class="progress" :style="{ width: progress + '%' }"></div>
+          <img src="/img/turtle.png" alt="Turtle Icon" class="turtle-icon" :style="{ left: progress + '%' }"/>
+        </div>
+        <div>{{ progress }}%</div>
       </div>
     </div>
 
@@ -159,6 +185,20 @@ import mqtt from 'mqtt';
 import io from 'socket.io-client';
 
 const selectedEdukit = ref('EDUKIT1');
+const currentTime = ref('');
+
+// 시간을 업데이트하는 함수
+const updateTime = () => {
+  const nowTime = new Date();
+  const year = nowTime.getFullYear();
+  const month = (nowTime.getMonth() + 1).toString().padStart(2, '0');
+  const date = nowTime.getDate().toString().padStart(2, '0');
+  const hours = nowTime.getHours().toString().padStart(2, '0');
+  const minutes = nowTime.getMinutes().toString().padStart(2, '0');
+  const seconds = nowTime.getSeconds().toString().padStart(2, '0');
+  currentTime.value = `${year} - ${month} - ${date}\u00A0\u00A0\u00A0\u00A0\u00A0${hours} : ${minutes} : ${seconds}`;
+};
+
 
 const plcData = ref('');
 const datalist = ref({
@@ -301,6 +341,8 @@ const socket = io(`ws://${import.meta.env.VITE_SOCKET_IO_URL}`, {
 let mqttClient;
 
 onMounted(() => {
+  updateTime();
+  setInterval(updateTime, 1000);
   mqttClient = connectMQTT();
   socket.on('connect', () => {
     console.log('WebSocket 연결 성공');
@@ -327,30 +369,31 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@200;400;600;800&display=swap');
 
-.open-sans-main {
-  font-family: "Open Sans", sans-serif;
-  font-weight: 800;
-  font-style: normal;
+.line{
+  width: 10px;
+    height: 100%;
+    background-color: #3d5166;
+    margin-left: 80px;
+    border-radius: 5px;
 }
 
 .main {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   justify-content: center;
-  align-items: center;
+  align-items: flex-start;
   /* background-color: #212529; */
   background: linear-gradient(180deg, #33475e, #212529); /* 네이비색 그라데이션 */
   padding: 20px;
   color: #f8f9fa;
-  border : 2px solid grey;
 }
 
 .container {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
+  flex-direction : column;
   gap: 20px;
   align-items: center;
   
@@ -358,9 +401,9 @@ onUnmounted(() => {
 
 .top {
   display: flex;
-  margin: 20px;
-  margin-bottom: 60px;
+  flex-direction : column;
   border-radius: 10px;
+  margin-left : 20px;
 }
 
 .top-contents {
@@ -369,20 +412,15 @@ onUnmounted(() => {
   box-shadow: 0 8px 12px rgba(0, 0, 0, 0.5);
   transition: background-color 0.5s, box-shadow 0.3s;
   width: 375px;
-  height: 150px;
   margin: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #f8f9fa;
+
 }
 
-.top-right {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
+
 
 .progress {
   position: relative;
@@ -396,20 +434,20 @@ onUnmounted(() => {
 .process {
   position: relative;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  width: 280px;
-  padding: 20px;
   background-color: #576c84;
   border-radius: 15px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
   transition: background-color 0.3s, box-shadow 0.3s;
   color: #ffffff;
+  width : 850px;
+  left : 5%;
+  height : 110px;
 }
 
 .process.inactive {
-  background-color: #c8c8c8;
-  box-shadow: none;
+  background-color: #b86868;
 }
 
 .pb {
@@ -422,6 +460,7 @@ onUnmounted(() => {
   padding: 8px;
   font-size: 30px;
   color: #ffffff;
+  width : 18%;
 }
 
 .topic {
@@ -433,12 +472,12 @@ onUnmounted(() => {
 .name {
   position: absolute;
   top: -25px;
-  left: 50%;
+  left: 3%;
   transform: translateX(-50%);
   display: flex;
   height: 50px;
   padding: 0 20px;
-  font-size: 20px;
+  font-size: 16px;
   background-color: #28588c;
   color: #ffffff;
   border-radius: 25px;
@@ -448,12 +487,15 @@ onUnmounted(() => {
 }
 
 .data {
-  margin: 20px;
-  font-size: 14px;
+  margin: 10px;
+  font-size: 10px;
   color: #f8f9fa;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
+  width : 34%;
+  padding : 8px;
+  text-align: center;
 }
 
 .bar-chart {
@@ -472,9 +514,9 @@ onUnmounted(() => {
 
 .chip-container {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: row;
   gap: 4px;
-  margin-top: 10px;
+  margin : 10px;
 }
 
 .chip {
@@ -490,9 +532,9 @@ onUnmounted(() => {
 }
 
 span {
-  margin-top: 10px;
-  font-size: 20px;
+  font-size: 17px;
   color : white; 
+  width : 150px;
 }
 
 .status-normal {
@@ -508,18 +550,21 @@ span {
 }
 
 button {
-  margin-top: 20px;
-  padding: 10px 20px;
+  margin: 10px 10px 10px 20px;  padding: 10px 10px;
   border: none;
   border-radius: 5px;
   background-color: #1b263b;
   color: #f8f9fa;
   cursor: pointer;
   transition: background-color 0.3s, transform 0.2s;
+  width : 15%;
 }
 
 .status {
-  margin: 20px;
+  margin: 10px;
+  width : 30%;
+  padding : 8px;
+  text-align: center;
 }
 
 button:hover {
@@ -536,7 +581,7 @@ button:hover {
 
 .plcData {
   width: 1000px;
-  margin-top: 20px;
+  margin: 10px;
   background-color: #f8f9fa;
   padding: 20px;
   border-radius: 10px;
@@ -549,26 +594,27 @@ button:hover {
 
 .circle-container {
   display: flex;
+  flex-direction : column;
   justify-content: center;
   align-items: center;
   position: relative;
-  height: 50px;
+  width : 50px;
 }
 
 .circle, .redCross {
-  margin: 10px;
+  margin: 5px;
 }
 
 .circle {
   background-color: #778da9;
-  width: 15px;
-  height: 15px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
 }
 
 .redCross {
-  width: 80px;
-  height: 80px;
+  width: 40px;
+  height: 40px;
   position: absolute;
   left: 40%;
   transform: translateX(-50%);
@@ -596,7 +642,7 @@ button:hover {
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  margin: 20px;
+  margin: 10px;
   border: 3px solid #f8f9fa;
   background-color: lightgrey;
   opacity: 0.3;
@@ -647,11 +693,11 @@ button:hover {
 }
 
 .modal-buttons {
-  margin-top: 20px;
+  margin : 10px;
 }
 
 .modal-buttons button {
-  margin: 5px;
+  margin: 10px;
   padding: 10px 20px;
   border: none;
   border-radius: 5px;
@@ -666,7 +712,7 @@ button:hover {
 }
 
 p {
-  margin: 20px;
+  margin: 10px;
 }
 
 .top-contents .progress-bar {
@@ -700,10 +746,28 @@ p {
   color: #f8f9fa;
 }
 
-.top-mid {
+.top-mid{
+  height : 90px;
+}
+.top-right {
   display: flex;
   flex-direction: column;
+  height : 380px;
 }
-
+.top-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height : 120px;
+}
+.time {
+  margin: 10px;
+  font-size: 25px;
+  height : 35px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
 </style>

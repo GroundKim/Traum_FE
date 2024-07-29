@@ -98,7 +98,7 @@ export default {
 <style scoped>
 
 .buttons {
-  background-color : black;
+  background-color : white;
 }
 #unity-container {
   width: 960px;

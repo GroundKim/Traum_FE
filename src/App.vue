@@ -15,8 +15,8 @@ const showNavBar = computed(() => !hideNavBarRoutes.includes(route.name))
 // 현재 라우트에 따라 Footer 표시 여부를 결정합니다.
 </script>
 <template>
-  <div class="bg-[#212529]">
-    <div class="main">
+  <div style="background: linear-gradient(180deg, #33475e, #212529);">
+    <div class="app-main">
       <BlackboxNav v-if="showNavBar"></BlackboxNav>
       <RouterView />
     </div>
@@ -25,7 +25,7 @@ const showNavBar = computed(() => !hideNavBarRoutes.includes(route.name))
 </template>
 
 <style scoped>
-.main {
+.app-main {
   display: flex;
   flex-direction: row;
 }

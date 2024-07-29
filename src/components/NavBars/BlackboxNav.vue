@@ -75,10 +75,12 @@ watch(() => route.path, updateCurrentPage)
 
 <style scoped>
 .button {
-  width: 75px;
-  height: 75px;
+  width: 90px;
+  height: 90px;
   border: none;
   background: #1b263b;
+  /* background : #0d1b2a; */
+
 
   color: white;
   font-size: 10px;
@@ -105,6 +107,7 @@ watch(() => route.path, updateCurrentPage)
   right: 0;
   bottom: 0;
   background-color: #415a77;
+  /* background : #0d1b2a; */
   opacity: 0;
   transition: opacity 0.3s;
 }
@@ -116,7 +119,7 @@ watch(() => route.path, updateCurrentPage)
 }
 
 .button:hover::before {
-  opacity: 0.5;
+  opacity: 0.6;
 }
 
 .button:disabled {
@@ -139,6 +142,7 @@ img {
   align-items: center;
   height: 100vh;
   background: #1b263b;
+  /* background : #0d1b2a; */
 }
 
 .spacer {
