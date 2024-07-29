@@ -1,8 +1,9 @@
 <template>
   <div>
-    <FwbSpinner v-if="ispending" size="12" />
+    <FwbSpinner v-if="isPending" size="12" />
     <LineChart
-      v-else-if="!ispending"
+      class="w-full h-full"
+      v-else-if="!isPending"
       :singleTime="watchedSingleTime"
       :singleValue="watchedSingleValue"
       :threshold="Number(threshold)"
@@ -24,7 +25,7 @@ const singleTime = ref(null)
 const singleValue = ref(null)
 const initValue = ref([])
 const initTime = ref([])
-const ispending = ref(true)
+const isPending = ref(true)
 
 const watchedSingleTime = computed(() => {
   console.log('Single time updated:', initTime.value.length)
@@ -43,7 +44,7 @@ const props = defineProps({
 
 const handleReadItem2 = async () => {
   try {
-    ispending.value = true
+    isPending.value = true
     const response = await axios.get(
       'http://traum.groundkim.com:3001/influx/sensor/topic/history/temperature-1?elapsed=15s'
     )
@@ -59,7 +60,7 @@ const handleReadItem2 = async () => {
         singleTime.value = initTime.value[initTime.value.length - 1]
       }
     })
-    ispending.value = false
+    isPending.value = false
 
     // REST API 데이터 처리가 완료된 후 MQTT 연결 시작
   } catch (error) {

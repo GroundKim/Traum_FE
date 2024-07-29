@@ -73,6 +73,9 @@
           </div>
 
           <div>
+            <label v-if="isLoginFailed" for="alarm" class="ml-2 text-sm text-red-700">
+              유효하지 않은 계정입니다.다시 입력해주세요
+            </label>
             <button
               type="submit"
               class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
@@ -98,6 +101,7 @@
 <script>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/userStore.js'
 import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel'
 import 'vue3-carousel/dist/carousel.css'
 import builderImage from '@/assets/builder.png' // 이미지 import
@@ -113,10 +117,12 @@ export default {
     Navigation
   },
   setup() {
+    const userStore = useUserStore()
     const router = useRouter()
     const email = ref('')
     const password = ref('')
     const rememberMe = ref(false)
+    const isLoginFailed = ref(false)
 
     const slides = ref([
       {
@@ -138,7 +144,7 @@ export default {
         image: dashboardImage,
         alt: 'Dashboard',
         title: 'Dashboard',
-        description: '대시보드에서 실시간으로 업데이트되는 작업현황을 확인해보세요'
+        description: '대시보드에서 실시간 작업 변동 현황을 확인해보세요'
       },
       {
         id: 4,
@@ -151,11 +157,23 @@ export default {
     ])
     const handleSubmit = async () => {
       try {
-        // 여기에 실제 로그인 로직을 구현하세요
-        router.push({ name: 'Dashboard' })
+        // 실제 로그인 로직 (예시)
+        if (email.value === 'admin@uvc.com' && password.value === 'admin') {
+          if (rememberMe.value) {
+            localStorage.setItem('rememberedEmail', email.value)
+          }
+          // store의 login 액션 사용
+          userStore.login({
+            id: 'admin', // 실제 로그인 시 서버에서 받은 사용자 ID를 사용해야 합니다
+            email: email.value
+          })
+          router.push({ name: 'builder' })
+        } else {
+          isLoginFailed.value = true
+        }
       } catch (error) {
         console.error(error.message)
-        // 로그인 실패 처리
+        isLoginFailed.value = true
       }
     }
 
@@ -165,7 +183,7 @@ export default {
       email.value = rememberedEmail
     }
 
-    return { email, password, handleSubmit, rememberMe, slides }
+    return { userStore, email, password, handleSubmit, rememberMe, slides, isLoginFailed }
   }
 }
 </script>

@@ -1,6 +1,6 @@
 <template>
   <div class="babylon-scene-container w-full h-full relative">
-    <div class="absolute top-2 right-2 z-10">
+    <div class="absolute top-2 right-2 z-10 my-auto">
       <font-awesome-icon
         @click="toggleFullScreen"
         size="lg"
@@ -9,8 +9,13 @@
         style="color: #ffffff"
       />
     </div>
-    <FwbSpinner v-if="ispending" size="6" />
-    <canvas v-else ref="bjsCanvas" class="w-full h-full" @dragover.prevent @drop="onDrop"></canvas>
+    <canvas ref="bjsCanvas" class="w-full h-full" @dragover.prevent @drop="onDrop"></canvas>
+    <div
+      v-if="isPending"
+      class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50"
+    >
+      <FwbSpinner size="12" />
+    </div>
   </div>
 </template>
 
@@ -170,9 +175,6 @@ export default {
     }
 
     const handleEduKitMessage = (item, messageObj) => {
-      console.log('red:', messageObj[19].value)
-      console.log('green:', messageObj[0].value)
-
       if (messageObj[19].value === true && meshes.value[item.meshId].color !== 'red') {
         changeMeshColor(item, 'red')
         meshes.value[item.meshId].color = 'red'
@@ -320,7 +322,6 @@ export default {
     }
 
     const createInitialSensors = () => {
-      isPending.value = true
       const initialSensors = [
         {
           meshId: 100000,

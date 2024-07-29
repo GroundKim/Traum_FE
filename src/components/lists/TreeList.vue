@@ -1,9 +1,16 @@
 <!-- TreeComponent.vue -->
 <template>
-  <div class="tree-carousel relative overflow-hidden">
-    <div class="carousel-container" :style="{ transform: `translateX(-${currentIndex * 100}%)` }">
-      <div v-for="(category, index) in categories" :key="category.name" class="carousel-item">
-        <div class="flex items-center justify-between p-4">
+  <div class="tree-carousel flex flex-col h-full">
+    <div
+      class="carousel-container flex-grow"
+      :style="{ transform: `translateX(-${currentIndex * 100}%)` }"
+    >
+      <div
+        v-for="(category, index) in categories"
+        :key="category.name"
+        class="carousel-item h-full flex flex-col"
+      >
+        <div class="flex items-center justify-between p-4 flex-shrink-0">
           <button @click="prevCategory" class="carousel-button" :disabled="currentIndex === 0">
             <font-awesome-icon icon="chevron-left" />
           </button>
@@ -42,11 +49,11 @@
             <font-awesome-icon icon="chevron-right" />
           </button>
         </div>
-        <ul>
+        <ul class="flex-grow flex flex-col">
           <li
             v-for="item in category.items"
             :key="item.name"
-            class="flex items-center justify-between text-base text-white text-center px-4 py-2 text-2xl uppercase rounded-lg shadow-md cursor-move"
+            class="flex items-center justify-between text-base text-white text-center px-4 py-2 text-2xl uppercase rounded-lg shadow-md cursor-move mb-2 flex-shrink-0"
             draggable="true"
             @dragstart="onDragStart($event, item)"
           >
@@ -302,7 +309,12 @@ export default {
       }
     }
 
-    onMounted(fetchSensorList)
+    onMounted(() => {
+      fetchSensorList()
+      emitter.on('resetLocation', () => {
+        nextCategory()
+      })
+    })
 
     return {
       categories,
@@ -354,10 +366,6 @@ export default {
       })
 
       this.socket.on('message', (msg) => {
-        console.log('here')
-        console.log('here')
-        console.log('here')
-        console.log('here')
         console.log('Received message: ' + msg)
       })
 
@@ -405,16 +413,10 @@ export default {
   }
 }
 </script>
-
 <style scoped>
-.tree ul {
-  list-style-type: none;
-  padding-left: 20px;
-}
 .tree-carousel {
-  position: relative;
-  width: 100%;
-  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 .carousel-container {
@@ -443,5 +445,15 @@ export default {
 
 .carousel-button:not(:disabled):hover {
   opacity: 0.7;
+}
+
+ul {
+  list-style-type: none;
+  padding-left: 0;
+}
+
+/* 새로 추가된 스타일 */
+li {
+  min-height: 60px; /* 아이템의 최소 높이 설정 */
 }
 </style>

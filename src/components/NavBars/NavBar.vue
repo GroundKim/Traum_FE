@@ -59,6 +59,7 @@ export default {
       { path: '/dashboard/1', name: 'Dashboard' },
       { path: '/blackbox', name: 'BlackBox' }
     ]
+    const userStore = userStore()
 
     const isActive = (path) => {
       const route = this?.$route

@@ -1,20 +1,16 @@
 <template>
-  <div>
-    <div class="flex flex-wrap mt-4">
-      <div class="w-full">
-        <div class="flex gap-10 w-full h-[700px]">
-          <div class="overflow-y-auto w-[500px] h-full">
-            <tree-list @dragStart="onDragStart" @modalOpen="handleModal" />
-          </div>
-          <div class="pr-10 h-[400px] flex-grow overflow-hidden">
-            <BabylonScene
-              ref="babylonScene"
-              @removeItem="console.log('도착확인')"
-              @sceneReady="handleSceneReady"
-              class="w-full h-full"
-            />
-          </div>
-        </div>
+  <div class="flex flex-col h-screen">
+    <!-- 상단 네비게이션이나 헤더가 있다면 여기에 배치 -->
+    <div class="flex flex-grow overflow-hidden">
+      <div class="w-[32%] overflow-hidden">
+        <tree-list @dragStart="onDragStart" @modalOpen="handleModal" />
+      </div>
+      <div class="flex-grow overflow-hidden">
+        <BabylonScene
+          ref="babylonScene"
+          @removeItem="console.log('도착확인')"
+          class="w-full h-full"
+        />
       </div>
     </div>
   </div>

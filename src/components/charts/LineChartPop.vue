@@ -18,7 +18,7 @@
     <div class="p-4 flex-auto">
       <!-- Chart -->
       <div class="relative chart-container">
-        <canvas ref="chart"></canvas>
+        <canvas class="canvas" ref="chart"></canvas>
       </div>
     </div>
   </div>
@@ -26,14 +26,18 @@
 
 <style>
 .chart-container {
+  position: relative;
+  height: 100vh;
+  width: 100vw;
+}
+.canvas {
   width: 100%;
-  height: 200px; /* 원하는 높이로 설정하세요 */
+  height: 100%;
 }
 </style>
 <script>
 import { ref, onMounted, watch } from 'vue'
 import Chart from 'chart.js'
-import axios from 'axios'
 import 'chartjs-plugin-annotation'
 
 export default {
@@ -63,32 +67,6 @@ export default {
     const chart = ref(null)
     let myChart = null
     const currentName = ref(null)
-
-    const initValue = ref([])
-    const initTime = ref([])
-    const fetchChartList = async () => {
-      try {
-        const response = await axios.get(
-          'http://traum.groundkim.com:3001/influx/sensor/topic/history/temperature-1?elapsed=15s'
-        )
-
-        // responseData 배열을 순회하며 temperature 속성이 있는 객체를 찾습니다.
-        response.data.forEach((item) => {
-          if ('temperature' in item) {
-            initValue.value.push(Number(item.temperature))
-            initTime.value.push(new Date(item.time).toLocaleTimeString())
-            myChart.data.labels = initTime.value
-            myChart.data.datasets[0].data = initValue.value
-
-            // singleTime.value = new Date(item.time).toLocaleTimeString()
-          }
-        })
-
-        // 결과 확인
-      } catch (error) {
-        console.error('Failed to fetch sensor list', error)
-      }
-    }
 
     onMounted(() => {
       let config = {
@@ -198,31 +176,7 @@ export default {
         let ctx = chart.value.getContext('2d')
         myChart = new Chart(ctx, config)
       }
-
-      // fetchChartList()
     })
-
-    // const initChart = (singleValue, singleTime) => {
-
-    //   if (myChart) {
-    //     // if (myChart.data.labels.length >= 20) {
-    //     //   myChart.data.labels.shift()
-    //     //   myChart.data.datasets[0].data.shift()
-    //     // }
-    //     myChart.data.labels = singleTime
-    //     myChart.data.datasets[0].data = singleValue
-    //   }
-    //   const maxValue = Math.max(...myChart.data.datasets[0].data)
-    //   const minValue = Math.min(...myChart.data.datasets[0].data)
-
-    //   myChart.options.scales.yAxes[0].ticks.max = maxValue * 1.2
-    //   myChart.options.scales.yAxes[0].ticks.min = minValue * 0.8
-
-    //   myChart.options.scales.yAxes[0].ticks.stepSize = maxValue / 4
-
-    //   myChart.update()
-    //   // updateChart()
-    // }
 
     const updateChart = (singleValue, singleTime, threshold, name) => {
       threshold = Number(threshold)
