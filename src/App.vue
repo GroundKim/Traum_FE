@@ -1,32 +1,33 @@
 <script setup>
-import NavBar from '@/components/NavBars/NavBar.vue'
 import BlackboxNav from '@/components/NavBars/BlackboxNav.vue'
-import Footer from '@/components/footers/MainFooter.vue'
-import { useRoute } from 'vue-router';
-import { computed } from 'vue';
+// import Footer from '@/components/footers/MainFooter.vue'
+import { useRoute } from 'vue-router'
+import { computed } from 'vue'
 
-const route = useRoute();
+const route = useRoute()
 
 // NavBar와 Footer를 숨길 라우트 이름들을 정의합니다.
 const hideNavBarRoutes = ['login', 'register', 'PopupContent'];
 
 // 현재 라우트에 따라 NavBar 표시 여부를 결정합니다.
-const showNavBar = computed(() => !hideNavBarRoutes.includes(route.name));
+const showNavBar = computed(() => !hideNavBarRoutes.includes(route.name))
 
 // 현재 라우트에 따라 Footer 표시 여부를 결정합니다.
 </script>
 <template>
-  <div class = "main">
-    <!-- <NavBar v-if="showNavBar"></NavBar> -->
-    <BlackboxNav v-if="showNavBar"></BlackboxNav>
-    <RouterView />
+  <div class="bg-[#212529]">
+    <div class="main">
+      <BlackboxNav v-if="showNavBar"></BlackboxNav>
+      <RouterView />
+    </div>
+    <!-- <Footer class="bg-[#212529]" v-if="showFooter"></Footer> -->
   </div>
 </template>
 
 <style scoped>
 .main {
   display: flex;
-  flex-direction : row;
+  flex-direction: row;
 }
 header {
   line-height: 1.5;

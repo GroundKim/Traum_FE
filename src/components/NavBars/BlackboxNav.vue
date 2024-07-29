@@ -30,6 +30,7 @@ import { useRouter, useRoute } from 'vue-router';
 
 const router = useRouter();
 const route = useRoute();
+
 const links = [
   { path: '/builder', name: 'Builder' },
   { path: '/dashboard/1', name: 'Dashboard' },
@@ -73,6 +74,7 @@ watch(() => route.path, updateCurrentPage);
   height: 75px;
   border: none;
   background : #1b263b;
+
   color: white;
   font-size: 10px;
   display: flex;

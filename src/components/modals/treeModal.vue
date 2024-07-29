@@ -14,7 +14,7 @@
     >
       <div>
         <!--content 모달창의 크기조절 위치-->
-        <div class="bg-white" style="width: 1200px; max-height: 90vh; overflow-y: auto">
+        <div class="text-white bg-gray-600 justify-end" style="left: 800px; right: 0">
           <!--header-->
           <div class="flex items-center justify-between p-5">
             <h3 class="text-3xl font-semibold">설정 변경</h3>
@@ -35,14 +35,14 @@
             <div class="flex flex-col">
               <canvas
                 ref="bjsCanvas"
-                style="width: 100%; height: 300px"
+                style="width: 100%; height: 200px"
                 @dblclick="item?.meshId == 1 ? routeToUnity() : null"
               ></canvas>
               <!-- <div class="flex" v-for="key in settings" :key="key">
                 <label>{{ key }}</label>
                 <input v-model="localItem[key]" />
               </div> -->
-              <div class="space-y-4 mx-auto w-[500px]">
+              <div class="space-y-4 mx-auto w-[500px] text-black">
                 <div class="flex justify-between">
                   <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
                   <input

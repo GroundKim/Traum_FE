@@ -1,7 +1,7 @@
 <template>
-  <div class="flex flex-col lg:flex-row h-screen">
+  <div class="flex flex-col lg:flex-row h-screen bg-white">
     <!-- 캐러셀 섹션 -->
-    <div class="w-full lg:w-1/2 bg-blueGray-200">
+    <div class="w-full lg:w-1/2 my-auto">
       <Carousel :items-to-show="1" :wrap-around="true" :autoplay="3000">
         <Slide v-for="slide in slides" :key="slide.id">
           <div class="carousel__item relative">
@@ -23,7 +23,7 @@
     </div>
 
     <!-- 로그인 폼 섹션 -->
-    <div class="w-full lg:w-1/2 flex items-center justify-center bg-white p-8">
+    <div class="w-full lg:w-1/2 flex items-center justify-center p-8">
       <div class="w-full max-w-md">
         <div class="text-center mb-8">
           <h1 class="text-2xl font-bold text-blueGray-800">DT 플랫폼</h1>
@@ -100,8 +100,10 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel'
 import 'vue3-carousel/dist/carousel.css'
-import turtleImage from '@/assets/turtle.png' // 이미지 import
 import builderImage from '@/assets/builder.png' // 이미지 import
+import DigitalTwinImage from '@/assets/digitalTwin.png' // 이미지 import
+import dashboardImage from '@/assets/dashboard.png' // 이미지 import
+import blackBoxImage from '@/assets/blackBox.png' // 이미지 import
 
 export default {
   components: {
@@ -122,25 +124,25 @@ export default {
         image: builderImage,
         alt: 'Builder',
         title: 'Builder',
-        description: '당신의 아이디어로 바로 당신만의 공간을 설계하고 확인하실 수 있습니다'
+        description: '당신의 아이디어로 설계한 공간을 바로 확인해보세요'
       },
       {
-        id: 1,
-        image: turtleImage,
+        id: 2,
+        image: DigitalTwinImage,
         alt: 'DigitalTwin',
         title: 'DigitalTwin',
         description: 'DigitalTwin으로 재구성된 당신의 시설을 확인해보세요'
       },
       {
-        id: 1,
-        image: turtleImage,
+        id: 3,
+        image: dashboardImage,
         alt: 'Dashboard',
         title: 'Dashboard',
-        description: '실시간으로 업데이트되는 데이터를 대시보드에서 확인해보세요'
+        description: '대시보드에서 실시간으로 업데이트되는 작업현황을 확인해보세요'
       },
       {
-        id: 1,
-        image: turtleImage,
+        id: 4,
+        image: blackBoxImage,
         alt: 'BlackBox',
         title: 'BlackBox',
         description: '이상이 감지된 데이터를 언제라도 다시 확인해보세요'
