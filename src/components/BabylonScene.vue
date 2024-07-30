@@ -12,7 +12,7 @@
     <canvas ref="bjsCanvas" class="w-full h-full" @dragover.prevent @drop="onDrop"></canvas>
     <div
       v-if="isPending"
-      class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50"
+      class="absolute inset-0 flex items-center justify-center bg-[#33334c] bg-opacity-50"
     >
       <FwbSpinner size="12" />
     </div>

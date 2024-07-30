@@ -5,7 +5,7 @@
       id="mqtt-topic"
       v-model="selected"
       @change="$emit('update:selected', selected)"
-      class="form-select mt-1 block w-full"
+      class="form-select block w-full rounded-md"
     >
       <option value="" disabled>Please select a topic</option>
       <option v-for="topic in topicList" :key="topic" :value="'edge/sensor/' + topic">
