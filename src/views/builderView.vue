@@ -9,7 +9,7 @@
         <BabylonScene
           ref="babylonScene"
           @removeItem="console.log('도착확인')"
-          class="w-[60vw] h-full"
+          class="w-[61vw] h-full"
         />
       </div>
     </div>

@@ -6,7 +6,7 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      redirect: '/builder'
+      redirect: '/login'
     },
     {
       path: '/builder',

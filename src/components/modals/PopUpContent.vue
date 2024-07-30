@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-white">
+  <div class="bg-white h-screen">
     <FwbSpinner v-if="isPending" size="12" />
     <LineChart
       class="w-full h-full"
