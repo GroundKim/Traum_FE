@@ -43,7 +43,7 @@
       <li
         v-for="item in currentCategory.items"
         :key="item.name"
-        class="flex items-center justify-between text-base text-white text-center px-4 py-2 uppercase rounded-lg shadow-md cursor-move mb-2 flex-shrink-0"
+        class="flex bg-[#ffffff17] items-center justify-between text-base text-white text-center px-4 py-2 uppercase rounded-lg shadow-md cursor-move mb-2 flex-shrink-0"
         draggable="true"
         @dragstart="onDragStart($event, item)"
       >
