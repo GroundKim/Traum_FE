@@ -1,6 +1,6 @@
 <template>
   <div class="main-content">
-    <div class="left">
+    <div class="top">
       <div class="sidebar">
         <h2>EDUKIT LIST</h2>
         <select v-model="selectedEdukit">
@@ -26,12 +26,26 @@
 
       <div class="datalist">
         <h2> DATA BOARD </h2>
-        <div class="mqttdata">{{ mqttData }}</div>
+        <div class="mqttdata">
+          <div class="data1">
+              <div v-for="data in filteredData1" :key="data.index">
+                {{ data.index }}. {{ data.name }}: {{ data.value }}
+              </div>
+            </div>
+            <div class="data2">
+              <div v-for="data in filteredData2" :key="data.index">
+                {{ data.index }}. {{ data.name }}: {{ data.value }}
+              </div>
+            </div>
+            <div class="data3">
+              <div v-for="data in filteredData3" :key="data.index">
+                {{ data.index }}. {{ data.name }}: {{ data.value }}
+              </div>
+            </div>
+        </div>
       </div>
     </div>
-    <div class="right">
-      <div>
-      </div>
+    <div class="bottom">
         <div class="container">
           <div :class="['process', 'no1', { inactive: !datalist.No1PowerState }]">
             <div class="topic">
@@ -125,7 +139,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
 import mqtt from 'mqtt';
 const blackboxRunning = ref(false);
@@ -158,6 +172,10 @@ const fetchBlackboxList = async () => {
     console.error('Failed to fetch blackbox list', error);
   }
 };
+const sortedData = ref([]);  // 정렬된 데이터를 저장할 배열
+const filteredData1 = computed(() => sortedData.value.filter(data => data.index >= 0 && data.index <= 14));
+const filteredData2 = computed(() => sortedData.value.filter(data => data.index >= 15 && data.index <= 29));
+const filteredData3 = computed(() => sortedData.value.filter(data => data.index >= 30));
 
 const startBlackbox = async () => {
   if (!selectedBlackbox.value) return;
@@ -200,27 +218,24 @@ const connectMQTT = () => {
 };
 
 const updateDatalist = (parsedData) => {
-  const dataMap = {
-    StartState: 'StartState',
-    No1Push: 'No1Push',
-    No1PowerState: 'No1PowerState',
-    No1Count: 'No1Count',
-    No1ChipFull: 'No1ChipFull',
-    No2Count: 'No2Count',
-    No2PowerState: 'No2PowerState',
-    No2CubeFull: 'No2CubeFull',
-    No3Motor1Action: 'No3Motor1Action',
-    No3Motor2Action: 'No3Motor2Action',
-    No3PowerState: 'No3PowerState',
-    No3Count: 'No3Count',
-  };
+  // 각 데이터 항목의 tagId를 사용하여 데이터를 정렬하고 저장합니다.
+  sortedData.value = parsedData.map((item) => ({
+    index: item.tagId,  // tagId를 index로 사용
+    name: item.name,
+    value: item.value
+  }));
 
+  // 정렬된 데이터를 tagId (index) 순으로 정렬합니다.
+  sortedData.value.sort((a, b) => a.index - b.index);
+
+  // datalist 갱신
   parsedData.forEach(item => {
-    if (dataMap[item.name] !== undefined) {
-      datalist.value[dataMap[item.name]] = item.value;
+    if (item.name in datalist.value) {
+      datalist.value[item.name] = item.value;
     }
   });
 };
+
 
 const increaseSpeed = () => {
   // 속도 증가 로직
@@ -247,49 +262,72 @@ onMounted(fetchBlackboxList);
 <style scoped>
 .main-content {
   display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, #33475e, #212529); /* 네이비색 그라데이션 */
+  align-items : center;
+
 }
 
-.left {
+.top {
   display: flex;
-  flex-direction: column;
-  width: 350px;
+  flex-direction: row;
   align-items: center;
   margin: 10px;
+  margin-left : 50px;
+
 }
 
 .sidebar {
-  width: 320px;
+  width: 400px;
   background-color: #eee;
   padding: 10px;
-  margin: 20px 0px 20px 0px;
+  margin : 20px;
   border: 2px solid black;
   border-radius: 20px;
+  height : 330px;
 }
 
 .datalist {
-  width: 320px;
   background-color: #eee;
-  margin: 20px 0px 20px 0px;
+  margin: 20px;
   padding: 10px;
   border: 2px solid black;
   border-radius: 20px;
+  height : 330px;
 }
 
 .mqttdata {
-  height: 300px;
+  height: 280px;
+  width : 790px;
   overflow-y: scroll;
-  font-size: 10px;
+  font-size: 12px;
+  display : flex;
+  background : rgb(159, 158, 158);
+  justify-content: space-between;
+}
+.data1{
+  background : rgb(151, 45, 45);
+  width : 31%;
+}
+.data2{
+  background : red;
+  width : 31%;
+}
+.data3{
+  background : rgb(199, 151, 151);
+  width : 31%;
 }
 .container{
-  margin : 20px;
   display : flex;
   background-color : lightgrey;
   border-radius : 20px;
   padding : 10px;
   align-items: center;
   justify-content: center;
-  height : 400px;
+  height : 350px;
   border : 2px solid black;
+  min-width : 1200px;
+  margin : 10px 20px 10px 20px;
 
 }
 .controls {
@@ -321,8 +359,10 @@ button {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
   transition: background-color 0.3s, box-shadow 0.3s;
 }
-.right {
+.bottom {
   margin : 10px;
+  margin-left : 50px;
+  width : 1300px;
 }
 .process.inactive {
   background-color: #7c7c7c;
@@ -344,7 +384,6 @@ button {
 .name {
   position: absolute;
   top: -25px;
-  left: 50%;
   transform: translateX(-50%);
   display: flex;
   height: 50px;
