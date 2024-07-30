@@ -7,7 +7,7 @@
         <div class="relative w-full max-w-full flex-grow flex-1">
           <p class="text-black text-2xl font-semibold">{{ currentName }}</p>
           <button
-            @click="$router.push(`/digitaltwin/`)"
+            @click="openGrafanaDashboard"
             class="bg-blue-500 text-white text-xl px-4 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
           >
             상세보기
@@ -67,6 +67,11 @@ export default {
     const chart = ref(null)
     let myChart = null
     const currentName = ref(null)
+    const grafanaURL =
+      'http://traum.groundkim.com:3000/public-dashboards/52ed7ee218364a0db28870ad185d54f4?orgId=1'
+    const openGrafanaDashboard = () => {
+      window.open(grafanaURL, '_blank')
+    }
 
     onMounted(() => {
       let config = {
@@ -230,7 +235,7 @@ export default {
       { deep: true }
     )
 
-    return { chart, currentName }
+    return { chart, currentName, openGrafanaDashboard }
   }
 }
 </script>
