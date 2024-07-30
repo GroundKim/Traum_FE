@@ -197,7 +197,7 @@ export default {
         try {
           // 여기에 실제 회원가입 로직을 구현하세요
           console.log('회원가입 성공')
-          router.push({ name: 'Login' })
+          router.push({ name: 'login' })
         } catch (error) {
           console.error(error.message)
           message.value = '가입에 실패하였습니다. 확인 후 다시 가입바랍니다.'

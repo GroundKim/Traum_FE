@@ -1,5 +1,5 @@
 <template>
-  <div class="babylon-scene-container w-full h-full relative flex">
+  <div class="babylon-scene-container relative flex">
     <div class="absolute top-2 right-2 z-10 my-auto">
       <font-awesome-icon
         @click="toggleFullScreen"
