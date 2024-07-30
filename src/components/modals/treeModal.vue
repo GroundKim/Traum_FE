@@ -1,7 +1,7 @@
 <template>
   <div>
     <button
-      class="text-xl active:bg-emerald-600 font-bold uppercase text-sm px-6 py-3 rounded hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+      class="text-xl active:bg-emerald-600 font-bold uppercase px-6 py-3 rounded hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
       type="button"
       v-on:click="toggleModal()"
     >
@@ -79,7 +79,7 @@
                       <input
                         id="mqtt"
                         v-model="localItem['mqttTopic']"
-                        class="flex-grow px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                        class="flex-grow px-3 py-2 w-60 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                       />
                       <SelectList
                         :topicList="topicList"

@@ -1,104 +1,186 @@
 <template>
-      <div id="unity-container" class="unity-desktop main">
-        <canvas id="unity-canvas"></canvas>
-        <div id="unity-loading-bar">
-          <div id="unity-logo"></div>
-          <div id="unity-progress-bar-empty">
-            <div id="unity-progress-bar-full"></div>
-          </div>
-        </div>
-        <div class = "buttons">
-          <button>A</button>
-          <button>B</button>
-          <button>C</button>
-        </div>
+  <div id="unity-container" class="unity-desktop main">
+    <canvas id="unity-canvas"></canvas>
+    <div
+      v-if="isPending"
+      class="absolute inset-0 flex items-center justify-center bg-[#33334c] bg-opacity-50"
+    >
+      <FwbSpinner size="12" />
+    </div>
+    <div id="unity-loading-bar">
+      <div id="unity-logo"></div>
+      <div id="unity-progress-bar-empty">
+        <div id="unity-progress-bar-full"></div>
       </div>
-
-    
+    </div>
+    <div class="buttons mt-4">
+      <button
+        @click="sendStartCommand()"
+        class="bg-green-500 text-white text-sm px-4 py-1 get-started font-bold rounded outline-none focus:outline-none mr-4 mb-1 mx-10 bg-color1 active:bg-color1"
+      >
+        가동
+      </button>
+      <button
+        @click="sendStopCommand()"
+        class="bg-red-500 text-white text-sm px-4 py-1 get-started font-bold rounded outline-none focus:outline-none mr-4 mb-1 bg-color1 active:bg-color1"
+      >
+        중지
+      </button>
+      <button
+        @click="sendResetCommand()"
+        class="bg-blue-500 text-white text-sm px-4 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
+      >
+        리셋
+      </button>
+    </div>
+  </div>
 </template>
 
 <script>
-import mqtt from "mqtt";
+import mqtt from 'mqtt'
+import { ref, onMounted } from 'vue'
+import io from 'socket.io-client'
+import { FwbSpinner } from 'flowbite-vue'
+
 export default {
   name: 'EdukitView',
-  props:{meshId:Number},
+  components: { FwbSpinner },
+  props: { meshId: Number },
+  setup() {
+    const isPending = ref(true)
+    const socket = ref(null)
+    const unityInstance = ref(null)
 
-  mounted() {
-    this.loadUnity();
-  },
-  methods: {
-    loadUnity() {
-      const buildUrl = "/unity/Build";
-      const loaderUrl = buildUrl + "/0719last.loader.js";
+    const connectSocket = () => {
+      socket.value = io(`ws://${import.meta.env.VITE_SOCKET_IO_URL}`, {
+        transports: ['websocket'],
+        reconnectionAttempts: 1,
+        reconnectionDelay: 1000
+      })
+
+      socket.value.on('connect', () => {
+        console.log('Connected to Socket.IO server.')
+        socket.value.emit('joinRoom', 'UVC-EDU-01')
+      })
+
+      socket.value.on('disconnect', () => {
+        console.log('Disconnected from Socket.IO server.')
+      })
+
+      socket.value.on('connect_error', (error) => {
+        console.log('Socket.IO Error:', error)
+      })
+    }
+
+    const sendSocketMessage = (command) => {
+      if (socket.value && socket.value.connected) {
+        socket.value.emit(`SENDUVC-EDU-01`, JSON.stringify(command))
+        console.log(`Command sent:`, command)
+      } else {
+        console.log('Socket.IO is not connected. Cannot send command.')
+      }
+    }
+
+    const sendStartCommand = () => {
+      sendSocketMessage({ tagId: '1', value: '1' })
+    }
+
+    const sendStopCommand = () => {
+      sendSocketMessage({ tagId: '1', value: '0' })
+    }
+
+    const sendResetCommand = () => {
+      loadUnity()
+      sendSocketMessage({ tagId: '8', value: '1' })
+    }
+
+    const loadUnity = () => {
+      const buildUrl = '/unity/Build'
+      const loaderUrl = buildUrl + '/0719last.loader.js'
       const config = {
-        dataUrl: buildUrl + "/0719last.data.unityweb",
-        frameworkUrl: buildUrl + "/0719last.framework.js.unityweb",
-        codeUrl: buildUrl + "/0719last.wasm.unityweb",
-        streamingAssetsUrl: "StreamingAssets",
-        companyName: "DefaultCompany",
-        productName: "0719last",
-        productVersion: "0.1",
-      };
+        dataUrl: buildUrl + '/0719last.data.unityweb',
+        frameworkUrl: buildUrl + '/0719last.framework.js.unityweb',
+        codeUrl: buildUrl + '/0719last.wasm.unityweb',
+        streamingAssetsUrl: 'StreamingAssets',
+        companyName: 'DefaultCompany',
+        productName: '0719last',
+        productVersion: '0.1'
+      }
 
-      const canvas = document.querySelector("#unity-canvas");
-      const loadingBar = document.querySelector("#unity-loading-bar");
-      const progressBarFull = document.querySelector("#unity-progress-bar-full");
+      const canvas = document.querySelector('#unity-canvas')
+      const loadingBar = document.querySelector('#unity-loading-bar')
+      const progressBarFull = document.querySelector('#unity-progress-bar-full')
 
-      canvas.style.width = "960px";
-      canvas.style.height = "600px";
+      canvas.style.width = '960px'
+      canvas.style.height = '600px'
 
-      const script = document.createElement("script");
-      script.src = loaderUrl;
+      const script = document.createElement('script')
+      script.src = loaderUrl
       script.onload = () => {
         if (typeof createUnityInstance === 'undefined') {
-          console.error('createUnityInstance is not defined. Please ensure the Unity loader script is loaded correctly.');
-          return;
+          console.error(
+            'createUnityInstance is not defined. Please ensure the Unity loader script is loaded correctly.'
+          )
+          return
         }
         createUnityInstance(canvas, config, (progress) => {
-          progressBarFull.style.width = 100 * progress + "%";
-        }).then((unityInstance) => {
-          loadingBar.style.display = "none";
-          this.unityInstance = unityInstance;
-          this.setupMQTT();
-        }).catch((message) => {
-          alert(message);
-        });
-      };
-      document.body.appendChild(script);
-    },
-    setupMQTT() {
-      const client = mqtt.connect('ws://192.168.0.32:9001'); // MQTT 브로커 주소와 포트
+          progressBarFull.style.width = 100 * progress + '%'
+        })
+          .then((instance) => {
+            loadingBar.style.display = 'none'
+            unityInstance.value = instance
+            setupMQTT()
+            isPending.value = false
+          })
+          .catch((message) => {
+            alert(message)
+          })
+      }
+      document.body.appendChild(script)
+    }
+
+    const setupMQTT = () => {
+      const client = mqtt.connect('ws://192.168.0.32:9001')
 
       client.on('connect', () => {
-        console.log('Connected to MQTT broker');
+        console.log('Connected to MQTT broker')
         client.subscribe('edge/topic', (err) => {
           if (!err) {
-            console.log('Subscribed to topic');
+            console.log('Subscribed to topic')
           }
-        });
-      });
+        })
+      })
 
       client.on('message', (topic, message) => {
-        const payload = message.toString();
-        console.log('Message received: ', payload);
-        // Unity로 데이터 전송
-        if (this.unityInstance) {
+        const payload = message.toString()
+        console.log('Message received: ', payload)
+        if (unityInstance.value) {
           try {
-            this.unityInstance.SendMessage('GameObjectName', 'MethodName', payload);
+            unityInstance.value.SendMessage('GameObjectName', 'MethodName', payload)
           } catch (error) {
-            console.error('Error sending message to Unity:', error);
+            console.error('Error sending message to Unity:', error)
           }
         }
-      });
+      })
+    }
+
+    onMounted(() => {
+      connectSocket()
+      loadUnity()
+    })
+
+    return {
+      isPending,
+      sendStartCommand,
+      sendStopCommand,
+      sendResetCommand
     }
   }
 }
 </script>
 
 <style scoped>
-
 .buttons {
-  background-color : white;
 }
 #unity-container {
   width: 960px;
@@ -108,8 +190,9 @@ export default {
   width: 100%;
   height: auto;
 }
+/* 0%로 숨김처리 */
 #unity-loading-bar {
-  width: 100%;
+  width: 0%;
   text-align: center;
   position: absolute;
   top: 50%;
