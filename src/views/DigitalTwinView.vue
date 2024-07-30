@@ -13,22 +13,22 @@
         <div id="unity-progress-bar-full"></div>
       </div>
     </div>
-    <div class="buttons">
+    <div class="buttons mt-4">
       <button
         @click="sendStartCommand()"
-        class="bg-green-500 text-white text-sm px-1 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
+        class="bg-green-500 text-white text-sm px-4 py-1 get-started font-bold rounded outline-none focus:outline-none mr-4 mb-1 mx-10 bg-color1 active:bg-color1"
       >
         가동
       </button>
       <button
         @click="sendStopCommand()"
-        class="bg-red-500 text-white text-sm px-1 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
+        class="bg-red-500 text-white text-sm px-4 py-1 get-started font-bold rounded outline-none focus:outline-none mr-4 mb-1 bg-color1 active:bg-color1"
       >
         중지
       </button>
       <button
         @click="sendResetCommand()"
-        class="bg-blue-500 text-white text-sm px-1 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
+        class="bg-blue-500 text-white text-sm px-4 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
       >
         리셋
       </button>
@@ -90,6 +90,7 @@ export default {
     }
 
     const sendResetCommand = () => {
+      loadUnity()
       sendSocketMessage({ tagId: '8', value: '1' })
     }
 
@@ -189,6 +190,7 @@ export default {
   width: 100%;
   height: auto;
 }
+/* 0%로 숨김처리 */
 #unity-loading-bar {
   width: 0%;
   text-align: center;

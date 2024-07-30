@@ -1,9 +1,9 @@
-<template>  
+<template>
   <div class="main open-sans-main">
     <div class="container">
       <div class="fortime">
-        <div class="time"> {{ currentTime }} </div>
-        <div style="height:6px; width:450px;background:#40556b;margin-bottom:25px;"></div>
+        <div class="time">{{ currentTime }}</div>
+        <div style="height: 6px; width: 450px; background: #40556b; margin-bottom: 25px"></div>
       </div>
       <div :class="['process', 'no1', { inactive: !datalist.No1PowerState }]">
         <div class="topic">
@@ -13,22 +13,31 @@
           <span class="standby run" v-if="datalist.No1Push">RUNNING</span>
           <span class="standby ready" v-else>READY</span>
         </div>
-        <div style="width: 6px; height:60px; background:lightgrey; opacity:0.5;"></div>
+        <div style="width: 6px; height: 60px; background: lightgrey; opacity: 0.5"></div>
         <div class="data">
           <span>INPUT : {{ datalist.No1Count }}</span>
           <div class="chip-container">
-            <div v-for="n in 5" :key="n" :class="['chip', { 'chip-active': n <= datalist.No1Count }]"></div>
+            <div
+              v-for="n in 5"
+              :key="n"
+              :class="['chip', { 'chip-active': n <= datalist.No1Count }]"
+            ></div>
           </div>
         </div>
-        <div style="width: 6px; height:60px; background:lightgrey; opacity:0.5;"></div>
+        <div style="width: 6px; height: 60px; background: lightgrey; opacity: 0.5"></div>
 
         <div class="status">
-          <span>STATUS :  </span>
-          <span :class="{ 'status-normal': datalist.No1ChipFull, 'status-warning': !datalist.No1ChipFull }">
+          <span>STATUS : </span>
+          <span
+            :class="{
+              'status-normal': datalist.No1ChipFull,
+              'status-warning': !datalist.No1ChipFull
+            }"
+          >
             {{ datalist.No1ChipFull ? '자재 정상' : '자재 부족' }}
           </span>
         </div>
-        <div style="width: 6px; height:60px; background:lightgrey; opacity:0.5;"></div>
+        <div style="width: 6px; height: 60px; background: lightgrey; opacity: 0.5"></div>
         <button @click="openModal('Unit No.1', '9', datalist.No1PowerState)">
           {{ datalist.No1PowerState ? 'Turn Off' : 'Turn On' }}
         </button>
@@ -37,7 +46,7 @@
       <div class="circle-container" v-if="datalist.StartState">
         <div :class="['circle', { 'animate-circle': datalist.StartState }]"></div>
         <div :class="['circle', { 'animate-circle': datalist.StartState }]"></div>
-        <img v-if="!datalist.No1PowerState" src="/img/redCross.png" class="redCross">
+        <img v-if="!datalist.No1PowerState" src="/img/redCross.png" class="redCross" />
         <div :class="['circle', { 'animate-circle': datalist.StartState }]"></div>
         <div :class="['circle', { 'animate-circle': datalist.StartState }]"></div>
         <div :class="['circle', { 'animate-circle': datalist.StartState }]"></div>
@@ -45,7 +54,7 @@
       <div class="circle-container" v-else>
         <div class="circle"></div>
         <div class="circle"></div>
-        <img v-if="!datalist.No1PowerState" src="/img/redCross.png" class="redCross">
+        <img v-if="!datalist.No1PowerState" src="/img/redCross.png" class="redCross" />
         <div class="circle"></div>
         <div class="circle"></div>
         <div class="circle"></div>
@@ -59,23 +68,32 @@
           <span class="standby run" v-if="datalist.No1Push">RUNNING</span>
           <span class="standby ready" v-else>READY</span>
         </div>
-        <div style="width: 6px; height:60px; background:lightgrey; opacity:0.5;"></div>
+        <div style="width: 6px; height: 60px; background: lightgrey; opacity: 0.5"></div>
 
         <div class="data">
           <span>ASSEMBLY : {{ datalist.No2Count }}</span>
           <div class="chip-container">
-            <div v-for="n in 5" :key="n" :class="['chip', { 'chip-active': n <= datalist.No2Count }]"></div>
+            <div
+              v-for="n in 5"
+              :key="n"
+              :class="['chip', { 'chip-active': n <= datalist.No2Count }]"
+            ></div>
           </div>
         </div>
-        <div style="width: 6px; height:60px; background:lightgrey; opacity:0.5;"></div>
+        <div style="width: 6px; height: 60px; background: lightgrey; opacity: 0.5"></div>
 
         <div class="status">
-          <span>STATUS :  </span>
-          <span :class="{ 'status-normal': !datalist.No2CubeFull, 'status-warning': datalist.No2CubeFull }">
+          <span>STATUS : </span>
+          <span
+            :class="{
+              'status-normal': !datalist.No2CubeFull,
+              'status-warning': datalist.No2CubeFull
+            }"
+          >
             {{ !datalist.No2CubeFull ? '부품 정상' : '부품 부족' }}
           </span>
         </div>
-        <div style="width: 6px; height:60px; background:lightgrey; opacity:0.5;"></div>
+        <div style="width: 6px; height: 60px; background: lightgrey; opacity: 0.5"></div>
 
         <button @click="openModal('Unit No.2', '10', datalist.No2PowerState)">
           {{ datalist.No2PowerState ? 'Turn Off' : 'Turn On' }}
@@ -84,7 +102,7 @@
       <div class="circle-container" v-if="datalist.StartState">
         <div :class="['circle', { 'animate-circle': datalist.StartState }]"></div>
         <div :class="['circle', { 'animate-circle': datalist.StartState }]"></div>
-        <img v-if="!datalist.No3PowerState" src="/img/redCross.png" class="redCross">
+        <img v-if="!datalist.No3PowerState" src="/img/redCross.png" class="redCross" />
         <div :class="['circle', { 'animate-circle': datalist.StartState }]"></div>
         <div :class="['circle', { 'animate-circle': datalist.StartState }]"></div>
         <div :class="['circle', { 'animate-circle': datalist.StartState }]"></div>
@@ -92,7 +110,7 @@
       <div class="circle-container" v-else>
         <div class="circle"></div>
         <div class="circle"></div>
-        <img v-if="!datalist.No3PowerState" src="/img/redCross.png" class="redCross">
+        <img v-if="!datalist.No3PowerState" src="/img/redCross.png" class="redCross" />
         <div class="circle"></div>
         <div class="circle"></div>
         <div class="circle"></div>
@@ -103,26 +121,37 @@
           <div class="name">Unit No.3</div>
         </div>
         <div class="standby">
-          <span class="standby run" v-if="datalist.No3Motor1Action || datalist.No3Motor2Action">RUNNING</span>
+          <span class="standby run" v-if="datalist.No3Motor1Action || datalist.No3Motor2Action"
+            >RUNNING</span
+          >
           <span class="standby ready" v-else>READY</span>
         </div>
-        <div style="width: 6px; height:60px; background:lightgrey; opacity:0.5;"></div>
+        <div style="width: 6px; height: 60px; background: lightgrey; opacity: 0.5"></div>
 
         <div class="data">
           <span>STACK : {{ datalist.No3Count }}</span>
           <div class="chip-container">
-            <div v-for="n in 5" :key="n" :class="['chip', { 'chip-active': n <= datalist.No3Count }]"></div>
+            <div
+              v-for="n in 5"
+              :key="n"
+              :class="['chip', { 'chip-active': n <= datalist.No3Count }]"
+            ></div>
           </div>
         </div>
-        <div style="width: 6px; height:60px; background:lightgrey; opacity:0.5;"></div>
+        <div style="width: 6px; height: 60px; background: lightgrey; opacity: 0.5"></div>
 
         <div class="status">
-          <span>STATUS :  </span>
-          <span :class="{ 'status-normal': datalist.No3Count < 5, 'status-warning': datalist.No3Count >=5 }">
+          <span>STATUS : </span>
+          <span
+            :class="{
+              'status-normal': datalist.No3Count < 5,
+              'status-warning': datalist.No3Count >= 5
+            }"
+          >
             {{ datalist.No3Count < 5 ? '적재 가능' : '적재량 최대' }}
           </span>
         </div>
-        <div style="width: 6px; height:60px; background:lightgrey; opacity:0.5;"></div>
+        <div style="width: 6px; height: 60px; background: lightgrey; opacity: 0.5"></div>
 
         <button @click="openModal('Unit No.3', '11', datalist.No3PowerState)">
           {{ datalist.No3PowerState ? 'Turn Off' : 'Turn On' }}
@@ -131,19 +160,23 @@
     </div>
     <div class="line"></div>
     <div class="top">
-      <div style="height:20px;"></div>
+      <div style="height: 20px"></div>
       <div class="top-contents top-left">
         <div class="lamp-status">
           <div class="lamp green" :class="{ active: datalist.GreenLampState }"></div>
           <div class="lamp yellow" :class="{ active: datalist.YellowLampState }"></div>
           <div class="lamp red" :class="{ active: datalist.RedLampState }"></div>
         </div>
-        <div v-if="datalist.RedLampState"> ERROR </div>
-        <div v-else-if="!datalist.No1PowerState || !datalist.No2PowerState || !datalist.No3PowerState"> CHECK UNIT'S POWER</div>
-        <div v-else> CLEAR </div>
+        <div v-if="datalist.RedLampState">ERROR</div>
+        <div
+          v-else-if="!datalist.No1PowerState || !datalist.No2PowerState || !datalist.No3PowerState"
+        >
+          CHECK UNIT'S POWER
+        </div>
+        <div v-else>CLEAR</div>
       </div>
       <div class="top-contents top-mid">
-        <div class = "pb"> SELECTED : </div>
+        <div class="pb">SELECTED :</div>
         <select id="edukit-select" v-model="selectedEdukit" class="select">
           <option value="EDUKIT1">EDUKIT1</option>
           <option value="EDUKIT2" disabled>EDUKIT2</option>
@@ -153,10 +186,15 @@
         </select>
       </div>
       <div class="top-contents top-right">
-        <div class= "pb"> PROGRESS</div>
+        <div class="pb">PROGRESS</div>
         <div class="progress-bar">
           <div class="progress" :style="{ width: progress + '%' }"></div>
-          <img src="/img/turtle.png" alt="Turtle Icon" class="turtle-icon" :style="{ left: progress + '%' }"/>
+          <img
+            src="/img/turtle.png"
+            alt="Turtle Icon"
+            class="turtle-icon"
+            :style="{ left: progress + '%' }"
+          />
         </div>
         <div>{{ progress }}%</div>
       </div>
@@ -180,27 +218,26 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
-import mqtt from 'mqtt';
-import io from 'socket.io-client';
+import { ref, onMounted, onUnmounted } from 'vue'
+import mqtt from 'mqtt'
+import io from 'socket.io-client'
 
-const selectedEdukit = ref('EDUKIT1');
-const currentTime = ref('');
+const selectedEdukit = ref('EDUKIT1')
+const currentTime = ref('')
 
 // 시간을 업데이트하는 함수
 const updateTime = () => {
-  const nowTime = new Date();
-  const year = nowTime.getFullYear();
-  const month = (nowTime.getMonth() + 1).toString().padStart(2, '0');
-  const date = nowTime.getDate().toString().padStart(2, '0');
-  const hours = nowTime.getHours().toString().padStart(2, '0');
-  const minutes = nowTime.getMinutes().toString().padStart(2, '0');
-  const seconds = nowTime.getSeconds().toString().padStart(2, '0');
-  currentTime.value = `${year} - ${month} - ${date}\u00A0\u00A0\u00A0\u00A0\u00A0${hours} : ${minutes} : ${seconds}`;
-};
+  const nowTime = new Date()
+  const year = nowTime.getFullYear()
+  const month = (nowTime.getMonth() + 1).toString().padStart(2, '0')
+  const date = nowTime.getDate().toString().padStart(2, '0')
+  const hours = nowTime.getHours().toString().padStart(2, '0')
+  const minutes = nowTime.getMinutes().toString().padStart(2, '0')
+  const seconds = nowTime.getSeconds().toString().padStart(2, '0')
+  currentTime.value = `${year} - ${month} - ${date}\u00A0\u00A0\u00A0\u00A0\u00A0${hours} : ${minutes} : ${seconds}`
+}
 
-
-const plcData = ref('');
+const plcData = ref('')
 const datalist = ref({
   StartState: null,
   No1ChipEmpty: null,
@@ -222,14 +259,14 @@ const datalist = ref({
   RedLampState: null,
   No1ChipFull: null,
   No2CubeFull: null,
-  DataTime: null,
-});
+  DataTime: null
+})
 
-const showModal = ref(false);
-const modalTitle = ref('');
-const modalMessage = ref('');
-const currentTagId = ref('');
-const currentValue = ref('');
+const showModal = ref(false)
+const modalTitle = ref('')
+const modalMessage = ref('')
+const currentTagId = ref('')
+const currentValue = ref('')
 
 const updateDatalist = (parsedData) => {
   const dataMap = {
@@ -253,129 +290,128 @@ const updateDatalist = (parsedData) => {
     RedLampState: 'RedLampState',
     No1ChipFull: 'No1ChipFull',
     No2CubeFull: 'No2CubeFull',
-    DataTime: 'DataTime',
-  };
+    DataTime: 'DataTime'
+  }
 
-  parsedData.forEach(item => {
+  parsedData.forEach((item) => {
     if (dataMap[item.name] !== undefined) {
-      datalist.value[dataMap[item.name]] = item.value;
+      datalist.value[dataMap[item.name]] = item.value
     }
-  });
+  })
 
-  updateProgressBar();
-};
-const progress = ref(datalist.value.No3Count);
+  updateProgressBar()
+}
+const progress = ref(datalist.value.No3Count)
 
 const updateProgressBar = () => {
   // if (datalist.value.StartState) {
-    // Calculate progress based on No3Count
-    progress.value = ((datalist.value.No3Count / 5) * 100, 100);
+  // Calculate progress based on No3Count
+  progress.value = ((datalist.value.No3Count / 5) * 100, 100)
   // }
-};
+}
 
 const connectMQTT = () => {
-  const client = mqtt.connect('ws://traum.groundkim.com:9001'); 
+  const client = mqtt.connect('ws://traum.groundkim.com:9001')
 
   client.on('connect', () => {
-    console.log('MQTT 연결 성공');
+    console.log('MQTT 연결 성공')
     client.subscribe('edge/edukit/status', (err) => {
       if (err) {
-        console.error('구독 오류:', err);
+        console.error('구독 오류:', err)
       }
-    });
-  });
+    })
+  })
 
   client.on('message', (topic, message) => {
     if (topic === 'edge/edukit/status') {
-      plcData.value = message.toString();
-      updateDatalist(JSON.parse(message.toString()));
+      plcData.value = message.toString()
+      updateDatalist(JSON.parse(message.toString()))
     }
-  });
+  })
 
   client.on('error', (error) => {
-    console.error('MQTT 연결 오류:', error);
-  });
+    console.error('MQTT 연결 오류:', error)
+  })
 
-  return client;
-};
+  return client
+}
 
 const openModal = (unitName, tagId, currentState) => {
-  modalTitle.value = unitName;
-  currentTagId.value = tagId;
-  currentValue.value = currentState ? '0' : '1';
+  modalTitle.value = unitName
+  currentTagId.value = tagId
+  currentValue.value = currentState ? '0' : '1'
 
   if (datalist.value.StartState) {
-    modalMessage.value = "가동중에는 공정을 비활성화 할 수 없습니다.";
+    modalMessage.value = '가동중에는 공정을 비활성화 할 수 없습니다.'
   } else {
     modalMessage.value = currentState
       ? `공정을 비활성화 하시겠습니까?`
-      : `공정을 활성화 하시겠습니까?`;
+      : `공정을 활성화 하시겠습니까?`
   }
 
-  showModal.value = true;
-};
+  showModal.value = true
+}
 
 const confirmAction = () => {
-  sendCommand(currentTagId.value, currentValue.value);
-  closeModal();
-};
+  sendCommand(currentTagId.value, currentValue.value)
+  closeModal()
+}
 
 const closeModal = () => {
-  showModal.value = false;
-};
+  showModal.value = false
+}
 
 const sendCommand = (tagId, value) => {
   if (socket && socket.connected) {
-    const message = { tagId, value };
-    socket.emit('SENDUVC-EDU-01', JSON.stringify(message));
-    console.log(`명령 전송: tagId ${tagId}, value ${value}`);
+    const message = { tagId, value }
+    socket.emit('SENDUVC-EDU-01', JSON.stringify(message))
+    console.log(`명령 전송: tagId ${tagId}, value ${value}`)
   } else {
-    console.log("WebSocket이 연결되지 않았습니다.");
+    console.log('WebSocket이 연결되지 않았습니다.')
   }
-};
+}
 
 const socket = io(`ws://${import.meta.env.VITE_SOCKET_IO_URL}`, {
-  transports: ['websocket'],
-});
+  transports: ['websocket']
+})
 
-let mqttClient;
+let mqttClient
 
 onMounted(() => {
-  updateTime();
-  setInterval(updateTime, 1000);
-  mqttClient = connectMQTT();
+  updateTime()
+  setInterval(updateTime, 1000)
+  mqttClient = connectMQTT()
   socket.on('connect', () => {
-    console.log('WebSocket 연결 성공');
-  });
+    console.log('WebSocket 연결 성공')
+  })
 
   socket.on('disconnect', () => {
-    console.log('WebSocket 연결 끊김');
-  });
+    console.log('WebSocket 연결 끊김')
+  })
 
   socket.on('connect_error', (error) => {
-    console.log(`WebSocket 연결 오류: ${error}`);
-  });
-  updateProgressBar();
-});
+    console.log(`WebSocket 연결 오류: ${error}`)
+  })
+  updateProgressBar()
+})
 
 onUnmounted(() => {
   if (mqttClient) {
-    mqttClient.end();
+    mqttClient.end()
   }
   if (socket) {
-    socket.disconnect();
+    socket.disconnect()
   }
-});
+})
 </script>
 
 <style scoped>
-
-.line{
+.line {
   width: 10px;
-    height: 100%;
-    background-color: #3d5166;
-    margin-left: 80px;
-    border-radius: 5px;
+  height: 100%;
+  background-color: #3d5166;
+  margin-left: 80px;
+  border-radius: 5px;
 }
 
 .main {
@@ -393,34 +429,32 @@ onUnmounted(() => {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
-  flex-direction : column;
+  flex-direction: column;
   gap: 20px;
   align-items: center;
-  
 }
 
 .top {
   display: flex;
-  flex-direction : column;
+  flex-direction: column;
   border-radius: 10px;
-  margin-left : 20px;
+  margin-left: 20px;
 }
 
 .top-contents {
   background-color: #343a40;
   border-radius: 15px;
   box-shadow: 0 8px 12px rgba(0, 0, 0, 0.5);
-  transition: background-color 0.5s, box-shadow 0.3s;
+  transition:
+    background-color 0.5s,
+    box-shadow 0.3s;
   width: 375px;
   margin: 20px;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #f8f9fa;
-
 }
-
-
 
 .progress {
   position: relative;
@@ -439,11 +473,13 @@ onUnmounted(() => {
   background-color: #576c84;
   border-radius: 15px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-  transition: background-color 0.3s, box-shadow 0.3s;
+  transition:
+    background-color 0.3s,
+    box-shadow 0.3s;
   color: #ffffff;
-  width : 850px;
-  left : 5%;
-  height : 110px;
+  width: 850px;
+  left: 5%;
+  height: 110px;
 }
 
 .process.inactive {
@@ -460,7 +496,7 @@ onUnmounted(() => {
   padding: 8px;
   font-size: 30px;
   color: #ffffff;
-  width : 18%;
+  width: 18%;
 }
 
 .topic {
@@ -493,8 +529,8 @@ onUnmounted(() => {
   display: flex;
   flex-direction: row;
   align-items: center;
-  width : 34%;
-  padding : 8px;
+  width: 34%;
+  padding: 8px;
   text-align: center;
 }
 
@@ -516,7 +552,7 @@ onUnmounted(() => {
   display: flex;
   flex-direction: row;
   gap: 4px;
-  margin : 10px;
+  margin: 10px;
 }
 
 .chip {
@@ -533,8 +569,8 @@ onUnmounted(() => {
 
 span {
   font-size: 17px;
-  color : white; 
-  width : 150px;
+  color: white;
+  width: 150px;
 }
 
 .status-normal {
@@ -550,20 +586,23 @@ span {
 }
 
 button {
-  margin: 10px 10px 10px 20px;  padding: 10px 10px;
+  margin: 10px 10px 10px 20px;
+  padding: 10px 10px;
   border: none;
   border-radius: 5px;
   background-color: #1b263b;
   color: #f8f9fa;
   cursor: pointer;
-  transition: background-color 0.3s, transform 0.2s;
-  width : 15%;
+  transition:
+    background-color 0.3s,
+    transform 0.2s;
+  width: 15%;
 }
 
 .status {
   margin: 10px;
-  width : 30%;
-  padding : 8px;
+  width: 30%;
+  padding: 8px;
   text-align: center;
 }
 
@@ -594,14 +633,15 @@ button:hover {
 
 .circle-container {
   display: flex;
-  flex-direction : column;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
   position: relative;
-  width : 50px;
+  width: 50px;
 }
 
-.circle, .redCross {
+.circle,
+.redCross {
   margin: 5px;
 }
 
@@ -625,7 +665,8 @@ button:hover {
 }
 
 @keyframes circle-loading {
-  0%, 100% {
+  0%,
+  100% {
     background-color: #778da9;
   }
   50% {
@@ -646,7 +687,9 @@ button:hover {
   border: 3px solid #f8f9fa;
   background-color: lightgrey;
   opacity: 0.3;
-  transition: background-color 0.3s, opacity 0.3s;
+  transition:
+    background-color 0.3s,
+    opacity 0.3s;
 }
 
 .lamp.green.active {
@@ -693,7 +736,7 @@ button:hover {
 }
 
 .modal-buttons {
-  margin : 10px;
+  margin: 10px;
 }
 
 .modal-buttons button {
@@ -746,28 +789,27 @@ p {
   color: #f8f9fa;
 }
 
-.top-mid{
-  height : 90px;
+.top-mid {
+  height: 90px;
 }
 .top-right {
   display: flex;
   flex-direction: column;
-  height : 380px;
+  height: 380px;
 }
 .top-left {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height : 120px;
+  height: 120px;
 }
 .time {
   margin: 10px;
   font-size: 25px;
-  height : 35px;
+  height: 35px;
   display: flex;
   justify-content: center;
   align-items: center;
 }
-
 </style>
