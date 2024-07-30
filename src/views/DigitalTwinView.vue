@@ -1,6 +1,12 @@
 <template>
   <div id="unity-container" class="unity-desktop main">
     <canvas id="unity-canvas"></canvas>
+    <div
+      v-if="isPending"
+      class="absolute inset-0 flex items-center justify-center bg-[#33334c] bg-opacity-50"
+    >
+      <FwbSpinner size="12" />
+    </div>
     <div id="unity-loading-bar">
       <div id="unity-logo"></div>
       <div id="unity-progress-bar-empty">
@@ -34,11 +40,17 @@
 import mqtt from 'mqtt'
 import { ref, onMounted } from 'vue'
 import io from 'socket.io-client'
+import { FwbSpinner } from 'flowbite-vue'
+
 export default {
   name: 'EdukitView',
+  components: { FwbSpinner },
   props: { meshId: Number },
   setup() {
+    const isPending = ref(true)
     const socket = ref(null)
+    const unityInstance = ref(null)
+
     const connectSocket = () => {
       socket.value = io(`ws://${import.meta.env.VITE_SOCKET_IO_URL}`, {
         transports: ['websocket'],
@@ -80,23 +92,8 @@ export default {
     const sendResetCommand = () => {
       sendSocketMessage({ tagId: '8', value: '1' })
     }
-    onMounted(() => {
-      connectSocket()
-    })
 
-    return {
-      sendSocketMessage,
-      sendStartCommand,
-      sendStopCommand,
-      sendResetCommand
-    }
-  },
-
-  mounted() {
-    this.loadUnity()
-  },
-  methods: {
-    loadUnity() {
+    const loadUnity = () => {
       const buildUrl = '/unity/Build'
       const loaderUrl = buildUrl + '/0719last.loader.js'
       const config = {
@@ -128,19 +125,21 @@ export default {
         createUnityInstance(canvas, config, (progress) => {
           progressBarFull.style.width = 100 * progress + '%'
         })
-          .then((unityInstance) => {
+          .then((instance) => {
             loadingBar.style.display = 'none'
-            this.unityInstance = unityInstance
-            this.setupMQTT()
+            unityInstance.value = instance
+            setupMQTT()
+            isPending.value = false
           })
           .catch((message) => {
             alert(message)
           })
       }
       document.body.appendChild(script)
-    },
-    setupMQTT() {
-      const client = mqtt.connect('ws://192.168.0.32:9001') // MQTT 브로커 주소와 포트
+    }
+
+    const setupMQTT = () => {
+      const client = mqtt.connect('ws://192.168.0.32:9001')
 
       client.on('connect', () => {
         console.log('Connected to MQTT broker')
@@ -154,15 +153,26 @@ export default {
       client.on('message', (topic, message) => {
         const payload = message.toString()
         console.log('Message received: ', payload)
-        // Unity로 데이터 전송
-        if (this.unityInstance) {
+        if (unityInstance.value) {
           try {
-            this.unityInstance.SendMessage('GameObjectName', 'MethodName', payload)
+            unityInstance.value.SendMessage('GameObjectName', 'MethodName', payload)
           } catch (error) {
             console.error('Error sending message to Unity:', error)
           }
         }
       })
+    }
+
+    onMounted(() => {
+      connectSocket()
+      loadUnity()
+    })
+
+    return {
+      isPending,
+      sendStartCommand,
+      sendStopCommand,
+      sendResetCommand
     }
   }
 }
@@ -180,7 +190,7 @@ export default {
   height: auto;
 }
 #unity-loading-bar {
-  width: 90%;
+  width: 0%;
   text-align: center;
   position: absolute;
   top: 50%;
