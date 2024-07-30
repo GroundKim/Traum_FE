@@ -160,7 +160,7 @@
     </div>
     <div class="line"></div>
     <div class="top">
-      <div style="height: 20px"></div>
+      <div style="height:27px;"></div>
       <div class="top-contents top-left">
         <div class="lamp-status">
           <div class="lamp green" :class="{ active: datalist.GreenLampState }"></div>
@@ -186,17 +186,8 @@
         </select>
       </div>
       <div class="top-contents top-right">
-        <div class="pb">PROGRESS</div>
-        <div class="progress-bar">
-          <div class="progress" :style="{ width: progress + '%' }"></div>
-          <img
-            src="/img/turtle.png"
-            alt="Turtle Icon"
-            class="turtle-icon"
-            :style="{ left: progress + '%' }"
-          />
-        </div>
-        <div>{{ progress }}%</div>
+        <CircleProgress :value1="datalist.No3Count" :value2="datalist.StartState" />
+
       </div>
     </div>
 
@@ -218,12 +209,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
-import mqtt from 'mqtt'
-import io from 'socket.io-client'
+import { ref, onMounted, onUnmounted } from 'vue';
+import mqtt from 'mqtt';
+import io from 'socket.io-client';
+import CircleProgress from '../components/CircleProgress.vue';
+const selectedEdukit = ref('EDUKIT1');
+const currentTime = ref('');
 
-const selectedEdukit = ref('EDUKIT1')
-const currentTime = ref('')
 
 // 시간을 업데이트하는 함수
 const updateTime = () => {
@@ -442,7 +434,7 @@ onUnmounted(() => {
 }
 
 .top-contents {
-  background-color: #343a40;
+  background-color: #49525a;
   border-radius: 15px;
   box-shadow: 0 8px 12px rgba(0, 0, 0, 0.5);
   transition:
@@ -494,9 +486,11 @@ onUnmounted(() => {
 .standby {
   margin: 10px;
   padding: 8px;
-  font-size: 30px;
+  font-size: 25px;
   color: #ffffff;
-  width: 18%;
+  text-align: center;
+  width : 30%;
+
 }
 
 .topic {
@@ -637,7 +631,9 @@ button:hover {
   justify-content: center;
   align-items: center;
   position: relative;
-  width: 50px;
+  width : 50px;
+  margin-left : 91px;
+
 }
 
 .circle,

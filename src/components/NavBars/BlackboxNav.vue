@@ -1,5 +1,7 @@
 <template>
   <div class="navbar">
+    <div style="color : white; font-size: 12px; margin-top : 30px;"> 환영합니다</div>
+    <div style="color : white; font-size: 12px;margin-bottom : 30px;"> 윤준섭 님</div>
     <button class="button" @click="changeContents(0)" :disabled="currentPage === 0">
       <img src="/img/builder.png" />
       <div>BUILDER</div>
