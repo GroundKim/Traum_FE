@@ -18,7 +18,7 @@
             <option v-for="blackbox in blackboxList" :key="blackbox">{{ blackbox }}</option>
           </select>
           <div class="controls">
-            <button v-if="!blackboxRunning" :disabled="blackboxRunning" class="control-button" @click="startBlackbox">
+            <button v-if="!blackboxRunning" :disabled="blackboxRunning || !isReady" class="control-button" @click="startBlackbox">
               <img class="control-icon" src="/img/playButton.png">
             </button>
             <button v-else :disabled="!isPaused" class="control-button" @click="resumeBlackbox">
@@ -38,20 +38,22 @@
         <h2 class="header mhead"> DATA BOARD </h2>
         <div class="mqttdata">
           <div class="data1">
-              <div v-for="data in filteredData1" :key="data.index">
-                {{ data.index }}. {{ data.name }}: {{ data.value }}
-              </div>
+            <div v-for="data in filteredData1" :key="data.index" :class="{ 'changed': data.changed }">
+              {{ data.index }}. {{ data.name }}: {{ data.value }}
             </div>
-            <div class="data2">
-              <div v-for="data in filteredData2" :key="data.index">
-                {{ data.index }}. {{ data.name }}: {{ data.value }}
-              </div>
+          </div>
+          <div class="line"></div>
+          <div class="data2">
+            <div v-for="data in filteredData2" :key="data.index" :class="{ 'changed': data.changed }">
+              {{ data.index }}. {{ data.name }}: {{ data.value }}
             </div>
-            <div class="data3">
-              <div v-for="data in filteredData3" :key="data.index">
-                {{ data.index }}. {{ data.name }}: {{ data.value }}
-              </div>
+          </div>
+          <div class="line"></div>
+          <div class="data3">
+            <div v-for="data in filteredData3" :key="data.index" :class="{ 'changed': data.changed }">
+              {{ data.index }}. {{ data.name }}: {{ data.value }}
             </div>
+          </div>
         </div>
       </div>
     </div>
@@ -81,14 +83,14 @@
           <div class="circle-container" v-if="datalist.StartState">
             <div :class="['circle', { 'animate-circle': datalist.StartState }]"></div>
             <div :class="['circle', { 'animate-circle': datalist.StartState }]"></div>
-            <img v-if="!datalist.No1PowerState" src="/img/redCross.png" class="redCross">
+            <img v-if="!datalist.StartState" src="/img/redCross.png" class="redCross">
             <div :class="['circle', { 'animate-circle': datalist.StartState }]"></div>
             <div :class="['circle', { 'animate-circle': datalist.StartState }]"></div>
           </div>
           <div class="circle-container" v-else>
             <div class="circle"></div>
             <div class="circle"></div>
-            <img v-if="!datalist.No1PowerState" src="/img/redCross.png" class="redCross">
+            <img v-if="!datalist.StartState" src="/img/redCross.png" class="redCross">
             <div class="circle"></div>
             <div class="circle"></div>
           </div>
@@ -115,10 +117,17 @@
             </div>
 
           </div>
-          <div class="circle-container">
+          <div class="circle-container" v-if="datalist.StartState">
+            <div :class="['circle', { 'animate-circle': datalist.StartState }]"></div>
+            <div :class="['circle', { 'animate-circle': datalist.StartState }]"></div>
+            <img v-if="!datalist.StartState" src="/img/redCross.png" class="redCross">
+            <div :class="['circle', { 'animate-circle': datalist.StartState }]"></div>
+            <div :class="['circle', { 'animate-circle': datalist.StartState }]"></div>
+          </div>
+          <div class="circle-container" v-else>
             <div class="circle"></div>
             <div class="circle"></div>
-            <img v-if="!datalist.No3PowerState" src="/img/redCross.png" class="redCross">
+            <img v-if="!datalist.StartState" src="/img/redCross.png" class="redCross">
             <div class="circle"></div>
             <div class="circle"></div>
           </div>
@@ -139,9 +148,17 @@
             </div>
             <div class="status">
               <span>STATUS: </span>
-              <span class="status-unknown">데이터 없음</span>
+              <span :class="{ 'status-normal':datalist.No3Count < 5, 'status-warning': datalist.No3Count>=5 }">
+                {{ datalist.No3Count < 5 ? '적재 가능' : '적재량 최대' }}
+              </span>
+
             </div>
 
+          </div>
+            <div class="lamp-status">
+            <div class="lamp green" :class="{ active: datalist.GreenLampState }"></div>
+            <div class="lamp yellow" :class="{ active: datalist.YellowLampState }"></div>
+            <div class="lamp red" :class="{ active: datalist.RedLampState }"></div>
           </div>
         </div>
     </div>
@@ -149,15 +166,17 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import axios from 'axios';
 import mqtt from 'mqtt';
 const blackboxRunning = ref(false);
 const isPaused = ref(false);
+const isReady = ref(false);
 const blackboxList = ref([]);
 const selectedEdukit = ref('');
 const selectedBlackbox = ref('');
 const mqttData = ref('');
+const previousData = ref({});
 const datalist = ref({
   StartState: null,
   No1Push: null,
@@ -171,6 +190,9 @@ const datalist = ref({
   No3Motor2Action: null,
   No3PowerState: null,
   No3Count: null,
+  RedLampState: null,
+  YellowLampState: null,
+  GreenLampState: null,
 });
 
 const fetchBlackboxList = async () => {
@@ -251,25 +273,53 @@ const unconnectMQTT = () => {
     });
   }
 };
-
+// selectedOption의 변화를 감지하여 isReady를 true로 설정
+watch(selectedBlackbox, (newVal) => {
+  if (newVal) {
+    isReady.value = true;
+  }
+});
 const updateDatalist = (parsedData) => {
-  // 각 데이터 항목의 tagId를 사용하여 데이터를 정렬하고 저장합니다.
-  sortedData.value = parsedData.map((item) => ({
-    index: item.tagId,  // tagId를 index로 사용
-    name: item.name,
-    value: item.value
-  }));
+  // 이전 데이터 백업
+  previousData.value = JSON.parse(JSON.stringify(datalist.value));
 
-  // 정렬된 데이터를 tagId (index) 순으로 정렬합니다.
-  sortedData.value.sort((a, b) => a.index - b.index);
+  // datalist 업데이트
+  datalist.value = parsedData.reduce((acc, item) => {
+    acc[item.name] = item.value;
+    return acc;
+  }, {});
 
-  // datalist 갱신
-  parsedData.forEach(item => {
-    if (item.name in datalist.value) {
-      datalist.value[item.name] = item.value;
+  // sortedData의 기존 순서 유지하며 업데이트
+  sortedData.value = sortedData.value.map(dataItem => {
+    const newData = parsedData.find(item => item.name === dataItem.name);
+    if (newData) {
+      return {
+        ...dataItem,
+        value: newData.value,
+        changed: previousData.value[dataItem.name] !== newData.value // 변경 여부 확인
+      };
+    } else {
+      return dataItem;
     }
   });
+
+  // 새로운 데이터가 추가된 경우 처리
+  parsedData.forEach(newItem => {
+    const exists = sortedData.value.some(dataItem => dataItem.name === newItem.name);
+    if (!exists) {
+      sortedData.value.push({
+        index: newItem.tagId,
+        name: newItem.name,
+        value: newItem.value,
+        changed: true // 새로운 항목은 변경된 것으로 처리
+      });
+    }
+  });
+
+  // sortedData 정렬 유지
+  sortedData.value.sort((a, b) => a.index - b.index);
 };
+
 
 const pauseBlackbox = () => {
   // 일시 정지 로직
@@ -301,7 +351,10 @@ onMounted(fetchBlackboxList);
   align-items : center;
 
 }
-
+.changed {
+  color : red;
+  font-weight : bold;
+}
 .top {
   display: flex;
   flex-direction: row;
@@ -337,18 +390,20 @@ onMounted(fetchBlackboxList);
   font-size: 12px;
   display : flex;
   border-radius : 20px;
-  background: rgb(255 255 255 / 24%);
+  background: #eaf2ffe8;
   justify-content: space-between;
 }
 .data1{
-  width : 35%;
-  padding: 5px 15px 5px 15px;
+  width : 37%;
+  padding: 5px 15px 5px 20px;
 }
 .data2{
   width : 29%;
+  padding : 5px 20px 5px 15px;
 }
 .data3{
   width : 29%;
+  padding : 5px 20px 5px 15px;
 }
 .header {
   color : white;
@@ -382,15 +437,6 @@ onMounted(fetchBlackboxList);
   width : 35px;
   height : 35px;
 }
-button {
-  padding: 10px;
-  cursor: pointer;
-  margin: 10px;
-  border-radius: 10px;
-  width: 80px;
-  height: 50px;
-}
-
 
 .process {
   position: relative;
@@ -399,7 +445,7 @@ button {
   align-items: center;
   width: 250px;
   padding: 20px;
-  background-color: white;
+  background-color: #eaf2ffe8;
   border-radius: 15px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
   transition: background-color 0.3s, box-shadow 0.3s;
@@ -408,8 +454,8 @@ button {
   margin : 10px;
 }
 .process.inactive {
-  background-color: #7c7c7c;
-  box-shadow: none;
+  background-color: #989898;
+    opacity: 0.4;
 }
 
 .standby {
@@ -505,8 +551,26 @@ button {
   color: white;
   cursor: pointer;
   transition: background-color 0.3s, transform 0.2s;
+  display: flex;
+    justify-content: center;
+    align-items: center;
 }
-
+button {
+  padding: 10px;
+  cursor: pointer;
+  margin: 10px;
+  border-radius: 10px;
+  width: 80px;
+  height: 50px;
+}
+.line {
+  height : 250px;
+  width : 6px;
+  background : rgb(63, 70, 91);
+  opacity : 0.2;
+  margin-top : 15px;
+  border-radius : 3px;
+}
 button:hover {
   background-color: #357ab7;
   transform: scale(1.05);
@@ -533,6 +597,7 @@ button:hover {
 .circle,
 .redCross {
   margin: 10px;
+
 }
 
 .circle {
@@ -543,8 +608,8 @@ button:hover {
 }
 
 .redCross {
-  width: 80px;
-  height: 80px;
+  width: 40px;
+  height: 40px;
   position: absolute;
   left: 40%;
   transform: translateX(-50%);
@@ -557,16 +622,51 @@ button:hover {
 @keyframes circle-loading {
   0%,
   100% {
-    background-color: grey;
+    background-color: #778da9;
   }
   50% {
-    background-color: #4a90e2;
+    background-color: #1b263b;
   }
 }
 .control-button:disabled {
   background-color: grey;
   cursor: not-allowed;
   color: white;
-  opacity : 0.7;
+  opacity : 0.4;
+}
+
+.lamp-status {
+  display: flex;
+  flex-direction : column;
+  justify-content: space-around;
+  margin-left : 40px;
+}
+
+.lamp {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin: 10px;
+  border: 3px solid #f8f9fa;
+  background-color: lightgrey;
+  opacity: 0.3;
+  transition:
+    background-color 0.3s,
+    opacity 0.3s;
+}
+
+.lamp.green.active {
+  background-color: #6beb7a;
+  opacity: 1;
+}
+
+.lamp.yellow.active {
+  background-color: #e6d769;
+  opacity: 1;
+}
+
+.lamp.red.active {
+  background-color: #ea785f;
+  opacity: 1;
 }
 </style>
