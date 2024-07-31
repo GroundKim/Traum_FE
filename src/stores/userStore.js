@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { auth } from '@/firebase/index.js'
 import { signOut } from 'firebase/auth'
+import { updatePassword } from 'firebase/auth'
 
 export const useUserStore = defineStore('user', () => {
   const userStatus = ref({
@@ -61,10 +62,25 @@ export const useUserStore = defineStore('user', () => {
     }
   }
 
+  async function changePassword(newPassword) {
+    const user = auth.currentUser
+    if (user) {
+      try {
+        await updatePassword(user, newPassword)
+        return true
+      } catch (error) {
+        console.error('Error changing password:', error)
+        return false
+      }
+    }
+    return false
+  }
+
   return {
     userStatus,
     userLogin,
     userLogout,
-    refreshAccessToken
+    refreshAccessToken,
+    changePassword
   }
 })
