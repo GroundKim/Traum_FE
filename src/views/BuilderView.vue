@@ -9,7 +9,7 @@
         <BabylonScene
           ref="babylonScene"
           @removeItem="console.log('도착확인')"
-          class="w-[60vw] h-full"
+          class="w-[66vw] h-full"
         />
       </div>
     </div>
@@ -20,7 +20,6 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import mqtt from 'mqtt'
 import emitter from '@/components/eventBus.js'
-
 import BabylonScene from '@/components/BabylonScene.vue'
 import TreeList from '@/components/lists/TreeList.vue'
 const babylonScene = ref(null)

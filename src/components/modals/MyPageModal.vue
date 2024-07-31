@@ -13,7 +13,7 @@
         <div class="text-white bg-gray-600">
           <!--header-->
           <div class="flex items-center justify-between p-5">
-            <h3 class="text-3xl font-semibold text-center w-full">설정 변경</h3>
+            <h3 class="text-3xl font-semibold text-center w-full">MyPage</h3>
             <button
               class="p-1 ml-auto bg-transparent border-0 text-black opacity-5 float-right text-3xl leading-none font-semibold outline-none focus:outline-none"
               v-on:click="toggleModal()"
@@ -198,11 +198,6 @@ export default {
             mqttTopic: localItem.mqttTopic
           })
         }
-
-        // const response = await axios.put('http://traum.groundkim.com:3001/sensor/object/1')
-        // response.data.forEach((el) => {
-        //   addItem(1, el.id, 'sensor', el.mqttTopic, el.threshold, '3d')
-        // })
       } catch (error) {
         console.error('Failed to put sensor data', error)
       }

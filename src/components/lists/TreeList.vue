@@ -25,7 +25,8 @@
                 currentCategory.name,
                 1803,
                 50,
-                '3d'
+                '3d',
+                `0,0,0`
               )
             "
           />
@@ -43,7 +44,7 @@
       <li
         v-for="item in currentCategory.items"
         :key="item.name"
-        class="flex bg-[#ffffff17] items-center justify-between text-base text-white text-center px-4 py-2 uppercase rounded-lg shadow-md cursor-move mb-2 flex-shrink-0"
+        class="flex bg-[#ffffff17] items-center justify-between text-base text-white text-center px-4 py-2 mb-2 mx-4 uppercase rounded-lg shadow-md cursor-move flex-shrink-0"
         draggable="true"
         @dragstart="onDragStart($event, item)"
       >
@@ -192,7 +193,7 @@ export default {
       if (currentIndex.value < categories.value.length - 1) currentIndex.value++
     }
 
-    const addItem = (index, meshId, meshName, mqttTopic, threshold, type) => {
+    const addItem = (index, meshId, meshName, mqttTopic, threshold, type, location) => {
       const newItem = {
         meshId,
         name: meshName + meshId,
@@ -200,7 +201,8 @@ export default {
         meshName,
         mqttTopic,
         threshold,
-        color: null
+        color: null,
+        location
       }
       categories.value[index].items.push(newItem)
     }
@@ -237,14 +239,17 @@ export default {
     const fetchSensorList = async () => {
       try {
         const response = await axios.get('http://traum.groundkim.com:3001/sensor/object/list')
-        response.data.forEach((el) => {
-          addItem(1, el.id, 'sensor', el.mqttTopic, el.threshold, '3d')
+
+        // 응답 데이터를 id 기준으로 오름차순 정렬
+        const sortedData = response.data.sort((a, b) => a.id - b.id)
+
+        sortedData.forEach((el) => {
+          addItem(1, el.id, 'sensor', el.mqttTopic, el.threshold, '3d', el.location)
         })
       } catch (error) {
         console.error('Failed to fetch sensor list', error)
       }
     }
-
     const socket = ref(null)
     const connectSocket = () => {
       socket.value = io(`ws://${import.meta.env.VITE_SOCKET_IO_URL}`, {

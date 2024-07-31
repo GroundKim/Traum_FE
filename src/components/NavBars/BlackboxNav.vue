@@ -24,6 +24,11 @@
       <img src="/img/logout.png" />
       <div>LOGOUT</div>
     </button>
+    <button class="button no4" @click="changeContents(4)" :disabled="currentPage === 4">
+      <img src="/img/logout.png" />
+      <div>MYPAGE</div>
+    </button>
+    <MyPageModal />
   </div>
 </template>
 
@@ -31,6 +36,7 @@
 import { ref, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useUserStore } from '@/stores/userStore.js'
+import MyPageModal from '@/components/modals/MyPageModal.vue'
 const router = useRouter()
 const route = useRoute()
 const userStore = useUserStore()
