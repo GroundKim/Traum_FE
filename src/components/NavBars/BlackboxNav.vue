@@ -1,7 +1,7 @@
 <template>
   <div class="navbar">
-    <div style="color : white; font-size: 12px; margin-top : 30px;"> 환영합니다</div>
-    <div style="color : white; font-size: 12px;margin-bottom : 30px;"> 윤준섭 님</div>
+    <div style="color: white; font-size: 12px; margin-top: 30px">환영합니다</div>
+    <div style="color: white; font-size: 12px; margin-bottom: 30px">{{ userName }} 님</div>
     <button class="button" @click="changeContents(0)" :disabled="currentPage === 0">
       <img src="/img/builder.png" />
       <div>BUILDER</div>
@@ -34,6 +34,7 @@ import { useUserStore } from '@/stores/userStore.js'
 const router = useRouter()
 const route = useRoute()
 const userStore = useUserStore()
+const userName = userStore.userStatus.userName
 
 const links = [
   { path: '/builder', name: 'Builder' },
@@ -49,7 +50,7 @@ const changeContents = (contents) => {
   currentPage.value = contents
   router.push(links[contents].path)
   if (contents === 4) {
-    userStore.logout()
+    userStore.userLogout()
   }
 }
 
@@ -81,8 +82,7 @@ watch(() => route.path, updateCurrentPage)
   height: 90px;
   border: none;
   /* background: #1b263b; */
-  background : #0d1b2a;
-
+  background: #0d1b2a;
 
   color: white;
   font-size: 10px;
@@ -109,7 +109,7 @@ watch(() => route.path, updateCurrentPage)
   right: 0;
   bottom: 0;
   /* background-color: #415a77; */
-  background : #0d1b2a;
+  background: #0d1b2a;
   opacity: 0;
   transition: opacity 0.3s;
 }
@@ -144,7 +144,7 @@ img {
   align-items: center;
   height: 100vh;
   /* background: #1b263b; */
-  background : #0d1b2a;
+  background: #0d1b2a;
 }
 
 .spacer {
