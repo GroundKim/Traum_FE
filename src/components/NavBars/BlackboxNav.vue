@@ -35,7 +35,7 @@ const router = useRouter()
 const route = useRoute()
 const userStore = useUserStore()
 const userName = userStore.userStatus.userName
-
+const isMypageOpen = ref(0);
 const links = [
   { path: '/builder', name: 'Builder' },
   { path: '/dashboard/1', name: 'Dashboard' },
@@ -52,6 +52,7 @@ const changeContents = (contents) => {
   if (contents === 4) {
     userStore.userLogout()
   }
+  
 }
 
 const updateCurrentPage = () => {
@@ -150,6 +151,7 @@ img {
 .spacer {
   flex-grow: 1; /* 빈 공간을 채우기 위해 사용 */
 }
+
 .no4 {
   bottom: 4%;
 }

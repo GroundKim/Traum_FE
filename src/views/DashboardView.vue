@@ -410,7 +410,7 @@ onUnmounted(() => {
   display: flex;
   flex-direction: row;
   justify-content: center;
-  align-items: flex-start;
+  align-items: flex-end;
   /* background-color: #212529; */
   background: linear-gradient(180deg, #33475e, #212529); /* 네이비색 그라데이션 */
   padding: 20px;
@@ -430,7 +430,7 @@ onUnmounted(() => {
   display: flex;
   flex-direction: column;
   border-radius: 10px;
-  margin-left: 20px;
+  margin-left: 40px;
 }
 
 .top-contents {
@@ -441,7 +441,7 @@ onUnmounted(() => {
     background-color 0.5s,
     box-shadow 0.3s;
   width: 375px;
-  margin: 20px;
+  margin: 25px 0px 0px 0px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -744,6 +744,8 @@ button:hover {
   color: #f8f9fa;
   cursor: pointer;
   transition: background-color 0.3s;
+  width: 80px;
+
 }
 
 .modal-buttons button:hover {
@@ -791,14 +793,14 @@ p {
 .top-right {
   display: flex;
   flex-direction: column;
-  height: 380px;
+  height: 360px;
 }
 .top-left {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 120px;
+  height: 110px;
 }
 .time {
   margin: 10px;

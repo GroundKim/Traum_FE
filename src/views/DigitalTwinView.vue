@@ -1,10 +1,7 @@
 <template>
   <div id="unity-container" class="unity-desktop main">
     <canvas id="unity-canvas"></canvas>
-    <div
-      v-if="isPending"
-      class="absolute inset-0 flex items-center justify-center bg-[#33334c] bg-opacity-50"
-    >
+    <div v-if="isPending" class="absolute inset-0 flex items-center justify-center bg-[#33334c] bg-opacity-50">
       <FwbSpinner size="12" />
     </div>
     <div id="unity-loading-bar">
@@ -13,24 +10,15 @@
         <div id="unity-progress-bar-full"></div>
       </div>
     </div>
-    <div class="buttons mt-4">
-      <button
-        @click="sendStartCommand()"
-        class="bg-green-500 text-white text-sm px-4 py-1 get-started font-bold rounded outline-none focus:outline-none mr-4 mb-1 mx-10 bg-color1 active:bg-color1"
-      >
-        가동
+    <div class="controls">
+      <button class="control-button" :disabled="isRunning == 1" @click="sendStartCommand()">
+        <img class="control-icon" src="/img/playButton.png">
       </button>
-      <button
-        @click="sendStopCommand()"
-        class="bg-red-500 text-white text-sm px-4 py-1 get-started font-bold rounded outline-none focus:outline-none mr-4 mb-1 bg-color1 active:bg-color1"
-      >
-        중지
+      <button class="control-button" :disabled="isRunning == 0" @click="sendStopCommand()">
+        <img class="control-icon" src="/img/pauseButton.png">
       </button>
-      <button
-        @click="sendResetCommand()"
-        class="bg-blue-500 text-white text-sm px-4 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
-      >
-        리셋
+      <button  class="control-button" :disabled="!isResetable" @click="sendResetCommand()">
+        <img class="control-icon" src="/img/resetButton.png">
       </button>
     </div>
   </div>
@@ -38,7 +26,7 @@
 
 <script>
 import mqtt from 'mqtt'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, reactive } from 'vue'
 import io from 'socket.io-client'
 import { FwbSpinner } from 'flowbite-vue'
 
@@ -50,7 +38,8 @@ export default {
     const isPending = ref(true)
     const socket = ref(null)
     const unityInstance = ref(null)
-
+    const isRunning = ref(0);
+    const isResetable = ref(0);
     const connectSocket = () => {
       socket.value = io(`ws://${import.meta.env.VITE_SOCKET_IO_URL}`, {
         transports: ['websocket'],
@@ -59,40 +48,45 @@ export default {
       })
 
       socket.value.on('connect', () => {
-        console.log('Connected to Socket.IO server.')
+        // console.log('Connected to Socket.IO server.')
         socket.value.emit('joinRoom', 'UVC-EDU-01')
       })
 
       socket.value.on('disconnect', () => {
-        console.log('Disconnected from Socket.IO server.')
+        // console.log('Disconnected from Socket.IO server.')
       })
 
       socket.value.on('connect_error', (error) => {
-        console.log('Socket.IO Error:', error)
+        // console.log('Socket.IO Error:', error)
       })
     }
 
     const sendSocketMessage = (command) => {
       if (socket.value && socket.value.connected) {
         socket.value.emit(`SENDUVC-EDU-01`, JSON.stringify(command))
-        console.log(`Command sent:`, command)
+        // console.log(`Command sent:`, command)
       } else {
-        console.log('Socket.IO is not connected. Cannot send command.')
+        // console.log('Socket.IO is not connected. Cannot send command.')
       }
     }
-
     const sendStartCommand = () => {
-      sendSocketMessage({ tagId: '1', value: '1' })
-    }
+      isRunning.value = 1;
+      isResetable.value = 0;
+      sendSocketMessage({ tagId: '1', value: '1' });
+    };
 
     const sendStopCommand = () => {
-      sendSocketMessage({ tagId: '1', value: '0' })
-    }
+      isRunning.value = 0;
+      isResetable.value = 1;
+      sendSocketMessage({ tagId: '1', value: '0' });
+    };
 
     const sendResetCommand = () => {
-      loadUnity()
-      sendSocketMessage({ tagId: '8', value: '1' })
-    }
+      isRunning.value= 0;
+      isResetable.value = 0;
+      sendSocketMessage({ tagId: '8', value: '1' });
+    };
+
 
     const loadUnity = () => {
       const buildUrl = '/unity/Build'
@@ -153,12 +147,12 @@ export default {
 
       client.on('message', (topic, message) => {
         const payload = message.toString()
-        console.log('Message received: ', payload)
+        // console.log('Message received: ', payload)
         if (unityInstance.value) {
           try {
             unityInstance.value.SendMessage('GameObjectName', 'MethodName', payload)
           } catch (error) {
-            console.error('Error sending message to Unity:', error)
+            // console.error('Error sending message to Unity:', error)
           }
         }
       })
@@ -171,24 +165,69 @@ export default {
 
     return {
       isPending,
+      isResetable,
+      isRunning,
       sendStartCommand,
       sendStopCommand,
       sendResetCommand
     }
   }
+  
 }
 </script>
 
 <style scoped>
-.buttons {
+
+button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  background-color: #206fcbeb;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+  display: flex;
+    justify-content: center;
+    align-items: center;
+}
+button {
+  padding: 10px;
+  cursor: pointer;
+  margin: 10px 50px 10px 50px;
+  border-radius: 10px;
+  width: 100px;
+  height: 65px;
+}
+button:hover {
+  background-color: #357ab7;
+  transform: scale(1.05);
+}
+.controls {
+  display : flex;
+  align-content: center; 
+  justify-content: space-between;
+}
+.control-icon{
+  width : 35px;
+  height : 35px;
+}
+.control-button:disabled {
+  background-color: grey;
+  cursor: not-allowed;
+  color: white;
+  opacity : 0.4;
 }
 #unity-container {
   width: 960px;
   margin: auto;
+  display : flex;
+  justify-content : flex-start;
 }
 #unity-canvas {
   width: 100%;
   height: auto;
+  margin : 50px 0px 10px 0px;
 }
 /* 0%로 숨김처리 */
 #unity-loading-bar {
