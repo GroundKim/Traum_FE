@@ -1,5 +1,9 @@
 <template>
   <div>
+    <button class="button no4" @click="changeContents(4)" :disabled="currentPage === 4">
+      <img src="/img/logout.png" />
+      <div>222</div>
+    </button>
     <button
       class="text-xl active:bg-emerald-600 font-bold uppercase px-6 py-3 rounded hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
       type="button"
@@ -198,11 +202,6 @@ export default {
             mqttTopic: localItem.mqttTopic
           })
         }
-
-        // const response = await axios.put('http://traum.groundkim.com:3001/sensor/object/1')
-        // response.data.forEach((el) => {
-        //   addItem(1, el.id, 'sensor', el.mqttTopic, el.threshold, '3d')
-        // })
       } catch (error) {
         console.error('Failed to put sensor data', error)
       }

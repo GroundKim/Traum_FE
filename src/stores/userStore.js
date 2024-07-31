@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { auth } from '@/firebase/index.js'
 import { signOut } from 'firebase/auth'
 import { updatePassword } from 'firebase/auth'
+import { reauthenticateWithCredential, EmailAuthProvider } from 'firebase/auth'
 
 export const useUserStore = defineStore('user', () => {
   const userStatus = ref({
@@ -61,26 +62,48 @@ export const useUserStore = defineStore('user', () => {
       console.error('Error signing out:', error)
     }
   }
-
-  async function changePassword(newPassword) {
+  async function verifyCurrentPassword(currentPassword) {
     const user = auth.currentUser
-    if (user) {
+    if (user && user.email) {
+      const credential = EmailAuthProvider.credential(user.email, currentPassword)
       try {
-        await updatePassword(user, newPassword)
+        await reauthenticateWithCredential(user, credential)
         return true
       } catch (error) {
-        console.error('Error changing password:', error)
+        console.error('Error verifying password:', error)
         return false
       }
     }
     return false
   }
 
+  async function changePassword(newPassword) {
+    const user = auth.currentUser
+    if (user) {
+      try {
+        // 비밀번호 유효성 검사
+        if (typeof newPassword !== 'string' || newPassword.length < 6) {
+          throw new Error(
+            'Invalid password format. Password must be a string with at least 6 characters.'
+          )
+        }
+
+        await updatePassword(user, newPassword)
+        console.log('Password changed successfully')
+        return true
+      } catch (error) {
+        console.error('Error changing password:', error)
+        throw error // 에러를 상위로 전파하여 UI에서 처리할 수 있게 함
+      }
+    }
+    return false
+  }
   return {
     userStatus,
     userLogin,
     userLogout,
     refreshAccessToken,
-    changePassword
+    changePassword,
+    verifyCurrentPassword
   }
 })

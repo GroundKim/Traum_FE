@@ -102,12 +102,24 @@ export default {
     }
 
     const saveChanges = async () => {
-      // Implement the logic to save changes
-      // This should include password change and phone number update
-      // You'll need to add these functions to your userStore
-      toggleModal()
-    }
+      try {
+        const condition1 = await userStore.verifyCurrentPassword(currentPassword.value)
+        const condition2 = newPassword.value !== currentPassword.value
 
+        if (condition1 && condition2) {
+          await userStore.changePassword(newPassword.value)
+          // 성공 메시지 표시
+          console.log('Password changed successfully')
+        } else {
+          // 오류 메시지 표시
+          console.error('Password change conditions not met')
+        }
+      } catch (error) {
+        console.error('Error in saveChanges:', error)
+        // 사용자에게 오류 메시지 표시
+      }
+      // toggleModal()
+    }
     return {
       showModal,
       toggleModal,
