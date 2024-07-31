@@ -2,12 +2,18 @@
   <div class="main-content">
     <div class="top">
       <div class="sidebar">
-        <h2>EDUKIT LIST</h2>
-        <select v-model="selectedEdukit">
-          <option v-for="edukit in edukitList" :key="edukit">{{ edukit }}</option>
+        <h2 class="header">EDUKIT LIST</h2>
+        <select class="edukitselection" v-model="selectedEdukit">
+          <option disabled value="">Edukits ...</option> <!-- 기본값 -->
+          <option value="EDUKIT1">EDUKIT1</option>
+          <option value="EDUKIT2" disabled>EDUKIT2</option>
+          <option value="EDUKIT3" disabled>EDUKIT3</option>
+          <option value="EDUKIT4" disabled>EDUKIT4</option>
+          <option value="EDUKIT5" disabled>EDUKIT5</option>
         </select>
-        <h2>BLACKBOX LIST</h2>
-        <select v-model="selectedBlackbox">
+        <h2 class="header">BLACKBOX LIST </h2>
+        <select class="blackboxselection" v-model="selectedBlackbox"> 
+          <option disabled value="">Blackboxes ...</option> <!-- 기본값 -->
           <option v-for="blackbox in blackboxList" :key="blackbox">{{ blackbox }}</option>
         </select>
         <div class="controls">
@@ -20,12 +26,14 @@
           <button :disabled="!blackboxRunning || isPaused" class="control-button" @click="pauseBlackbox">
             <img class="control-icon" src="/img/pauseButton.png">
           </button>
-          <button @click="increaseSpeed">X2</button>
+          <button :disabled="!blackboxRunning" class="control-button" @click="stopBlackbox">
+            <img class="control-icon" src="/img/stopButton.png">
+          </button>
         </div>
       </div>
 
       <div class="datalist">
-        <h2> DATA BOARD </h2>
+        <h2 class="header mhead"> DATA BOARD </h2>
         <div class="mqttdata">
           <div class="data1">
               <div v-for="data in filteredData1" :key="data.index">
@@ -144,10 +152,9 @@ import axios from 'axios';
 import mqtt from 'mqtt';
 const blackboxRunning = ref(false);
 const isPaused = ref(false);
-const edukitList = ref(['Edukit1', 'Edukit2', 'Edukit3', 'Edukit4', 'Edukit5']);
 const blackboxList = ref([]);
-const selectedEdukit = ref(null);
-const selectedBlackbox = ref(null);
+const selectedEdukit = ref('');
+const selectedBlackbox = ref('');
 const mqttData = ref('');
 const datalist = ref({
   StartState: null,
@@ -189,8 +196,10 @@ const startBlackbox = async () => {
   }
 };
 
+let client = null;
+
 const connectMQTT = () => {
-  const client = mqtt.connect('ws://traum.groundkim.com:9001');
+  client = mqtt.connect('ws://traum.groundkim.com:9001');
 
   client.on('connect', () => {
     console.log('Connected to MQTT broker');
@@ -217,6 +226,30 @@ const connectMQTT = () => {
   });
 };
 
+const unconnectMQTT = () => {
+  if (client) {
+    // 클라이언트 구독 취소
+    const topic = `/blackbox/${selectedBlackbox.value}`;
+    client.unsubscribe(topic, (err) => {
+      if (err) {
+        console.error('Failed to unsubscribe from topic', err);
+      } else {
+        console.log(`Unsubscribed from ${topic}`);
+      }
+    });
+
+    // 이벤트 리스너 제거
+    client.removeAllListeners('message');
+    client.removeAllListeners('connect');
+    client.removeAllListeners('error');
+
+    // 클라이언트 종료
+    client.end(() => {
+      console.log('Disconnected from MQTT broker');
+    });
+  }
+};
+
 const updateDatalist = (parsedData) => {
   // 각 데이터 항목의 tagId를 사용하여 데이터를 정렬하고 저장합니다.
   sortedData.value = parsedData.map((item) => ({
@@ -236,13 +269,6 @@ const updateDatalist = (parsedData) => {
   });
 };
 
-
-const increaseSpeed = () => {
-  // 속도 증가 로직
-
-  console.log('Increase speed');
-};
-
 const pauseBlackbox = () => {
   // 일시 정지 로직
   isPaused.value = true;
@@ -255,7 +281,13 @@ const resumeBlackbox = () => {
   axios.post(`http://traum.groundkim.com:4000/blackbox/resume/${selectedBlackbox.value}`);
   console.log('Resume');
 };
-
+const stopBlackbox = () => {
+  sortedData.value = [];
+  blackboxRunning.value = false;
+  isPaused.value = false;
+  unconnectMQTT();
+  
+}
 onMounted(fetchBlackboxList);
 </script>
 
@@ -279,21 +311,21 @@ onMounted(fetchBlackboxList);
 
 .sidebar {
   width: 400px;
-  background-color: #eee;
   padding: 10px;
   margin : 20px;
-  border: 2px solid black;
   border-radius: 20px;
-  height : 330px;
+  height : 350px;
+  background-color: #7fb2ec5c;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5);
 }
 
 .datalist {
-  background-color: #eee;
   margin: 20px;
   padding: 10px;
-  border: 2px solid black;
   border-radius: 20px;
-  height : 330px;
+  height : 350px;
+  background-color: #7fb2ec5c;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5);
 }
 
 .mqttdata {
@@ -302,32 +334,40 @@ onMounted(fetchBlackboxList);
   overflow-y: scroll;
   font-size: 12px;
   display : flex;
-  background : rgb(159, 158, 158);
+  border-radius : 20px;
+  background: rgb(255 255 255 / 24%);
   justify-content: space-between;
 }
 .data1{
-  background : rgb(151, 45, 45);
-  width : 31%;
+  width : 35%;
+  padding: 5px 15px 5px 15px;
 }
 .data2{
-  background : red;
-  width : 31%;
+  width : 29%;
 }
 .data3{
-  background : rgb(199, 151, 151);
-  width : 31%;
+  width : 29%;
+}
+.header {
+  color : white;
+  font-size : 18px;
+  margin : 10px;
+  font-weight : bold;
+}
+.mhead{
+  text-align : center;
 }
 .container{
   display : flex;
-  background-color : lightgrey;
   border-radius : 20px;
   padding : 10px;
   align-items: center;
   justify-content: center;
   height : 350px;
-  border : 2px solid black;
-  min-width : 1200px;
+  min-width : 1255px;
   margin : 10px 20px 10px 20px;
+  background-color: #7fb2ec5c;
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5);
 
 }
 .controls {
@@ -475,7 +515,17 @@ button:hover {
   position: relative;
   height: 50px;
 }
+.edukitselection{
+  margin : 10px;
+  border-radius : 10px;
+  width : 300px;
+}
+.blackboxselection{
+  margin : 10px;
+  border-radius : 10px;
+  width : 300px;
 
+}
 .circle,
 .redCross {
   margin: 10px;
