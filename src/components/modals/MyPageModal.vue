@@ -1,12 +1,6 @@
 <template>
   <div>
-    <button
-      class="text-xl active:bg-emerald-600 font-bold uppercase px-6 py-3 rounded hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
-      type="button"
-      v-on:click="toggleModal()"
-    >
-      <i class="fas fa-cog mr-2"></i>
-    </button>
+    <!-- ////////////////////// -->
     <div v-if="showModal" class="fixed inset-0 z-50 flex items-center justify-center">
       <div class="bg-gray-600 rounded-lg shadow-xl w-96">
         <div class="flex items-center justify-between p-5 border-b border-gray-200">
@@ -54,6 +48,7 @@
               <input
                 v-model="phoneNumber"
                 type="tel"
+                disabled
                 class="mt-1 block w-full px-3 py-2 bg-white text-gray-700 border rounded-md"
               />
             </div>
@@ -82,23 +77,26 @@
 <script>
 import { ref, computed } from 'vue'
 import { useUserStore } from '@/stores/userStore'
+import { useRouter } from 'vue-router'
+import emitter from '../eventBus'
 
 export default {
-  setup() {
+  props: {
+    showModal: {
+      type: Boolean
+    }
+  },
+  setup(props) {
     const userStore = useUserStore()
-    const showModal = ref(false)
     const currentPassword = ref('')
     const newPassword = ref('')
-    const phoneNumber = ref('')
-
+    const router = useRouter()
     const userEmail = computed(() => userStore.userStatus.userEmail)
     const userName = computed(() => userStore.userStatus.userName)
+    const phoneNumber = computed(() => userStore.userStatus.userPhoneNumber)
 
     const toggleModal = () => {
-      showModal.value = !showModal.value
-      if (showModal.value) {
-        phoneNumber.value = userStore.userStatus.userPhoneNumber
-      }
+      emitter.emit('toggleMayPage', false)
     }
 
     const saveChanges = async () => {
@@ -118,10 +116,13 @@ export default {
         console.error('Error in saveChanges:', error)
         // 사용자에게 오류 메시지 표시
       }
-      // toggleModal()
+      toggleModal()
+      router.push('/login')
+
+      userStore.userLogout()
     }
     return {
-      showModal,
+      props,
       toggleModal,
       saveChanges,
       currentPassword,

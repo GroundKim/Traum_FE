@@ -20,15 +20,16 @@
     </button>
     <div class="spacer"></div>
     <!-- 빈 공간을 채워줄 div -->
+    <button class="button no5" @click="handleModal">
+      <img src="/img/myPage.png" />
+      <div>MYPAGE</div>
+    </button>
+    <MyPageModal :showModal="showModal" />
+
     <button class="button no4" @click="changeContents(4)" :disabled="currentPage === 4">
       <img src="/img/logout.png" />
       <div>LOGOUT</div>
     </button>
-    <button class="button no4" @click="changeContents(4)" :disabled="currentPage === 4">
-      <img src="/img/logout.png" />
-      <div>MYPAGE</div>
-    </button>
-    <MyPageModal />
   </div>
 </template>
 
@@ -36,12 +37,13 @@
 import { ref, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useUserStore } from '@/stores/userStore.js'
-import MyPageModal from '@/components/modals/MyPageModal.vue'
+import MyPageModal from '../modals/MyPageModal.vue'
+import emitter from '../eventBus'
+
 const router = useRouter()
 const route = useRoute()
 const userStore = useUserStore()
 const userName = userStore.userStatus.userName
-const isMypageOpen = ref(0);
 const links = [
   { path: '/builder', name: 'Builder' },
   { path: '/dashboard/1', name: 'Dashboard' },
@@ -51,6 +53,7 @@ const links = [
 ]
 
 const currentPage = ref(null)
+const showModal = ref(false)
 
 const changeContents = (contents) => {
   currentPage.value = contents
@@ -58,7 +61,6 @@ const changeContents = (contents) => {
   if (contents === 4) {
     userStore.userLogout()
   }
-  
 }
 
 const updateCurrentPage = () => {
@@ -78,7 +80,17 @@ const updateCurrentPage = () => {
   }
 }
 
-onMounted(updateCurrentPage)
+const handleModal = () => {
+  showModal.value = true
+}
+const handleModalClose = () => {
+  showModal.value = false
+}
+
+onMounted(() => {
+  updateCurrentPage
+  emitter.on('toggleMayPage', handleModalClose)
+})
 
 watch(() => route.path, updateCurrentPage)
 </script>
@@ -159,6 +171,9 @@ img {
 }
 
 .no4 {
+  bottom: 4%;
+}
+.no5 {
   bottom: 4%;
 }
 </style>
