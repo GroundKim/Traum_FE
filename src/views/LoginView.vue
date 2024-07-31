@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col lg:flex-row h-screen bg-white">
     <!-- 캐러셀 섹션 -->
-    <div class="w-full h-screen lg:w-1/2 bg-white flex items-center justify-center">
+    <div class="w-full h-screen lg:w-1/2 bg-[#93a8bfdb] flex items-center justify-center">
       <Carousel :items-to-show="1" :wrap-around="true" :autoplay="3000">
         <Slide v-for="slide in slides" :key="slide.id">
           <div class="carousel__item relative">
@@ -23,7 +23,7 @@
     </div>
 
     <!-- 로그인 폼 섹션 -->
-    <div class="w-full lg:w-1/2 flex bg-[#33334c] text-white items-center justify-center p-8">
+    <div class="w-full lg:w-1/2 flex text-white items-center justify-center p-8" style="background : linear-gradient(180deg, #33475e, #212529)">
       <div class="w-full max-w-md">
         <div class="flex flex-col text-center mb-8 items-center">
           <img :src="teamLogoImage" alt="teamLogoImage" class="mb-4 w-auto h-auto" />
@@ -38,7 +38,7 @@
               id="email"
               type="email"
               v-model="email"
-              class="mt-1 block w-full px-3 py-2 bg-white border border-blueGray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              class="mt-1 text-black block w-full px-3 py-2 bg-white border border-blueGray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               required
             />
           </div>
@@ -49,7 +49,7 @@
               id="password"
               type="password"
               v-model="password"
-              class="mt-1 block w-full px-3 py-2 bg-white border border-blueGray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
+              class="mt-1 text-black block w-full px-3 py-2 bg-white border border-blueGray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               required
             />
           </div>

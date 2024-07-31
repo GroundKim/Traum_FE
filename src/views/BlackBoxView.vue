@@ -2,33 +2,35 @@
   <div class="main-content">
     <div class="top">
       <div class="sidebar">
-        <h2 class="header">EDUKIT LIST</h2>
-        <select class="edukitselection" v-model="selectedEdukit">
-          <option disabled value="">Edukits ...</option> <!-- 기본값 -->
-          <option value="EDUKIT1">EDUKIT1</option>
-          <option value="EDUKIT2" disabled>EDUKIT2</option>
-          <option value="EDUKIT3" disabled>EDUKIT3</option>
-          <option value="EDUKIT4" disabled>EDUKIT4</option>
-          <option value="EDUKIT5" disabled>EDUKIT5</option>
-        </select>
-        <h2 class="header">BLACKBOX LIST </h2>
-        <select class="blackboxselection" v-model="selectedBlackbox"> 
-          <option disabled value="">Blackboxes ...</option> <!-- 기본값 -->
-          <option v-for="blackbox in blackboxList" :key="blackbox">{{ blackbox }}</option>
-        </select>
-        <div class="controls">
-          <button v-if="!blackboxRunning" :disabled="blackboxRunning" class="control-button" @click="startBlackbox">
-            <img class="control-icon" src="/img/playButton.png">
-          </button>
-          <button v-else :disabled="!isPaused" class="control-button" @click="resumeBlackbox">
-            <img class="control-icon" src="/img/playButton.png">
-          </button>
-          <button :disabled="!blackboxRunning || isPaused" class="control-button" @click="pauseBlackbox">
-            <img class="control-icon" src="/img/pauseButton.png">
-          </button>
-          <button :disabled="!blackboxRunning" class="control-button" @click="stopBlackbox">
-            <img class="control-icon" src="/img/stopButton.png">
-          </button>
+        <div class = "space" style="margin : 0px 25px 0px 25px;">
+          <h2 class="header">EDUKIT LIST</h2>
+          <select class="edukitselection" v-model="selectedEdukit">
+            <option disabled value="">Edukits ...</option> <!-- 기본값 -->
+            <option value="EDUKIT1">EDUKIT1</option>
+            <option value="EDUKIT2" disabled>EDUKIT2</option>
+            <option value="EDUKIT3" disabled>EDUKIT3</option>
+            <option value="EDUKIT4" disabled>EDUKIT4</option>
+            <option value="EDUKIT5" disabled>EDUKIT5</option>
+          </select>
+          <h2 class="header">BLACKBOX LIST </h2>
+          <select class="blackboxselection" v-model="selectedBlackbox"> 
+            <option disabled value="">Blackboxes ...</option> <!-- 기본값 -->
+            <option v-for="blackbox in blackboxList" :key="blackbox">{{ blackbox }}</option>
+          </select>
+          <div class="controls">
+            <button v-if="!blackboxRunning" :disabled="blackboxRunning" class="control-button" @click="startBlackbox">
+              <img class="control-icon" src="/img/playButton.png">
+            </button>
+            <button v-else :disabled="!isPaused" class="control-button" @click="resumeBlackbox">
+              <img class="control-icon" src="/img/playButton.png">
+            </button>
+            <button :disabled="!blackboxRunning || isPaused" class="control-button" @click="pauseBlackbox">
+              <img class="control-icon" src="/img/pauseButton.png">
+            </button>
+            <button :disabled="!blackboxRunning" class="control-button" @click="stopBlackbox">
+              <img class="control-icon" src="/img/stopButton.png">
+            </button>
+          </div>
         </div>
       </div>
 
@@ -364,7 +366,7 @@ onMounted(fetchBlackboxList);
   align-items: center;
   justify-content: center;
   height : 350px;
-  min-width : 1255px;
+  min-width : 1210px;
   margin : 10px 20px 10px 20px;
   background-color: #7fb2ec5c;
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5);
@@ -372,6 +374,9 @@ onMounted(fetchBlackboxList);
 }
 .controls {
   margin-top: 20px;
+  display : flex;
+  align-content: center; 
+  justify-content: space-between;
 }
 .control-icon{
   width : 35px;
@@ -401,8 +406,6 @@ button {
 }
 .bottom {
   margin : 10px;
-  margin-left : 50px;
-  width : 1300px;
 }
 .process.inactive {
   background-color: #7c7c7c;
@@ -435,6 +438,7 @@ button {
   justify-content: center;
   align-items: center;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  width : 150px;
 }
 
 .data {
@@ -518,12 +522,12 @@ button:hover {
 .edukitselection{
   margin : 10px;
   border-radius : 10px;
-  width : 300px;
+  width : 310px;
 }
 .blackboxselection{
   margin : 10px;
   border-radius : 10px;
-  width : 300px;
+  width : 310px;
 
 }
 .circle,
