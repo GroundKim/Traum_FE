@@ -23,11 +23,13 @@
     </div>
 
     <!-- 로그인 폼 섹션 -->
-    <div class="w-full lg:w-1/2 flex text-white items-center justify-center p-8" style="background : linear-gradient(180deg, #33475e, #212529)">
+    <div
+      class="w-full lg:w-1/2 flex text-white items-center justify-center p-8"
+      style="background: linear-gradient(180deg, #33475e, #212529)"
+    >
       <div class="w-full max-w-md">
         <div class="flex flex-col text-center mb-8 items-center">
           <img :src="teamLogoImage" alt="teamLogoImage" class="mb-4 w-auto h-auto" />
-          <h1 class="text-2xl font-bold">DT 플랫폼</h1>
           <p class="text-white">계정에 로그인하세요</p>
         </div>
 

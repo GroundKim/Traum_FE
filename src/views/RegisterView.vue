@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col lg:flex-row h-screen overflow-y-hidden">
     <!-- 캐러셀 섹션 (좌측) -->
-    <div class="w-full h-screen lg:w-1/2 bg-white flex items-center justify-center">
+    <div class="w-full h-screen lg:w-1/2 bg-[#93a8bfdb] flex items-center justify-center">
       <Carousel :items-to-show="1" :wrap-around="true" :autoplay="3000">
         <Slide v-for="slide in slides" :key="slide.id">
           <div class="carousel__item relative">
@@ -23,10 +23,12 @@
     </div>
 
     <!-- 회원가입 폼 섹션 (우측) -->
-    <div class="w-full lg:w-1/2 flex bg-[#33334c] text-white items-center justify-center">
+    <div
+      class="w-full lg:w-1/2 flex text-white items-center justify-center"
+      style="background: linear-gradient(180deg, #33475e, #212529)"
+    >
       <div class="w-full max-w-md">
         <div class="flex flex-col text-center items-center">
-          <img :src="teamLogoImage" alt="teamLogoImage" class="mt-20 w-auto h-auto" />
           <h1 class="text-2xl font-bold">회원 가입</h1>
         </div>
 
@@ -40,6 +42,19 @@
               class="mt-1 text-black block w-full px-3 py-2 bg-white border border-blueGray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               required
             />
+            <div class="h-5">
+              <!-- 고정 높이를 가진 컨테이너 -->
+              <p
+                v-if="
+                  errorType === 'missingEmail' ||
+                  errorType === 'alreadyInuseEmail' ||
+                  errorType === 'invalidEmail'
+                "
+                class="text-red-500"
+              >
+                {{ errorMessages[errorType] }}
+              </p>
+            </div>
           </div>
 
           <div class="mb-1">
@@ -51,6 +66,12 @@
               class="mt-1 text-black block w-full px-3 py-2 bg-white border border-blueGray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               required
             />
+            <div class="h-5">
+              <!-- 고정 높이를 가진 컨테이너 -->
+              <p v-if="errorType === 'shortPassword'" class="text-red-500">
+                {{ errorMessages[errorType] }}
+              </p>
+            </div>
           </div>
 
           <div class="mb-1">
@@ -64,6 +85,12 @@
               class="mt-1 text-black block w-full px-3 py-2 bg-white border border-blueGray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               required
             />
+            <div class="h-5">
+              <!-- 고정 높이를 가진 컨테이너 -->
+              <p v-if="errorType === 'notMatchingPassword'" class="text-red-500">
+                {{ errorMessages[errorType] }}
+              </p>
+            </div>
           </div>
 
           <div class="mb-1">
@@ -75,6 +102,12 @@
               class="mt-1 text-black block w-full px-3 py-2 bg-white border border-blueGray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               required
             />
+            <div class="h-5">
+              <!-- 고정 높이를 가진 컨테이너 -->
+              <p v-if="errorType === 'incorrectName'" class="text-red-500">
+                {{ errorMessages[errorType] }}
+              </p>
+            </div>
           </div>
 
           <div class="mb-1">
@@ -86,6 +119,12 @@
               class="mt-1 text-black block w-full px-3 py-2 bg-white border border-blueGray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500"
               required
             />
+            <div class="h-5">
+              <!-- 고정 높이를 가진 컨테이너 -->
+              <p v-if="errorType === 'incorrectPhoneNumber'" class="text-red-500">
+                {{ errorMessages[errorType] }}
+              </p>
+            </div>
           </div>
           <div>
             <p v-if="message" class="text-red-600 text-sm mb-2">{{ message }}</p>
@@ -115,7 +154,6 @@
 
 <script>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
 import { Carousel, Slide, Pagination, Navigation } from 'vue3-carousel'
 import 'vue3-carousel/dist/carousel.css'
 import { auth, db } from '@/firebase/index.js'
@@ -136,7 +174,6 @@ export default {
     Navigation
   },
   setup() {
-    const router = useRouter()
     const email = ref('')
     const password = ref('')
     const confirmPassword = ref('')
@@ -174,19 +211,36 @@ export default {
         description: '이상이 감지된 데이터를 언제라도 다시 확인해보세요'
       }
     ])
+    const errorType = ref('')
+    const errorMessages = {
+      missingEmail: 'Email, Password를 입력해주세요',
+      alreadyInuseEmail: '이미 사용 중인 이메일입니다',
+      invalidEmail: '유효하지 않은 이메일입니다',
+      missingPassword: 'Email, Password를 입력해주세요',
+      shortPassword: '비밀번호는 최소 6자 이상이어야 합니다.',
+      notMatchingPassword: 'Password가 일치하지 않습니다.',
+      incorrectName: '이름가 올바르지 않습니다.',
+      incorrectPhoneNumber: '전화번호가 올바르지 않습니다.'
+    }
 
     const validation = () => {
-      if (!email.value || !password.value) {
-        message.value = 'Email, Password를 입력해주세요'
+      if (!email.value) {
+        errorType.value = 'missingEmail'
+        return false
+      } else if (!password.value) {
+        errorType.value = 'missingPassword'
         return false
       } else if (password.value.length < 6) {
-        message.value = '비밀번호는 최소 6자 이상이어야 합니다.'
+        errorType.value = 'shortPassword'
         return false
       } else if (password.value != confirmPassword.value) {
-        message.value = 'Password가 일치하지 않습니다.'
+        errorType.value = 'notMatchingPassword'
         return false
-      } else if (phone.value.length < 10) {
-        message.value = '전화번호가 올바르지 않습니다.'
+      } else if (name.value.length > 20 || name.value.length <= 1) {
+        errorType.value = 'incorrectName'
+        return false
+      } else if (phone.value.length < 10 || phone.value.length > 15) {
+        errorType.value = 'incorrectPhoneNumber'
         return false
       } else {
         return true
@@ -211,20 +265,17 @@ export default {
           })
 
           console.log('회원가입 성공')
-          router.push({ name: 'login' })
-
-          router.push({ name: 'login' })
         } catch (error) {
           console.error(error.message)
           switch (error.code) {
             case 'auth/weak-password':
-              message.value = '비밀번호는 최소 6자 이상이어야 합니다.'
+              errorType.value = 'shortPassword'
               break
             case 'auth/email-already-in-use':
-              message.value = '이미 사용 중인 이메일 주소입니다.'
+              errorType.value = 'alreadyInuseEmail'
               break
             case 'auth/invalid-email':
-              message.value = '유효하지 않은 이메일 주소입니다.'
+              errorType.value = 'invalidEmail'
               break
             default:
               message.value = '가입에 실패하였습니다. 확인 후 다시 가입바랍니다.'
@@ -242,7 +293,9 @@ export default {
       message,
       register,
       slides,
-      teamLogoImage
+      teamLogoImage,
+      errorMessages,
+      errorType
     }
   }
 }

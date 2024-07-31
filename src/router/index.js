@@ -6,17 +6,32 @@ const router = createRouter({
   routes: [
     {
       path: '/',
-      redirect: '/login'
-    },
-    {
-      path: '/builder',
-      component: () => import('../views/BuilderView.vue'),
-      name: 'builder'
-    },
-    {
-      path: '/simulation',
-      component: () => import('../views/SimulationView.vue'),
-      name: 'Simulation'
+      component: () => import('../layouts/mainLayout.vue'),
+      redirect: '/login',
+      children: [
+        {
+          path: '/builder',
+          component: () => import('../views/BuilderView.vue'),
+          name: 'builder'
+        },
+        {
+          path: '/digitaltwin/:meshId',
+          component: () => import('../views/DigitalTwinView.vue'),
+          name: 'DigitalTwin',
+          props: true
+        },
+        {
+          path: '/dashboard/:meshId',
+          component: () => import('../views/DashboardView.vue'),
+          name: 'Dashboard',
+          props: true
+        },
+        {
+          path: '/blackbox',
+          component: () => import('../views/BlackBoxView.vue'),
+          name: 'BlackBox'
+        }
+      ]
     },
     {
       path: '/login',
@@ -28,28 +43,12 @@ const router = createRouter({
       component: () => import('../views/RegisterView.vue'),
       name: 'register'
     },
-    {
-      path: '/digitaltwin/:meshId',
-      component: () => import('../views/DigitalTwinView.vue'),
-      name: 'DigitalTwin',
-      props: true
-    },
-    {
-      path: '/dashboard/:meshId',
-      component: () => import('../views/DashboardView.vue'),
-      name: 'Dashboard',
-      props: true
-    },
+
     {
       path: '/popup/:name/:threshold/:mqttTopic(.*)',
       component: () => import('../components/modals/PopUpContent.vue'),
       name: 'PopupContent',
       props: true
-    },
-    {
-      path: '/blackbox',
-      component: () => import('../views/BlackBoxView.vue'),
-      name: 'BlackBox'
     }
   ]
 })
