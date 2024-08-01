@@ -159,7 +159,7 @@ import 'vue3-carousel/dist/carousel.css'
 import { auth, db } from '@/firebase/index.js'
 import { createUserWithEmailAndPassword } from 'firebase/auth'
 import { setDoc, doc } from 'firebase/firestore'
-
+import { useRouter } from 'vue-router'
 import builderImage from '@/assets/builder.png'
 import DigitalTwinImage from '@/assets/digitalTwin.png'
 import dashboardImage from '@/assets/dashboard.png'
@@ -180,6 +180,7 @@ export default {
     const name = ref('')
     const phone = ref('')
     const message = ref('')
+    const router = useRouter()
 
     const slides = ref([
       {
@@ -264,7 +265,7 @@ export default {
             email: email.value
           })
 
-          console.log('회원가입 성공')
+          router.push('/login')
         } catch (error) {
           console.error(error.message)
           switch (error.code) {
