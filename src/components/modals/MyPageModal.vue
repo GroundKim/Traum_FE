@@ -17,6 +17,7 @@
                 :value="userEmail"
                 disabled
                 class="mt-1 block w-full px-3 py-2 bg-gray-100 text-gray-700 border rounded-md"
+                style="background:grey;"
               />
             </div>
             <div>
@@ -25,6 +26,7 @@
                 :value="userName"
                 disabled
                 class="mt-1 block w-full px-3 py-2 bg-gray-100 text-gray-700 border rounded-md"
+                style="background:grey;"
               />
             </div>
             <div>
@@ -50,6 +52,7 @@
                 type="tel"
                 disabled
                 class="mt-1 block w-full px-3 py-2 bg-white text-gray-700 border rounded-md"
+                style="background:grey;"
               />
             </div>
           </div>

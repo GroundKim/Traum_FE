@@ -220,7 +220,7 @@ button:hover {
 }
 #unity-container {
   width: 960px;
-  margin: auto;
+  margin-left: 230px;
   display : flex;
   justify-content : flex-start;
 }

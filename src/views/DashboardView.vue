@@ -1,211 +1,211 @@
 <template>
-  <div class="main open-sans-main">
-    <div class="container">
-      <div class="fortime">
-        <div class="time">{{ currentTime }}</div>
-        <div style="height: 6px; width: 450px; background: #40556b; margin-bottom: 25px"></div>
+  <div class = "all" style="display:flex; flex-direction : column; margin-top : 25px; align-items : center;background: linear-gradient(180deg, #33475e, #212529);">
+    <div class="time" style="color : white; margin-bottom : 20px">{{ currentTime }}</div>
+    <div style="height: 6px; margin-left : 20px;width: 1330px; background: #40556b;"></div>
+    <div class="main open-sans-main">
+      <div class="container">
+        <div :class="['process', 'no1', { inactive: !datalist.No1PowerState }]">
+          <div class="topic">
+            <div class="name">Unit No.1</div>
+          </div>
+          <div class="standby">
+            <span class="standby run" v-if="datalist.No1Push">RUNNING</span>
+            <span class="standby ready" v-else>READY</span>
+          </div>
+          <div style="width: 6px; height: 60px; background: lightgrey; opacity: 0.5"></div>
+          <div class="data">
+            <span>INPUT : {{ datalist.No1Count }}</span>
+            <div class="chip-container">
+              <div
+                v-for="n in 5"
+                :key="n"
+                :class="['chip', { 'chip-active': n <= datalist.No1Count }]"
+              ></div>
+            </div>
+          </div>
+          <div style="width: 6px; height: 60px; background: lightgrey; opacity: 0.5"></div>
+
+          <div class="status">
+            <span>STATUS : </span>
+            <span
+              :class="{
+                'status-normal': datalist.No1ChipFull,
+                'status-warning': !datalist.No1ChipFull
+              }"
+            >
+              {{ datalist.No1ChipFull ? '자재 정상' : '자재 부족' }}
+            </span>
+          </div>
+          <div style="width: 6px; height: 60px; background: lightgrey; opacity: 0.5"></div>
+          <button @click="openModal('Unit No.1', '9', datalist.No1PowerState)">
+            {{ datalist.No1PowerState ? 'Turn Off' : 'Turn On' }}
+          </button>
+        </div>
+        <!-- 원형 및 이미지 컨테이너 -->
+        <div class="circle-container" v-if="datalist.StartState">
+          <div :class="['circle', { 'animate-circle': datalist.StartState }]"></div>
+          <div :class="['circle', { 'animate-circle': datalist.StartState }]"></div>
+          <img v-if="!datalist.No1PowerState" src="/img/redCross.png" class="redCross" />
+          <div :class="['circle', { 'animate-circle': datalist.StartState }]"></div>
+          <div :class="['circle', { 'animate-circle': datalist.StartState }]"></div>
+          <div :class="['circle', { 'animate-circle': datalist.StartState }]"></div>
+        </div>
+        <div class="circle-container" v-else>
+          <div class="circle"></div>
+          <div class="circle"></div>
+          <img v-if="!datalist.No1PowerState" src="/img/redCross.png" class="redCross" />
+          <div class="circle"></div>
+          <div class="circle"></div>
+          <div class="circle"></div>
+        </div>
+
+        <div :class="['process', 'no2', { inactive: !datalist.No2PowerState }]">
+          <div class="topic">
+            <div class="name">Unit No.2</div>
+          </div>
+          <div class="standby">
+            <span class="standby run" v-if="datalist.No1Push">RUNNING</span>
+            <span class="standby ready" v-else>READY</span>
+          </div>
+          <div style="width: 6px; height: 60px; background: lightgrey; opacity: 0.5"></div>
+
+          <div class="data">
+            <span>ASSEMBLY : {{ datalist.No2Count }}</span>
+            <div class="chip-container">
+              <div
+                v-for="n in 5"
+                :key="n"
+                :class="['chip', { 'chip-active': n <= datalist.No2Count }]"
+              ></div>
+            </div>
+          </div>
+          <div style="width: 6px; height: 60px; background: lightgrey; opacity: 0.5"></div>
+
+          <div class="status">
+            <span>STATUS : </span>
+            <span
+              :class="{
+                'status-normal': !datalist.No2CubeFull,
+                'status-warning': datalist.No2CubeFull
+              }"
+            >
+              {{ !datalist.No2CubeFull ? '부품 정상' : '부품 부족' }}
+            </span>
+          </div>
+          <div style="width: 6px; height: 60px; background: lightgrey; opacity: 0.5"></div>
+
+          <button @click="openModal('Unit No.2', '10', datalist.No2PowerState)">
+            {{ datalist.No2PowerState ? 'Turn Off' : 'Turn On' }}
+          </button>
+        </div>
+        <div class="circle-container" v-if="datalist.StartState">
+          <div :class="['circle', { 'animate-circle': datalist.StartState }]"></div>
+          <div :class="['circle', { 'animate-circle': datalist.StartState }]"></div>
+          <img v-if="!datalist.No3PowerState" src="/img/redCross.png" class="redCross" />
+          <div :class="['circle', { 'animate-circle': datalist.StartState }]"></div>
+          <div :class="['circle', { 'animate-circle': datalist.StartState }]"></div>
+          <div :class="['circle', { 'animate-circle': datalist.StartState }]"></div>
+        </div>
+        <div class="circle-container" v-else>
+          <div class="circle"></div>
+          <div class="circle"></div>
+          <img v-if="!datalist.No3PowerState" src="/img/redCross.png" class="redCross" />
+          <div class="circle"></div>
+          <div class="circle"></div>
+          <div class="circle"></div>
+        </div>
+
+        <div :class="['process', 'no3', { inactive: !datalist.No3PowerState }]">
+          <div class="topic">
+            <div class="name">Unit No.3</div>
+          </div>
+          <div class="standby">
+            <span class="standby run" v-if="datalist.No3Motor1Action || datalist.No3Motor2Action"
+              >RUNNING</span
+            >
+            <span class="standby ready" v-else>READY</span>
+          </div>
+          <div style="width: 6px; height: 60px; background: lightgrey; opacity: 0.5"></div>
+
+          <div class="data">
+            <span>STACK : {{ datalist.No3Count }}</span>
+            <div class="chip-container">
+              <div
+                v-for="n in 5"
+                :key="n"
+                :class="['chip', { 'chip-active': n <= datalist.No3Count }]"
+              ></div>
+            </div>
+          </div>
+          <div style="width: 6px; height: 60px; background: lightgrey; opacity: 0.5"></div>
+
+          <div class="status">
+            <span>STATUS : </span>
+            <span
+              :class="{
+                'status-normal': datalist.No3Count < 5,
+                'status-warning': datalist.No3Count >= 5
+              }"
+            >
+              {{ datalist.No3Count < 5 ? '적재 가능' : '적재량 최대' }}
+            </span>
+          </div>
+          <div style="width: 6px; height: 60px; background: lightgrey; opacity: 0.5"></div>
+
+          <button @click="openModal('Unit No.3', '11', datalist.No3PowerState)">
+            {{ datalist.No3PowerState ? 'Turn Off' : 'Turn On' }}
+          </button>
+        </div>
       </div>
-      <div :class="['process', 'no1', { inactive: !datalist.No1PowerState }]">
-        <div class="topic">
-          <div class="name">Unit No.1</div>
+      <div class="line"></div>
+      <div class="top">
+        <div style="height:27px;"></div>
+        <div class="top-contents top-left">
+          <div class="lamp-status">
+            <div class="lamp green" :class="{ active: datalist.GreenLampState }"></div>
+            <div class="lamp yellow" :class="{ active: datalist.YellowLampState }"></div>
+            <div class="lamp red" :class="{ active: datalist.RedLampState }"></div>
+          </div>
+          <div v-if="datalist.RedLampState">ERROR</div>
+          <div
+            v-else-if="!datalist.No1PowerState || !datalist.No2PowerState || !datalist.No3PowerState"
+          >
+            CHECK UNIT'S POWER
+          </div>
+          <div v-else>CLEAR</div>
         </div>
-        <div class="standby">
-          <span class="standby run" v-if="datalist.No1Push">RUNNING</span>
-          <span class="standby ready" v-else>READY</span>
+        <div class="top-contents top-mid">
+          <div class="pb">SELECTED :</div>
+          <select id="edukit-select" v-model="selectedEdukit" class="select">
+            <option value="EDUKIT1">EDUKIT1</option>
+            <option value="EDUKIT2" disabled>EDUKIT2</option>
+            <option value="EDUKIT3" disabled>EDUKIT3</option>
+            <option value="EDUKIT4" disabled>EDUKIT4</option>
+            <option value="EDUKIT5" disabled>EDUKIT5</option>
+          </select>
         </div>
-        <div style="width: 6px; height: 60px; background: lightgrey; opacity: 0.5"></div>
-        <div class="data">
-          <span>INPUT : {{ datalist.No1Count }}</span>
-          <div class="chip-container">
-            <div
-              v-for="n in 5"
-              :key="n"
-              :class="['chip', { 'chip-active': n <= datalist.No1Count }]"
-            ></div>
+        <div class="top-contents top-right">
+          <CircleProgress :value1="datalist.No3Count" :value2="datalist.StartState" />
+
+        </div>
+      </div>
+
+      <!-- 모달 -->
+      <div v-if="showModal" class="modal-overlay">
+        <div class="modal-content">
+          <h2>{{ modalTitle }}</h2>
+          <p>{{ modalMessage }}</p>
+          <div class="modal-buttons" v-if="datalist.StartState === false">
+            <button @click="confirmAction">YES</button>
+            <button @click="closeModal">NO</button>
+          </div>
+          <div class="modal-buttons" v-else>
+            <button @click="closeModal">CLOSE</button>
           </div>
         </div>
-        <div style="width: 6px; height: 60px; background: lightgrey; opacity: 0.5"></div>
-
-        <div class="status">
-          <span>STATUS : </span>
-          <span
-            :class="{
-              'status-normal': datalist.No1ChipFull,
-              'status-warning': !datalist.No1ChipFull
-            }"
-          >
-            {{ datalist.No1ChipFull ? '자재 정상' : '자재 부족' }}
-          </span>
-        </div>
-        <div style="width: 6px; height: 60px; background: lightgrey; opacity: 0.5"></div>
-        <button @click="openModal('Unit No.1', '9', datalist.No1PowerState)">
-          {{ datalist.No1PowerState ? 'Turn Off' : 'Turn On' }}
-        </button>
-      </div>
-      <!-- 원형 및 이미지 컨테이너 -->
-      <div class="circle-container" v-if="datalist.StartState">
-        <div :class="['circle', { 'animate-circle': datalist.StartState }]"></div>
-        <div :class="['circle', { 'animate-circle': datalist.StartState }]"></div>
-        <img v-if="!datalist.No1PowerState" src="/img/redCross.png" class="redCross" />
-        <div :class="['circle', { 'animate-circle': datalist.StartState }]"></div>
-        <div :class="['circle', { 'animate-circle': datalist.StartState }]"></div>
-        <div :class="['circle', { 'animate-circle': datalist.StartState }]"></div>
-      </div>
-      <div class="circle-container" v-else>
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <img v-if="!datalist.No1PowerState" src="/img/redCross.png" class="redCross" />
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <div class="circle"></div>
-      </div>
-
-      <div :class="['process', 'no2', { inactive: !datalist.No2PowerState }]">
-        <div class="topic">
-          <div class="name">Unit No.2</div>
-        </div>
-        <div class="standby">
-          <span class="standby run" v-if="datalist.No1Push">RUNNING</span>
-          <span class="standby ready" v-else>READY</span>
-        </div>
-        <div style="width: 6px; height: 60px; background: lightgrey; opacity: 0.5"></div>
-
-        <div class="data">
-          <span>ASSEMBLY : {{ datalist.No2Count }}</span>
-          <div class="chip-container">
-            <div
-              v-for="n in 5"
-              :key="n"
-              :class="['chip', { 'chip-active': n <= datalist.No2Count }]"
-            ></div>
-          </div>
-        </div>
-        <div style="width: 6px; height: 60px; background: lightgrey; opacity: 0.5"></div>
-
-        <div class="status">
-          <span>STATUS : </span>
-          <span
-            :class="{
-              'status-normal': !datalist.No2CubeFull,
-              'status-warning': datalist.No2CubeFull
-            }"
-          >
-            {{ !datalist.No2CubeFull ? '부품 정상' : '부품 부족' }}
-          </span>
-        </div>
-        <div style="width: 6px; height: 60px; background: lightgrey; opacity: 0.5"></div>
-
-        <button @click="openModal('Unit No.2', '10', datalist.No2PowerState)">
-          {{ datalist.No2PowerState ? 'Turn Off' : 'Turn On' }}
-        </button>
-      </div>
-      <div class="circle-container" v-if="datalist.StartState">
-        <div :class="['circle', { 'animate-circle': datalist.StartState }]"></div>
-        <div :class="['circle', { 'animate-circle': datalist.StartState }]"></div>
-        <img v-if="!datalist.No3PowerState" src="/img/redCross.png" class="redCross" />
-        <div :class="['circle', { 'animate-circle': datalist.StartState }]"></div>
-        <div :class="['circle', { 'animate-circle': datalist.StartState }]"></div>
-        <div :class="['circle', { 'animate-circle': datalist.StartState }]"></div>
-      </div>
-      <div class="circle-container" v-else>
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <img v-if="!datalist.No3PowerState" src="/img/redCross.png" class="redCross" />
-        <div class="circle"></div>
-        <div class="circle"></div>
-        <div class="circle"></div>
-      </div>
-
-      <div :class="['process', 'no3', { inactive: !datalist.No3PowerState }]">
-        <div class="topic">
-          <div class="name">Unit No.3</div>
-        </div>
-        <div class="standby">
-          <span class="standby run" v-if="datalist.No3Motor1Action || datalist.No3Motor2Action"
-            >RUNNING</span
-          >
-          <span class="standby ready" v-else>READY</span>
-        </div>
-        <div style="width: 6px; height: 60px; background: lightgrey; opacity: 0.5"></div>
-
-        <div class="data">
-          <span>STACK : {{ datalist.No3Count }}</span>
-          <div class="chip-container">
-            <div
-              v-for="n in 5"
-              :key="n"
-              :class="['chip', { 'chip-active': n <= datalist.No3Count }]"
-            ></div>
-          </div>
-        </div>
-        <div style="width: 6px; height: 60px; background: lightgrey; opacity: 0.5"></div>
-
-        <div class="status">
-          <span>STATUS : </span>
-          <span
-            :class="{
-              'status-normal': datalist.No3Count < 5,
-              'status-warning': datalist.No3Count >= 5
-            }"
-          >
-            {{ datalist.No3Count < 5 ? '적재 가능' : '적재량 최대' }}
-          </span>
-        </div>
-        <div style="width: 6px; height: 60px; background: lightgrey; opacity: 0.5"></div>
-
-        <button @click="openModal('Unit No.3', '11', datalist.No3PowerState)">
-          {{ datalist.No3PowerState ? 'Turn Off' : 'Turn On' }}
-        </button>
       </div>
     </div>
-    <div class="line"></div>
-    <div class="top">
-      <div style="height:27px;"></div>
-      <div class="top-contents top-left">
-        <div class="lamp-status">
-          <div class="lamp green" :class="{ active: datalist.GreenLampState }"></div>
-          <div class="lamp yellow" :class="{ active: datalist.YellowLampState }"></div>
-          <div class="lamp red" :class="{ active: datalist.RedLampState }"></div>
-        </div>
-        <div v-if="datalist.RedLampState">ERROR</div>
-        <div
-          v-else-if="!datalist.No1PowerState || !datalist.No2PowerState || !datalist.No3PowerState"
-        >
-          CHECK UNIT'S POWER
-        </div>
-        <div v-else>CLEAR</div>
-      </div>
-      <div class="top-contents top-mid">
-        <div class="pb">SELECTED :</div>
-        <select id="edukit-select" v-model="selectedEdukit" class="select">
-          <option value="EDUKIT1">EDUKIT1</option>
-          <option value="EDUKIT2" disabled>EDUKIT2</option>
-          <option value="EDUKIT3" disabled>EDUKIT3</option>
-          <option value="EDUKIT4" disabled>EDUKIT4</option>
-          <option value="EDUKIT5" disabled>EDUKIT5</option>
-        </select>
-      </div>
-      <div class="top-contents top-right">
-        <CircleProgress :value1="datalist.No3Count" :value2="datalist.StartState" />
-
-      </div>
-    </div>
-
-    <!-- 모달 -->
-    <div v-if="showModal" class="modal-overlay">
-      <div class="modal-content">
-        <h2>{{ modalTitle }}</h2>
-        <p>{{ modalMessage }}</p>
-        <div class="modal-buttons" v-if="datalist.StartState === false">
-          <button @click="confirmAction">YES</button>
-          <button @click="closeModal">NO</button>
-        </div>
-        <div class="modal-buttons" v-else>
-          <button @click="closeModal">CLOSE</button>
-        </div>
-      </div>
-    </div>
-  </div>
+</div>
 </template>
 
 <script setup>
@@ -412,7 +412,6 @@ onUnmounted(() => {
   justify-content: center;
   align-items: flex-end;
   /* background-color: #212529; */
-  background: linear-gradient(180deg, #33475e, #212529); /* 네이비색 그라데이션 */
   padding: 20px;
   color: #f8f9fa;
 }

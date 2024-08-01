@@ -29,7 +29,7 @@
     >
       <div class="w-full max-w-md">
         <div class="flex flex-col text-center mb-8 items-center">
-          <img :src="teamLogoImage" alt="teamLogoImage" class="mb-4 w-auto h-auto" />
+          <img :src="teamLogoImage" alt="teamLogoImage" class="mb-4 w-60 h-50 h-auto rounded-xl" />
           <p class="text-white">계정에 로그인하세요</p>
         </div>
 
@@ -109,7 +109,7 @@ import builderImage from '@/assets/builder.png'
 import DigitalTwinImage from '@/assets/digitalTwin.png'
 import dashboardImage from '@/assets/dashboard.png'
 import blackBoxImage from '@/assets/blackBox.png'
-import teamLogoImage from '@/assets/teamLogo.png'
+import teamLogoImage from '@/assets/newLogo.png'
 
 export default {
   components: {

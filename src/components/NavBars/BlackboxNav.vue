@@ -52,7 +52,7 @@ const links = [
   { path: '/login', name: 'login' }
 ]
 
-const currentPage = ref(null)
+const currentPage = ref(0)
 const showModal = ref(false)
 
 const changeContents = (contents) => {
