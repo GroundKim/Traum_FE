@@ -58,6 +58,7 @@
           </div>
         </div>
         <div class="flex justify-end p-6 border-t border-gray-200">
+          <p>{{ resultMessage }}</p>
           <button
             @click="saveChanges"
             class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
@@ -97,6 +98,7 @@ export default {
     const userEmail = computed(() => userStore.userStatus.userEmail)
     const userName = computed(() => userStore.userStatus.userName)
     const phoneNumber = computed(() => userStore.userStatus.userPhoneNumber)
+    const resultMessage = ref('')
 
     const toggleModal = () => {
       emitter.emit('toggleMayPage', false)
@@ -106,14 +108,20 @@ export default {
       try {
         const condition1 = await userStore.verifyCurrentPassword(currentPassword.value)
         const condition2 = newPassword.value !== currentPassword.value
+        const condition3 = newPassword.value < 6 || newPassword.value > 20
 
-        if (condition1 && condition2) {
+        if (condition1 && condition2 && condition3) {
           await userStore.changePassword(newPassword.value)
           // 성공 메시지 표시
           console.log('Password changed successfully')
+        } else if (!condition1) {
+          resultMessage.value == '현재 비밀번호를 다시 입력해주세요'
+        } else if (!condition2) {
+          resultMessage.value == '현재 비밀번화 변경할 비밀번호가 같습니다.'
+        } else if (!condition3) {
+          resultMessage.value == '비밀번호를 6자 이상 20자리 사이로 입력해주세요.'
         } else {
-          // 오류 메시지 표시
-          console.error('Password change conditions not met')
+          resultMessage.value == '비밀번호를 변경하지 못했습니다. 다시 확인해주세요.'
         }
       } catch (error) {
         console.error('Error in saveChanges:', error)
@@ -132,7 +140,8 @@ export default {
       newPassword,
       phoneNumber,
       userEmail,
-      userName
+      userName,
+      resultMessage
     }
   }
 }

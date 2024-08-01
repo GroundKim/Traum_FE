@@ -54,7 +54,7 @@
           <button
             v-if="currentCategory.name == 'eduKit'"
             @click="sendStartCommand(item)"
-            class="bg-green-500 text-white text-sm px-1 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
+            class="bg-green-800 text-white text-sm px-1 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
             :class="{
               'opacity-50 cursor-not-allowed': item.meshName == 'eduKit' && item.meshId < 100005
             }"
@@ -64,7 +64,7 @@
           <button
             v-if="currentCategory.name == 'eduKit'"
             @click="sendStopCommand(item)"
-            class="bg-red-500 text-white text-sm px-1 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
+            class="bg-red-800 text-white text-sm px-1 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
             :class="{
               'opacity-50 cursor-not-allowed': item.meshName == 'eduKit' && item.meshId < 100005
             }"
@@ -74,7 +74,7 @@
           <button
             v-if="currentCategory.name == 'eduKit'"
             @click="sendResetCommand()"
-            class="bg-blue-500 text-white text-sm px-1 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
+            class="bg-blue-800 text-white text-sm px-1 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
             :class="{
               'opacity-50 cursor-not-allowed': item.meshName == 'eduKit' && item.meshId < 100005
             }"
@@ -87,7 +87,7 @@
                 ? openPopup(item)
                 : $router.push(`/dashboard/${item.meshId}`)
             "
-            class="bg-blue-500 text-white text-sm px-1 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
+            class="bg-purple-800 text-white text-sm px-1 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
             :class="{
               'opacity-50 cursor-not-allowed': item.meshName == 'eduKit' && item.meshId < 100005
             }"
@@ -97,6 +97,9 @@
           <button
             @click="emitRemoveItem(item)"
             class="bg-black text-white text-sm px-1 py-1 get-started font-bold rounded outline-none focus:outline-none mr-1 mb-1 bg-color1 active:bg-color1"
+            :class="{
+              'opacity-50 cursor-not-allowed': item.meshName == 'eduKit' && item.meshId < 100005
+            }"
           >
             삭제
           </button>

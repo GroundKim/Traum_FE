@@ -82,14 +82,10 @@ export const useUserStore = defineStore('user', () => {
     if (user) {
       try {
         // 비밀번호 유효성 검사
-        if (typeof newPassword !== 'string' || newPassword.length < 6) {
-          throw new Error(
-            'Invalid password format. Password must be a string with at least 6 characters.'
-          )
-        }
 
         await updatePassword(user, newPassword)
         console.log('Password changed successfully')
+
         return true
       } catch (error) {
         console.error('Error changing password:', error)
