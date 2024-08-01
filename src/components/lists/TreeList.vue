@@ -1,6 +1,6 @@
 <template>
   <div class="tree-list flex flex-col h-full">
-    <div class="flex items-center justify-between p-4 flex-shrink-0">
+    <div class="flex items-center justify-between p-2 flex-shrink-0">
       <button @click="prevCategory" class="category-button" :disabled="currentIndex === 0">
         <font-awesome-icon icon="chevron-left" />
       </button>
