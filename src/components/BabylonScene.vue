@@ -345,11 +345,11 @@ export default {
         },
         {
           meshId: 1,
-          name: 'sensor1',
+          name: 'Temper1',
           type: '3d',
           meshName: 'sensor',
           mqttTopic: 'edge/sensor/temperature-1',
-          threshold: '-1',
+          threshold: '10',
           location: '3.5,0.8,-1.25',
           color: null
         }

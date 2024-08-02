@@ -114,7 +114,7 @@ import { ref, computed, onMounted } from 'vue'
 import emitter from '@/components/eventBus.js'
 import treeModal from '@/components/modals/treeModal.vue'
 import io from 'socket.io-client'
-import axios from 'axios'
+// import axios from 'axios'
 
 export default {
   name: 'TreeComponent',
@@ -182,7 +182,98 @@ export default {
       },
       {
         name: 'sensor',
-        items: []
+        items: [
+          {
+            meshId: 1,
+            name: 'Temper1',
+            type: '3d',
+            meshName: 'sensor',
+            mqttTopic: 'edge/sensor/temperature-1',
+            threshold: '10',
+            location: '0,0,0',
+            color: null
+          },
+          {
+            meshId: 2,
+            name: 'Temper2',
+            type: '3d',
+            meshName: 'sensor',
+            mqttTopic: 'edge/sensor/temperature-1',
+            threshold: '10',
+            location: '0,0,0',
+            color: null
+          },
+          {
+            meshId: 3,
+            name: 'Temper3',
+            type: '3d',
+            meshName: 'sensor',
+            mqttTopic: 'edge/sensor/temperature-1',
+            threshold: '10',
+            location: '0,0,0',
+            color: null
+          },
+          {
+            meshId: 4,
+            name: 'Humidity1',
+            type: '3d',
+            meshName: 'sensor',
+            mqttTopic: 'edge/sensor/CO2Concentration-1',
+            threshold: '10',
+            location: '0,0,0',
+            color: null
+          },
+          {
+            meshId: 5,
+            name: 'Humidity2',
+            type: '3d',
+            meshName: 'sensor',
+            mqttTopic: 'edge/sensor/CO2Concentration-1',
+            threshold: '10',
+            location: '0,0,0',
+            color: null
+          },
+          {
+            meshId: 6,
+            name: 'Humidity3',
+            type: '3d',
+            meshName: 'sensor',
+            mqttTopic: 'edge/sensor/CO2Concentration-1',
+            threshold: '10',
+            location: '0,0,0',
+            color: null
+          },
+          {
+            meshId: 7,
+            name: 'Sound1',
+            type: '3d',
+            meshName: 'sensor',
+            mqttTopic: 'edge/sensor/soundLevel-1',
+            threshold: '10',
+            location: '0,0,0',
+            color: null
+          },
+          {
+            meshId: 8,
+            name: 'Sound2',
+            type: '3d',
+            meshName: 'sensor',
+            mqttTopic: 'edge/sensor/soundLevel-2',
+            threshold: '10',
+            location: '0,0,0',
+            color: null
+          },
+          {
+            meshId: 9,
+            name: 'Sound3',
+            type: '3d',
+            meshName: 'sensor',
+            mqttTopic: 'edge/sensor/soundLevel-3',
+            threshold: '10',
+            location: '0,0,0',
+            color: null
+          }
+        ]
       }
     ])
 
@@ -239,20 +330,20 @@ export default {
       window.open(popupUrl, item.name, `width=${width},height=${height},left=${left},top=${top}`)
     }
 
-    const fetchSensorList = async () => {
-      try {
-        const response = await axios.get('http://traum.groundkim.com:3001/sensor/object/list')
+    // const fetchSensorList = async () => {
+    //   try {
+    //     const response = await axios.get('http://traum.groundkim.com:3001/sensor/object/list')
 
-        // 응답 데이터를 id 기준으로 오름차순 정렬
-        const sortedData = response.data.sort((a, b) => a.id - b.id)
+    //     // 응답 데이터를 id 기준으로 오름차순 정렬
+    //     const sortedData = response.data.sort((a, b) => a.id - b.id)
 
-        sortedData.forEach((el) => {
-          addItem(1, el.id, 'sensor', el.mqttTopic, el.threshold, '3d', el.location)
-        })
-      } catch (error) {
-        console.error('Failed to fetch sensor list', error)
-      }
-    }
+    //     sortedData.forEach((el) => {
+    //       addItem(1, el.id, 'sensor', el.mqttTopic, el.threshold, '3d', el.location)
+    //     })
+    //   } catch (error) {
+    //     console.error('Failed to fetch sensor list', error)
+    //   }
+    // }
     const socket = ref(null)
     const connectSocket = () => {
       socket.value = io(`ws://${import.meta.env.VITE_SOCKET_IO_URL}`, {
@@ -298,7 +389,7 @@ export default {
       sendSocketMessage({ tagId: '8', value: '1' })
     }
     onMounted(() => {
-      fetchSensorList()
+      // fetchSensorList()
       connectSocket()
     })
 
